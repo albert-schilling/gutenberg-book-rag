@@ -169,3 +169,10 @@ coverage of the evaluation command, running the evaluation and the live tests on
   prompt even when the evidence is at rank 1. I had expected the loop to help; it did not on this set (17 answerable questions: one is 0.06).
 - Not run: the same evaluation on Groq (no tokens), a plain pipeline with the agent's prompt, other Mistral models. TODO added.
 - Not committed.
+## Interlude: how to improve the system (analysis)
+- Tested on the penguin book, retrieval only, with the same 17 questions (e5 plain: recall 0.71, MRR 0.56): section title before each
+  chunk (0.74 / 0.50), `mistral-embed` (0.59), doc2query with 4 generated questions per chunk (0.47 to 0.71, about 230 Mistral calls),
+  HyDE as a fallback (upper bound 0.74), sentence-level matching (0.65 to 0.71), plus the earlier UMAP/HDBSCAN, hybrid, reranker and
+  chunk-size runs. Nothing moved the five misses. Not implemented, only documented.
+- Conclusion: the biggest measured lever is the refusal prompt (0.47 to 0.71), then the evaluation itself (a larger set, a calibrated
+  judge). Not committed.

@@ -103,6 +103,13 @@ Groq with the older prompt (correctness 0.76) are not comparable. One question i
   for the others, against 0.71 for plain search. The book is topically uniform (HDBSCAN found 16 clusters with 29% noise, or 2
   clusters), and the misses are vocabulary mismatches, which clusters do not bridge. t-SNE is only for plots: it has no way to place a
   new question.
+- **More retrieval ideas, all on the penguin book with the same 17 questions** (plain e5 search: recall 0.71, MRR 0.56). None moved
+  the five questions that miss (`nest-theft`, `fasting`, `food`, `rookery-size`, `enemies`):
+  the section title before every chunk, as a table of contents would give it (0.74 / 0.50: all 40 chunks of a part share the title);
+  `mistral-embed` (0.59, and 0.41 with the titles); indexing 4 LLM-written questions per chunk, "doc2query" (0.47 to 0.71);
+  HyDE, a hypothetical answer passage, as a second search only where the first failed (0.74 at best, and only if the agent always
+  knew when: it rescued 1 of 5, and the text invents facts); matching single sentences but returning the whole chunk (0.65 to 0.71).
+  The missing facts sit in paragraphs about something else (the rookery size is in a paragraph about mating).
 - **More passages.** Raising `k` to 5 or 6 did not help `e5-small-v2` (it did help MiniLM, from 0.35 to 0.59 at `k=8`, but sends 2 times more text to the model).
 
 ## Known limits

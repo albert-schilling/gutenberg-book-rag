@@ -29,6 +29,16 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Retrieval and answers
 
+- [ ] **Stop tuning retrieval on these 17 questions.** Nine different ideas left the same five misses (see `docs/changes.md`), and `food`
+  was answered correctly with recall 0: the evidence-phrase recall under-counts. A larger golden set first (above).
+- [ ] **Judge calibration.** Many 0.5 scores say "adds details not in the reference" (`skua-chicks`, `emperor-egg`): the rubric says extra
+  detail is fine, but the judge penalises it. Re-read the verdicts, complete the reference answers (`crozier-winter` lists three people),
+  and the correctness numbers will move without any change to the system.
+- [ ] Table of contents: it does not help retrieval (see above), but it is cheap and useful for structure questions ("which part is
+  about skuas?", "which story has the speckled band?") and for navigation. Parse the headings per book (like `start` and `end` in
+  `books.py`), add the list to the book summary in the prompt (about 100 to 250 tokens), and offer a chapter jump in the reader.
+- [ ] HyDE as an option of the agent (a `hypothetical_passage` field in the agent's answer; about 30 lines): only after the evaluation set
+  is larger, because the best case measured is half a question.
 - [ ] **Over-refusal with Mistral small.** The plain prompt makes it refuse when the evidence is at rank 1 (6 of 17 answerable
   questions). Test a softer refusal rule for the plain pipeline (the agent's prompt without the loop) and larger models
   (`mistral-medium-latest`), then re-run `book-rag-eval`. If it works, the agent's loop may not be worth its tokens.
