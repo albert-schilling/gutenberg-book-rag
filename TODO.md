@@ -58,12 +58,11 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
   book, so they need a rule per book.
 - [ ] Review the cleaning of each book by eye. Only the first and last line are checked; poems, tables and footnotes (the climate book has many
   tables) are joined like prose and may produce odd passages.
-- [ ] Bring the notebook up to date (cleaning, hash ids, e5 embeddings with prefixes, scores), or add a note at the top that it shows the
-  original approach. `docs/changes.md` lists the differences.
 - [ ] Add a project dictionary for the spell checker, which flags words like `dotenv` and `Groq`.
 
 ## Done
 
+- [x] The notebook (now in `assignment/`) has a note at the top that it shows the original approach.
 - [x] CI (`.github/workflows/ci.yml`): ruff and the unit tests on every push. Not yet tried on GitHub.
 - [x] `book-rag-stores build` pre-builds the vector stores; `book-rag-stores clean` removes stale collections (`chroma_db/` of this checkout has one: `penguins-b237154c`, not removed).
 - [x] Larger golden set: 72 questions with a `dev` and a `test` split, whole-book and unanswerable questions, a "By split" table in reports.
