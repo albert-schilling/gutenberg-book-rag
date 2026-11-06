@@ -1,0 +1,18 @@
+flowchart TB
+    subgraph index["Part 1. Prepare the book once"]
+        S1["1. Get your book"] --> S2["2. Clean the text"] --> S3["3. Split into chunks"] --> S4["4. Embed the chunks"]
+    end
+    S4 --> DB[("Chroma vector store")]
+    DB --> S5
+    subgraph answer["Part 2. Answer each question&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+        Q["Question"] --> S5["5. Retrieve the passages"] --> S6["6. Generate the answer"] --> A["Answer and passages"]
+    end
+
+    classDef general fill:#f3f3f3,stroke:#555555,color:#111111
+    classDef train fill:#d0e0e3,stroke:#555555,color:#111111
+    classDef valid fill:#c9daf8,stroke:#555555,color:#111111
+    class S1,S2,Q,A general
+    class S3,S4,DB train
+    class S5,S6 valid
+    style index fill:#ffffff,stroke:#555555,stroke-dasharray:5 5,color:#333333
+    style answer fill:#ffffff,stroke:#555555,stroke-dasharray:5 5,color:#333333

@@ -1,0 +1,18 @@
+# Environments
+.venv/
+.uv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Chroma vector store, rebuilt from the books
+chroma_db/
+
+# Editors and macOS
+.vscode/
+.DS_Store
