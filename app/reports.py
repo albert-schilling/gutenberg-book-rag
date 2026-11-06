@@ -2,7 +2,7 @@
 
 Run it from the project root with:
 
-    uv run streamlit run streamlit_reports.py
+    uv run streamlit run app/reports.py
 """
 
 import pandas as pd

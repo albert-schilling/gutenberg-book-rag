@@ -11,7 +11,7 @@ uv run pytest -m "not integration"      # without the real embedding model
 ```
 
 ```bash
-uv run streamlit run streamlit_reports.py   # dashboard: compare two reports, history, per-question details
+uv run streamlit run app/reports.py   # dashboard: compare two reports, history, per-question details
 ```
 
 Every run writes `reports/<timestamp>-<mode>.json` (compare runs) and `.md` (read). A report

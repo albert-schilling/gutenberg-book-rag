@@ -1,8 +1,8 @@
 """The start screen: the books of the library. A click opens the chat of that book."""
 
 import streamlit as st
+from views import styles
 
-from app_pages import styles
 from book_rag.books import BOOKS
 
 COLUMNS = 3

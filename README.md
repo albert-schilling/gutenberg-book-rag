@@ -45,8 +45,8 @@ The prompt, not the retrieval, was the largest gain; the agent costs calls and a
 ```bash
 uv sync
 cp .env.example .env              # add MISTRAL_API_KEY (or set BOOK_RAG_LLM=groq and GROQ_API_KEY)
-uv run streamlit run streamlit_app.py      # the chat
-uv run streamlit run streamlit_reports.py  # the evaluation dashboard
+uv run streamlit run app/streamlit_app.py      # the chat
+uv run streamlit run app/reports.py  # the evaluation dashboard
 uv run book-rag                            # the same in the terminal
 uv run book-rag-eval                       # evaluate (add --retrieval-only to skip the language model)
 ```
@@ -72,11 +72,12 @@ On a phone the sidebar folds away and the book opens full screen under the heade
 ## Layout
 
 ```
-streamlit_app.py       entry point: navigation, sidebar
-app_pages/             home (the books), chat, settings, changes pages, and their CSS
-streamlit_reports.py   dashboard of the evaluation reports
-src/book_rag/          the package: books, store, rag, agent, memory, conversation, llm, reader, selection, cli
+src/book_rag/          the installable package (no Streamlit): books, store, rag, agent, memory, conversation, llm, reader, cli
 src/book_rag/evaluation/   metrics, judge, dataset, compare, run (book-rag-eval)
+app/                   the Streamlit apps, thin on top of the package
+  streamlit_app.py       entry point: navigation, sidebar
+  views/                 home, chat, settings, changes pages, and their CSS
+  reports.py             dashboard of the evaluation reports
 evals/                 golden questions (dataset.json), reports, method
 data/                  the eight books and their summaries
 tests/                 unit, app, browser (Playwright) and live tests
@@ -84,6 +85,9 @@ docs/                  changes from the assignment, the agent log, images
 assignment/            the original notebook and README this project started from
 scripts/               screenshots
 ```
+
+`src/book_rag` is in a `src/` folder so that tests and apps import the installed package, never a stray copy from the working
+directory. The apps are scripts that Streamlit runs, not importable code, so they live in `app/`; logic that needs a test belongs in the package.
 
 ## Development
 

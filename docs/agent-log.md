@@ -257,3 +257,10 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Bug found while taking the full-screen screenshot: the `--st-*` theme variables only exist inside components, so `chat.css` fell back silently
   (the panel was transparent). The page CSS now has its own palette (`app_pages/base.css`, same colours as `.streamlit/config.toml`).
 - Browser test `test_a_long_chat_keeps_the_page_small` failed once in a full run (a 30 s wait) and passed alone and in the next two full runs: flaky under load.
+
+### Batch 5, task 2 (done first: the other tasks touch these files): folder structure
+- Why `src/book_rag` and not the rest: the `src/` layout is for the installable package, so that tests and apps import the installed code, not a
+  copy from the working directory. Streamlit scripts are not importable code, so they were loose at the top level, which was untidy.
+- Now: `app/streamlit_app.py` (entry), `app/views/` (pages and CSS), `app/reports.py`; run with `make app` or `uv run streamlit run app/streamlit_app.py`.
+  `.streamlit/config.toml` stays at the root (Streamlit reads it from the folder it is started in). `app_pages` renamed `views` to avoid
+  Streamlit's own `pages/` folder convention. The README explains this. All tests (428 + 30 browser) pass.

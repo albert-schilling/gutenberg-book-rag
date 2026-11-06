@@ -1,4 +1,4 @@
-"""UI tests for streamlit_reports.py with two small reports in a temporary folder."""
+"""UI tests for app/reports.py with two small reports in a temporary folder."""
 
 import json
 from pathlib import Path
@@ -9,7 +9,7 @@ from streamlit.testing.v1 import AppTest
 
 from book_rag.evaluation import report as reporting
 
-APP = Path(__file__).resolve().parents[1] / "streamlit_reports.py"
+APP = Path(__file__).resolve().parents[1] / "app" / "reports.py"
 
 
 def write(directory, name, report):

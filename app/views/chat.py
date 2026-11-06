@@ -5,8 +5,8 @@ the book on the right, opened at the passage and highlighted.
 """
 
 import streamlit as st
+from views import styles
 
-from app_pages import styles
 from book_rag import memory
 from book_rag.books import get_book
 from book_rag.config import AGENTIC_DEFAULT
@@ -17,7 +17,7 @@ from book_rag.scroll_component import scroll_to_newest
 from book_rag.selection import question_about
 
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
-PANE_HEIGHT = 540  # pixels, only a start: app_pages/chat.css sets the real height from the window
+PANE_HEIGHT = 540  # pixels, only a start: views/chat.css sets the real height from the window
 READER_WIDTH, READER_PADDING = "38vw", "calc(38vw + 2rem)"  # the book panel, and the room the chat leaves for it
 FULL_WIDTH = "calc(100vw - 3rem)"  # full screen: a strip of the page stays visible
 
@@ -120,7 +120,7 @@ with st.container(key="chat-scroller"):  # hidden by chat.css
     scroll_to_newest(f"{book.id}:{len(history)}")
 
 if reader:
-    # The book is a panel fixed to the right edge of the window (app_pages/chat.css); it can fill the window.
+    # The book is a panel fixed to the right edge of the window (views/chat.css); it can fill the window.
     full = st.session_state.get("reader_full", False)
     width, padding = (FULL_WIDTH, "0px") if full else (READER_WIDTH, READER_PADDING)
     st.html(f"<style>:root {{ --reader-width: {width}; --reader-padding: {padding}; }}</style>")

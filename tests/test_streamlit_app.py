@@ -1,4 +1,4 @@
-"""UI tests for streamlit_app.py. The vector stores and the language model are replaced by fakes."""
+"""UI tests for app/streamlit_app.py. The vector stores and the language model are replaced by fakes."""
 
 from pathlib import Path
 
@@ -14,7 +14,7 @@ from book_rag.agent import AgentResult
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.reader import passage_page
 
-APP = Path(__file__).resolve().parents[1] / "streamlit_app.py"
+APP = Path(__file__).resolve().parents[1] / "app" / "streamlit_app.py"
 FRANKENSTEIN = BOOKS["frankenstein_shelley"]
 
 
@@ -67,7 +67,7 @@ def app(monkeypatch):
 
     at = AppTest.from_file(str(APP), default_timeout=30).run()
     assert at.title[0].value == "Reading companion"  # the start screen: the books
-    at.switch_page("app_pages/chat.py").run()
+    at.switch_page("views/chat.py").run()
     at.questions, at.built, at.conversations, at.summaries, at.paths = questions, built, conversations, summaries, paths
     return at
 
@@ -185,18 +185,18 @@ def test_the_rag_system_of_a_book_is_loaded_only_once(app):
 def test_the_sidebar_links_to_the_other_pages_with_the_settings_above_the_changes(app):
     assert sidebar_links(app) == ["All books", "Settings", "Changes from the assignment"]
 
-    app.switch_page("app_pages/changes.py").run()
+    app.switch_page("views/changes.py").run()
     assert not app.exception
     assert sidebar_links(app) == ["All books", "Back to the chat", "Settings"]
     assert app.sidebar.selectbox[0].label == "Book"  # the book stays selectable on every page
 
-    app.switch_page("app_pages/settings.py").run()
+    app.switch_page("views/settings.py").run()
     assert not app.exception
     assert sidebar_links(app) == ["All books", "Back to the chat", "Changes from the assignment"]
 
 
 def test_the_changes_page_documents_the_differences_from_the_assignment(app):
-    app.switch_page("app_pages/changes.py").run()
+    app.switch_page("views/changes.py").run()
 
     assert not app.exception
     text = " ".join(m.value for m in app.markdown)
@@ -207,14 +207,14 @@ def test_the_changes_page_documents_the_differences_from_the_assignment(app):
 
 def test_the_app_has_a_chat_page_and_a_changes_page(app):
     assert app.title[0].value == BOOKS[DEFAULT_BOOK.id].title
-    app.switch_page("app_pages/changes.py").run()
+    app.switch_page("views/changes.py").run()
     assert app.title[0].value == "Changes from the assignment"
 
 
 def test_the_selected_book_survives_a_visit_to_the_changes_page(app):
     choose_book(app, FRANKENSTEIN)
-    app.switch_page("app_pages/changes.py").run()
-    app.switch_page("app_pages/chat.py").run()
+    app.switch_page("views/changes.py").run()
+    app.switch_page("views/chat.py").run()
     assert not app.exception
     assert app.sidebar.selectbox[0].value == FRANKENSTEIN.id
 
@@ -334,15 +334,15 @@ def test_every_book_counts_its_own_visible_exchanges(app):
 
 def set_agent(app, on):
     """Switch the agent on the Settings page and go back to the chat."""
-    app.switch_page("app_pages/settings.py").run()
+    app.switch_page("views/settings.py").run()
     assert not app.exception
     next(t for t in app.toggle if t.label == "Search again when needed").set_value(on).run()
-    app.switch_page("app_pages/chat.py").run()
+    app.switch_page("views/chat.py").run()
     assert not app.exception
 
 
 def test_the_settings_page_shows_the_agent_switch_off_and_the_model(app):
-    app.switch_page("app_pages/settings.py").run()
+    app.switch_page("views/settings.py").run()
     assert not app.exception
     switch = next(t for t in app.toggle if t.label == "Search again when needed")
     assert switch.value is False  # off by default
@@ -364,10 +364,10 @@ def test_the_model_does_not_search_again_by_default_and_the_settings_page_can_sw
 
 def test_the_agent_choice_survives_a_visit_to_other_pages_and_another_book(app):
     set_agent(app, True)
-    app.switch_page("app_pages/changes.py").run()
-    app.switch_page("app_pages/settings.py").run()
+    app.switch_page("views/changes.py").run()
+    app.switch_page("views/settings.py").run()
     assert next(t for t in app.toggle if t.label == "Search again when needed").value is True  # the page remembers it
-    app.switch_page("app_pages/chat.py").run()
+    app.switch_page("views/chat.py").run()
     choose_book(app, FRANKENSTEIN)
     app.chat_input[0].set_value("Q").run()
     assert app.paths == ["agent"]
@@ -402,7 +402,7 @@ def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
 
 
 def test_the_start_screen_shows_every_book_and_a_click_opens_its_chat(app):
-    app.switch_page("app_pages/home.py").run()
+    app.switch_page("views/home.py").run()
     assert not app.exception
     text = " ".join(m.value for m in app.markdown)
     assert all(book.title in text for book in BOOKS.values())

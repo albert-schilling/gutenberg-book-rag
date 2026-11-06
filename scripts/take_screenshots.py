@@ -89,14 +89,14 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
-        app = start("streamlit_app.py", 8811)
+        app = start("app/streamlit_app.py", 8811)
         try:
             start_screen(browser.new_page(), 8811)
             desktop(browser.new_page(), 8811)
             mobile(browser.new_page(), 8811)
         finally:
             app.terminate()
-        dashboard = start("streamlit_reports.py", 8812)
+        dashboard = start("app/reports.py", 8812)
         try:
             reports(browser.new_page(), 8812)
         finally:

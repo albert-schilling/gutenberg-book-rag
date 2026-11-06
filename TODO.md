@@ -41,15 +41,15 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
   from 14 excerpts only (about 4,000 tokens, one call per book); fixing it changes the prompt of the whole-book questions, so measure them again afterwards. A map-reduce over the whole book would be better but needs about 25 calls
   per large book.
 - [ ] Review follow-ups: the session state of the web app is a set of string keys spread over four files (`book_id`, `histories`, `memories`,
-  `visible_exchanges`, `reader`, `selected_text`, `agentic_on`); one small typed helper would make it safe to change. `streamlit_reports.py`
-  and `app_pages/chat.py` are long top-level scripts: move the table-building and rendering helpers into the package where they can be tested.
+  `visible_exchanges`, `reader`, `selected_text`, `agentic_on`); one small typed helper would make it safe to change. `app/reports.py`
+  and `app/views/chat.py` are long top-level scripts: move the table-building and rendering helpers into the package where they can be tested.
 - [ ] Type checking: `ty` still reports about 10 findings, mostly Streamlit and colorama typing (the real ones are fixed). Add `ty` or `mypy` to CI.
 - [ ] Coverage of `book-rag-eval`'s `main` (the command line and the printing): `rejudge`, `with_retries` and the cases are tested, `main` is not.
 - [ ] Run the browser tests (`pytest -m browser`, about 2 min) in CI, and in Firefox and WebKit. Today only Chromium; CI runs lint and the unit tests.
 - [ ] Long chats: older answers still draw all four passage expanders. Draw a passage only when its expander is open
   (`st.expander(on_change="rerun")`), or draw the chat in a `st.fragment` so that closing the book does not redraw it.
 - [ ] Reader panel: a draggable splitter (needs a custom component; today the panel is 38% of the width or full screen). The panel is a CSS
-  fixed-position block (`app_pages/chat.css`) because Streamlit has no right sidebar.
+  fixed-position block (`app/views/chat.css`) because Streamlit has no right sidebar.
 - [ ] Selection tooltip: it reacts to the mouse and to Shift + arrow keys. Touch screens (selecting by long press) and keyboard-only use
   (the tooltip cannot be reached with Tab) are not handled.
 - [ ] Reader: a search in the book, a jump to a chapter, and remembering the reading position per book. The highlight covers the whole chunk,

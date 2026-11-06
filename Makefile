@@ -1,10 +1,10 @@
 .PHONY: app reports eval test lint screenshots
 
 app:  ## the chat app
-	uv run streamlit run streamlit_app.py
+	uv run streamlit run app/streamlit_app.py
 
 reports:  ## the dashboard of the evaluation reports
-	uv run streamlit run streamlit_reports.py
+	uv run streamlit run app/reports.py
 
 eval:  ## evaluate the default book (calls the language model)
 	uv run book-rag-eval

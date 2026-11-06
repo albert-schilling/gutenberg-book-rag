@@ -91,13 +91,14 @@ and the question uses other words than the book ("feed on" against "feeding on t
 | Rate limits and errors | a traceback | a message in the chat; the evaluation waits out a rate limit |
 | Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click "Ask about this" |
 | Long chats | the whole history is drawn | the latest 10 exchanges; "Show earlier questions" adds 10 (Streamlit draws every element it is given: 8,300 elements after 60 questions without the cap, about 1,600 with it) |
-| Design | Streamlit defaults | a library look: paper background, ink text, one oxblood accent, serif headings and book text (`.streamlit/config.toml`, `app_pages/chat.css`) |
+| Design | Streamlit defaults | a library look: paper background, ink text, one oxblood accent, serif headings and book text (`.streamlit/config.toml`, `views/chat.css`) |
 | Start screen | a fixed book per group | the first page lists the eight books; a click opens the chat of that book |
 | Page layout | one scrolling page | the chat page never scrolls as a whole: the book's title stays at the top, the chat and the book scroll inside their own areas |
 | Settings page | none | the agent switch and the language model in use |
 | Command line | loop until `quit` | `quit` or `exit`, `--book`, `--agent`; shares one `Companion` object with the web app |
 | Offline mode | needs a key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply: no key, no cost, no rate limit |
 | Tests | none | unit, app, browser (Playwright: scrolling, highlight, tooltip, pages, settings) and live tests (`BOOK_RAG_LIVE=1 uv run pytest -m live`) |
+| Folder structure | notebook and script at the top level | the package is `src/book_rag` (installed, no Streamlit); the apps are in `app/` (`streamlit_app.py`, `views/`, `reports.py`); the assignment is in `assignment/` |
 | Code quality | none | ruff in `pyproject.toml`, `src/book_rag` package, a Makefile, a README with screenshots; the notebook and the assignment text moved to `assignment/` |
 
 ## Known limits
