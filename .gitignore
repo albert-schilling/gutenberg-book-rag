@@ -10,6 +10,24 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
+# Tests, type checkers and linters
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Streamlit secrets (the app reads the key from .env)
+.streamlit/secrets.toml
+
+# Claude Code: personal settings
+.claude/settings.local.json
+
 # Chroma vector store, rebuilt from the books
 chroma_db/
 

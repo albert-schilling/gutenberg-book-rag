@@ -23,6 +23,6 @@ def load_book() -> Document:
 
     body = re.sub(r"(?<!\n)[ \t]*\n[ \t]*(?!\n)", " ", body)  # join wrapped lines
     body = re.sub(r"[ \t]+", " ", body)
-    body = re.sub(r"\n\s*\n+", "\n\n", body).strip()
+    body = re.sub(r"\s*\n\s*\n\s*", "\n\n", body).strip()  # one blank line between paragraphs, no indentation
 
     return Document(page_content=body, metadata={"title": TITLE, "author": AUTHOR})

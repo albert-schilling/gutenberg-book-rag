@@ -30,10 +30,14 @@ def retrieve(question: str, vector_store: Chroma) -> ScoredPassages:
     return [(passage, score) for passage, score in scored if score >= MIN_SIMILARITY]
 
 
+def format_context(scored_passages: ScoredPassages) -> str:
+    """The text the model sees: the numbered passages."""
+    return "\n\n".join(f"[Passage {i}]\n{p.page_content}" for i, (p, _) in enumerate(scored_passages, 1))
+
+
 def ask(question: str, vector_store: Chroma, chain: Runnable) -> tuple[str, ScoredPassages]:
     """Return the answer and the (passage, similarity) pairs it is based on."""
     scored_passages = retrieve(question, vector_store)
     if not scored_passages:  # nothing in the book is close enough to the question: skip the model
         return NO_ANSWER, []
-    context = "\n\n".join(f"[Passage {i}]\n{p.page_content}" for i, (p, _) in enumerate(scored_passages, 1))
-    return chain.invoke({"context": context, "question": question}), scored_passages
+    return chain.invoke({"context": format_context(scored_passages), "question": question}), scored_passages

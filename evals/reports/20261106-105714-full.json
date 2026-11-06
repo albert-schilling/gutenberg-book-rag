@@ -1,0 +1,1185 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-06T10:57:14+00:00",
+    "mode": "full",
+    "git": {
+      "commit": "8566f1b",
+      "uncommitted_changes": true
+    },
+    "config": {
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "top_k": 4,
+      "min_similarity": 0.0,
+      "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+      "llm_model": "openai/gpt-oss-20b",
+      "judge_model": "openai/gpt-oss-120b",
+      "system_prompt_sha1": "98ea0ac411"
+    },
+    "dataset_sha1": "494af792fd"
+  },
+  "summary": {
+    "questions": 21,
+    "answerable": 17,
+    "unanswerable": 4,
+    "retrieval": {
+      "context_recall": 0.35294117647058826,
+      "hit_rate": 0.35294117647058826,
+      "mrr": 0.29411764705882354,
+      "context_precision": 0.08823529411764706
+    },
+    "generation": {
+      "abstention_accuracy": 0.7619047619047619,
+      "answered_when_answerable": 0.6470588235294118,
+      "empty_answer_rate": 0.047619047619047616,
+      "abstained_when_unanswerable": 1.0,
+      "faithfulness": 0.9772727272727273,
+      "answer_correctness": 0.4411764705882353
+    }
+  },
+  "results": [
+    {
+      "id": "nest-material",
+      "question": "Where do Adelie penguins get the stones for their nests?",
+      "answerable": true,
+      "reference_answer": "The penguins that were building took their stones from old, unoccupied nests.",
+      "evidence": [
+        "Those that built took their stones from old nests"
+      ],
+      "retrieved": [
+        {
+          "start_index": 22921,
+          "similarity": 0.7475,
+          "preview": "On October 18 the weather cleared and a fair number of penguins started to build their nests. The great majority however, apparently resting, still sat about. Those that built took their stones from o"
+        },
+        {
+          "start_index": 56478,
+          "similarity": 0.6924,
+          "preview": "As a rule the penguins were careful to select rounded stones for their nests, but these fragments of quartz were jagged and uncomfortable, and most unsuitable for nest building. Thus it was evidently "
+        },
+        {
+          "start_index": 5539,
+          "similarity": 0.6914,
+          "preview": "The Adelie penguin is excessively curious, taking great pains to inspect any strange object he may see. When we were waiting for the ship to fetch us home, some of us lived in little tents which we pi"
+        },
+        {
+          "start_index": 77367,
+          "similarity": 0.6797,
+          "preview": "This scene, which I photographed, is depicted on Fig. 33. In the right-hand corner of the picture the cock is seen in the act of delivering another stone to the hen who is waiting to receive it, whils"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "context_precision": 0.25
+      },
+      "answer": "They take the stones from old, abandoned nests.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Adelie penguins take the stones for their nests from old, abandoned nests.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer matches the reference, stating stones are taken from old, abandoned (unoccupied) nests."
+      }
+    },
+    {
+      "id": "nest-theft",
+      "question": "What do the penguins steal from each other's nests?",
+      "answerable": true,
+      "reference_answer": "They steal the stones (such as pieces of white quartz) from nest to nest.",
+      "evidence": [
+        "being stolen from nest to nest"
+      ],
+      "retrieved": [
+        {
+          "start_index": 67701,
+          "similarity": 0.7295,
+          "preview": "As penguins' eggs are very good to eat and a great luxury, as well as being beneficial to men living under Antarctic conditions, we collected a large number, which we stowed away to freeze. To collect"
+        },
+        {
+          "start_index": 21037,
+          "similarity": 0.7188,
+          "preview": "During the day I noticed some penguins taking possession of old nests on the ridges. These mostly squatted in the nests without any attempt at repairing them or rearrangement of any sort. Afterwards I"
+        },
+        {
+          "start_index": 78799,
+          "similarity": 0.7133,
+          "preview": "One day, when the season was well advanced, I saw a violent altercation taking place between two penguins, one of which was in possession of a nest in a somewhat isolated position. The other evidently"
+        },
+        {
+          "start_index": 22921,
+          "similarity": 0.6969,
+          "preview": "On October 18 the weather cleared and a fair number of penguins started to build their nests. The great majority however, apparently resting, still sat about. Those that built took their stones from o"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "",
+      "generation": {
+        "empty": true,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system returned an empty answer."
+      }
+    },
+    {
+      "id": "eggs-incubation",
+      "question": "How many eggs does an Adelie penguin lay, and how long are they incubated?",
+      "answerable": true,
+      "reference_answer": "Two eggs, which are incubated for four weeks before the chicks hatch.",
+      "evidence": [
+        "are incubated for four weeks"
+      ],
+      "retrieved": [
+        {
+          "start_index": 58174,
+          "similarity": 0.6934,
+          "preview": "During October 29 the stream of arrivals was undiminished, but the next day it slackened considerably, and during the next two days stopped altogether, all the rising ground of the rookery now being l"
+        },
+        {
+          "start_index": 70272,
+          "similarity": 0.6744,
+          "preview": "The comparative size of the penguin's egg is shown in some of my photographs. Ninety-six eggs averaged 4.56 ounces apiece. They vary in size from about 6.45 cm. to 7.2 cm. in length, and from 5.0 cm. "
+        },
+        {
+          "start_index": 6444,
+          "similarity": 0.6732,
+          "preview": "The Adelies, as will be seen in these pages, are extremely brave, and though panic occasionally overtakes them, I have seen a bird return time after time to attack a seaman who was brutally sending it"
+        },
+        {
+          "start_index": 7803,
+          "similarity": 0.6565,
+          "preview": "When the chicks are hatched and fully fledged, they are taught to swim, and when this is accomplished and they can catch food for themselves, both young and old leave the Southern limits of the sea, a"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": false,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system did not answer."
+      }
+    },
+    {
+      "id": "hen-on-nest",
+      "question": "Do the hens leave the nest while they are incubating the eggs?",
+      "answerable": true,
+      "reference_answer": "No. They never leave the nest under any circumstances until their mates relieve them.",
+      "evidence": [
+        "they never leave the nest under any circumstances until relieved by their mates"
+      ],
+      "retrieved": [
+        {
+          "start_index": 125408,
+          "similarity": 0.7516,
+          "preview": "As I photographed the above incident at intervals, different stages are seen on Figs. 67 to 69.\n\nI have mentioned that eggs got lost owing to cocks fighting among the nests. When hens are incubating t"
+        },
+        {
+          "start_index": 141728,
+          "similarity": 0.6603,
+          "preview": "Arriving at the rookeries somewhat later than the Adelies, they do not lay their eggs until the beginning of December. Practically no nest is made, a mere hollow being worked in the ground, in which t"
+        },
+        {
+          "start_index": 28393,
+          "similarity": 0.6384,
+          "preview": "As I grew to know these birds from continued observation, it was surprising and interesting to note how much they differed in character, though the weaker-minded who would actually allow themselves to"
+        },
+        {
+          "start_index": 109094,
+          "similarity": 0.6154,
+          "preview": "Jan. 2. 10 A.M. Hen on nest. 12 noon. Chick disappeared. 2 P.M. Nest deserted. 4 P.M. Cock on nest. No chick. 8 P.M. Cock on nest. No chick.\n\nJan. 3. Cock on the nest with the chick.\n\nFrom the above T"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "context_precision": 0.25
+      },
+      "answer": "No – the hens never leave the nest while incubating the eggs, only being relieved by their mates.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Hens never leave the nest while incubating the eggs.",
+            "supported": true
+          },
+          {
+            "claim": "Hens are only relieved by their mates.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer matches the reference, stating hens never leave the nest while incubating and are only relieved by mates."
+      }
+    },
+    {
+      "id": "fasting",
+      "question": "Do the penguins eat when they arrive at the rookery?",
+      "answerable": true,
+      "reference_answer": "No. All the birds were fasting absolutely when they arrived.",
+      "evidence": [
+        "All the birds were fasting absolutely"
+      ],
+      "retrieved": [
+        {
+          "start_index": 110417,
+          "similarity": 0.7399,
+          "preview": "What with the exertion of tramping with their burden across the rookery, and perhaps on rare occasions one or two little disputes with other penguins by the way, frequently they were in some distress "
+        },
+        {
+          "start_index": 23502,
+          "similarity": 0.7092,
+          "preview": "As I strolled through the rookery, most of the birds took little or no notice of me. Some, however, swore at me very savagely, and one infuriated penguin rushed at me from a distance of some ten yards"
+        },
+        {
+          "start_index": 90047,
+          "similarity": 0.6586,
+          "preview": "In speaking of these games of the penguins, I wish to lay emphasis on the fact that these hours of relaxation play a large part in their lives during the advanced part of the breeding period. They wou"
+        },
+        {
+          "start_index": 18989,
+          "similarity": 0.6543,
+          "preview": "On October 16 at 11 A.M. there were about twenty penguins arrived. Several came singly, and one little party of three came up together. On arrival they wandered about by themselves, and stood or walke"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "No – when they arrive they often deposit the food on the ground and do not eat it (Passage 1).",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "When penguins arrive at the rookery, they often deposit the food on the ground.",
+            "supported": true
+          },
+          {
+            "claim": "When they arrive at the rookery, they do not eat the deposited food.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer states they do not eat upon arrival, matching the reference's key fact, and adds non-contradictory detail."
+      }
+    },
+    {
+      "id": "food",
+      "question": "What do the penguins feed on in the sea?",
+      "answerable": true,
+      "reference_answer": "The shrimp-like (prawn-like) euphausia that swarm in the Antarctic seas.",
+      "evidence": [
+        "feeding on the shrimp-like euphausia"
+      ],
+      "retrieved": [
+        {
+          "start_index": 7803,
+          "similarity": 0.677,
+          "preview": "When the chicks are hatched and fully fledged, they are taught to swim, and when this is accomplished and they can catch food for themselves, both young and old leave the Southern limits of the sea, a"
+        },
+        {
+          "start_index": 6444,
+          "similarity": 0.6708,
+          "preview": "The Adelies, as will be seen in these pages, are extremely brave, and though panic occasionally overtakes them, I have seen a bird return time after time to attack a seaman who was brutally sending it"
+        },
+        {
+          "start_index": 5539,
+          "similarity": 0.6671,
+          "preview": "The Adelie penguin is excessively curious, taking great pains to inspect any strange object he may see. When we were waiting for the ship to fetch us home, some of us lived in little tents which we pi"
+        },
+        {
+          "start_index": 67701,
+          "similarity": 0.6505,
+          "preview": "As penguins' eggs are very good to eat and a great luxury, as well as being beneficial to men living under Antarctic conditions, we collected a large number, which we stowed away to freeze. To collect"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": false,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system did not answer."
+      }
+    },
+    {
+      "id": "rookery-size",
+      "question": "How many birds were in the Cape Adare rookery at its fullest?",
+      "answerable": true,
+      "reference_answer": "A vast crowd of some three-quarters of a million birds.",
+      "evidence": [
+        "vast crowd of some three-quarters of a million"
+      ],
+      "retrieved": [
+        {
+          "start_index": 82516,
+          "similarity": 0.6805,
+          "preview": "In some places at Cape Adare, large rocks some two or three feet in height stood about the rookery. Whenever the summit of one of these was accessible, a pair built their nest upon it,(4) though how t"
+        },
+        {
+          "start_index": 153417,
+          "similarity": 0.6581,
+          "preview": "The first time the rookery at Cape Crozier was visited, not above one thousand birds occupied it. On the second occasion their numbers were far short of this. By the springtime only one out of ten or "
+        },
+        {
+          "start_index": 133164,
+          "similarity": 0.6398,
+          "preview": "At Cape Adare in 1911, half the rookery had departed when we arrived in the autumn. The rest took to the sea in batches some hundreds strong. These parties wandered about the beach and ice-foot in com"
+        },
+        {
+          "start_index": 9788,
+          "similarity": 0.6228,
+          "preview": "As I am about to describe the manners and customs of Adelie penguins at the Cape Adare rookery, I will give a short description of that spot.\n\nCape Adare is situated in lat. 71 deg. 14' S. long. 170 d"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": false,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system did not answer."
+      }
+    },
+    {
+      "id": "travel",
+      "question": "How do the penguins travel over the ice on their march to the rookery?",
+      "answerable": true,
+      "reference_answer": "They alternate between walking and tobogganing on their breasts.",
+      "evidence": [
+        "a dozen or so tobogganing"
+      ],
+      "retrieved": [
+        {
+          "start_index": 90047,
+          "similarity": 0.7375,
+          "preview": "In speaking of these games of the penguins, I wish to lay emphasis on the fact that these hours of relaxation play a large part in their lives during the advanced part of the breeding period. They wou"
+        },
+        {
+          "start_index": 90847,
+          "similarity": 0.7302,
+          "preview": "call it, would float its many occupants down the whole length of the ice-foot, and if it passed close to the edge, those that rode on the floes would shout at the knots of penguins gathered along the "
+        },
+        {
+          "start_index": 11577,
+          "similarity": 0.7155,
+          "preview": "The shores of this beach are protected by a barrier of ice-floes which are stranded there by the sea in the autumn. These floes become welded together and form the \"ice-foot\" frequently referred to in"
+        },
+        {
+          "start_index": 33793,
+          "similarity": 0.7115,
+          "preview": "Not far from this island another mound rose from the lake, but this was connected with the \"mainland\" by a narrow neck of guano-covered pebbles. This mound was covered with nests, showing that the bir"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "They follow a worn track up the ice‑foot, climbing steep, slippery ice to reach the rookery.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Penguins follow a worn track up the ice-foot.",
+            "supported": true
+          },
+          {
+            "claim": "The ice-foot is steep and slippery.",
+            "supported": true
+          },
+          {
+            "claim": "Penguins climb steep, slippery ice to reach the rookery.",
+            "supported": true
+          }
+        ],
+        "correctness": 0.0,
+        "correctness_reason": "The answer does not mention the key fact of alternating walking and tobogganing on their breasts and instead describes a different behavior."
+      }
+    },
+    {
+      "id": "skua-chicks",
+      "question": "How do skuas treat the penguin chicks?",
+      "answerable": true,
+      "reference_answer": "Skuas prey upon the chicks in a cruel manner, and a chick that wanders away from the old birds is almost certain to be pounced upon and killed.",
+      "evidence": [
+        "the Skuas prey upon these in a most cruel manner"
+      ],
+      "retrieved": [
+        {
+          "start_index": 145200,
+          "similarity": 0.7141,
+          "preview": "When penguins' eggs were plentiful in the rookery the Skuas flew very low over the ground, and as they passed over each colony of nests the sitting birds would crouch low upon them, a very necessary p"
+        },
+        {
+          "start_index": 147590,
+          "similarity": 0.6985,
+          "preview": "When one of the parent Skuas is on the ground near its nest, on the approach of anyone it throws its head back, opens its wings, and loudly proclaims its whereabouts with its raucous cawing notes. Whe"
+        },
+        {
+          "start_index": 62095,
+          "similarity": 0.6973,
+          "preview": "A perpetual feud was carried on between the penguins and the skuas. The latter birds come to the south in the summer, and make their nests close to, and in some cases actually among, those of the peng"
+        },
+        {
+          "start_index": 123005,
+          "similarity": 0.6919,
+          "preview": "A feature of the above scene, which one could not help noticing, was that however badly a penguin was injured it was never molested by the others, as is almost invariably the rule among other birds, i"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 0.5,
+        "context_precision": 0.25
+      },
+      "answer": "Skuas prey on penguin chicks in a cruel manner: they pounce on a wandering chick, peck its eyes out, then use powerful strokes of their beak to devour the kidneys.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Skuas prey on penguin chicks.",
+            "supported": true
+          },
+          {
+            "claim": "They do so in a cruel manner.",
+            "supported": true
+          },
+          {
+            "claim": "They pounce on a wandering chick.",
+            "supported": true
+          },
+          {
+            "claim": "They peck its eyes out.",
+            "supported": true
+          },
+          {
+            "claim": "They use powerful strokes of their beak to devour the kidneys.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "Answer includes all key facts (cruel predation, pouncing on wandering chick) and adds extra details without contradiction."
+      }
+    },
+    {
+      "id": "sea-leopards",
+      "question": "Why were the penguins reluctant to be the first to enter the water?",
+      "answerable": true,
+      "reference_answer": "Sea-leopards were gathered in the sea near the rookery to prey on the penguins.",
+      "evidence": [
+        "a large number of sea-leopards were gathered in the sea"
+      ],
+      "retrieved": [
+        {
+          "start_index": 129951,
+          "similarity": 0.7413,
+          "preview": "My own idea is that in former times the penguins used to mass together as other birds do, before their annual migration, perhaps as far back as the day when their wings were adapted for flight, and th"
+        },
+        {
+          "start_index": 85118,
+          "similarity": 0.7249,
+          "preview": "During the fasting season, as none of the penguins had entered the water, they all became very dirty and disreputable in appearance, as well may be imagined considering the life they led, but now that"
+        },
+        {
+          "start_index": 87828,
+          "similarity": 0.7177,
+          "preview": "A dead silence would ensue till a few seconds later, when they would all come to the surface some twenty or thirty yards out, and start rolling about and splashing in the water, cleaning themselves an"
+        },
+        {
+          "start_index": 129066,
+          "similarity": 0.7085,
+          "preview": "After this the whole crowd marched for the water, keeping its formation almost unchanged till it arrived at the edge of the ice, when it halted, and subsequently entered the water in batches.\n\nThis pr"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": false,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system did not answer."
+      }
+    },
+    {
+      "id": "enemies",
+      "question": "Which enemies threaten the Adelie penguins?",
+      "answerable": true,
+      "reference_answer": "Skuas, which prey on the chicks, and sea-leopards, which prey on the penguins in the sea.",
+      "evidence": [
+        "the Skuas prey upon these in a most cruel manner",
+        "a large number of sea-leopards were gathered in the sea"
+      ],
+      "retrieved": [
+        {
+          "start_index": 103499,
+          "similarity": 0.696,
+          "preview": "Though the actual presence of a sea-leopard put the Adelies to confusion, causing them to \"porpoise\" madly away for a few hundred yards, yet once away from the immediate neighbourhood of the arch enem"
+        },
+        {
+          "start_index": 4540,
+          "similarity": 0.6805,
+          "preview": "Dr. Louis Gain, of the French Antarctic expedition, gives us the following description:\n\n\"The Adelie penguin is a brave animal, and rarely flees from danger. If it happens to be tormented, it faces it"
+        },
+        {
+          "start_index": 5539,
+          "similarity": 0.6803,
+          "preview": "The Adelie penguin is excessively curious, taking great pains to inspect any strange object he may see. When we were waiting for the ship to fetch us home, some of us lived in little tents which we pi"
+        },
+        {
+          "start_index": 6444,
+          "similarity": 0.6618,
+          "preview": "The Adelies, as will be seen in these pages, are extremely brave, and though panic occasionally overtakes them, I have seen a bird return time after time to attack a seaman who was brutally sending it"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false,
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book says the Adelie penguins are threatened by the sea‑leopard and by man.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "The sea-leopard threatens Adelie penguins.",
+            "supported": true
+          },
+          {
+            "claim": "Man threatens Adelie penguins.",
+            "supported": true
+          }
+        ],
+        "correctness": 0.0,
+        "correctness_reason": "The answer mentions sea‑leopard (correct) but omits skuas and adds man, which is not in the reference, so it fails to state all key facts."
+      }
+    },
+    {
+      "id": "avalanche",
+      "question": "What happened to the colony of Adelies below the slope when the avalanche came?",
+      "answerable": true,
+      "reference_answer": "The avalanche passed right through and over the crowded colony, causing terrible havoc: hundreds of birds were found injured and dying.",
+      "evidence": [
+        "the avalanche passed right through and over them"
+      ],
+      "retrieved": [
+        {
+          "start_index": 120632,
+          "similarity": 0.6305,
+          "preview": "generations. One of these slides took place whilst we were at the rookery, doing terrible damage. A crowded colony of Adelies were nesting just below, and the avalanche passed right through and over t"
+        },
+        {
+          "start_index": 121697,
+          "similarity": 0.5735,
+          "preview": "It was remarkable to see the way in which all the nests which had escaped the avalanche, however narrowly, were still sat upon by their occupants, as if nothing had happened. Also I saw several badly "
+        },
+        {
+          "start_index": 119836,
+          "similarity": 0.54,
+          "preview": "Some of the items in my list require explanation. The screes at the foot of the cliff at Cape Adare are perhaps the most thickly populated part of the rookery. As the thaw proceeds, boulders of differ"
+        },
+        {
+          "start_index": 58174,
+          "similarity": 0.5337,
+          "preview": "During October 29 the stream of arrivals was undiminished, but the next day it slackened considerably, and during the next two days stopped altogether, all the rising ground of the rookery now being l"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "context_precision": 0.25
+      },
+      "answer": "The avalanche ran straight through the Adelie colony, killing and injuring many birds – hundreds were dead or badly wounded, with broken legs, torn skin and even disemboweled individuals, and the nests were heavily damaged.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 0.75,
+        "claims": [
+          {
+            "claim": "The avalanche ran straight through the Adelie colony",
+            "supported": true
+          },
+          {
+            "claim": "The avalanche killed and injured many birds – hundreds were dead or badly wounded",
+            "supported": true
+          },
+          {
+            "claim": "The injured birds had broken legs, torn skin and even disemboweled individuals",
+            "supported": true
+          },
+          {
+            "claim": "The nests were heavily damaged",
+            "supported": false
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer includes all key facts from the reference (avalanche ran through the colony, hundreds injured/killed) and adds extra consistent details without contradiction."
+      }
+    },
+    {
+      "id": "moult",
+      "question": "When do young penguins grow the black throat feathers of the adult?",
+      "answerable": true,
+      "reference_answer": "After their first moult, in the autumn following their departure from the rookery.",
+      "evidence": [
+        "It is not until after their first moult"
+      ],
+      "retrieved": [
+        {
+          "start_index": 135246,
+          "similarity": 0.682,
+          "preview": "\"_Claws_, brown.\"\n\n* * * * *\n\nIn the majority of the chicks the down is uniformly dark and sooty, but here and there, in progeny of quite normal parents, one may find nestlings of so pale a grey as to"
+        },
+        {
+          "start_index": 154133,
+          "similarity": 0.6515,
+          "preview": "Again, in the spring of 1912, when nearing the end of a sledge journey from the northward to Cape Evans we passed large gatherings of Emperor penguins on some very old sea-ice under the Barrier's edge"
+        },
+        {
+          "start_index": 21037,
+          "similarity": 0.6361,
+          "preview": "During the day I noticed some penguins taking possession of old nests on the ridges. These mostly squatted in the nests without any attempt at repairing them or rearrangement of any sort. Afterwards I"
+        },
+        {
+          "start_index": 136874,
+          "similarity": 0.6322,
+          "preview": "In addition to the distinctive pure white plumage of the throat, the immature bird differs from the adult in one very marked particular, which is that the eyelids are black, as in the chick, and do no"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": false,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": 0.0,
+        "correctness_reason": "The system did not answer."
+      }
+    },
+    {
+      "id": "emperor-season",
+      "question": "How does the breeding season of the Emperor penguin differ from the Adelie's?",
+      "answerable": true,
+      "reference_answer": "The Adelie breeds in the warmest and lightest months, but the Emperor rears its young in the darkest, coldest and most tempestuous time of the year.",
+      "evidence": [
+        "in the darkest, coldest, and most tempestuous time"
+      ],
+      "retrieved": [
+        {
+          "start_index": 154133,
+          "similarity": 0.7536,
+          "preview": "Again, in the spring of 1912, when nearing the end of a sledge journey from the northward to Cape Evans we passed large gatherings of Emperor penguins on some very old sea-ice under the Barrier's edge"
+        },
+        {
+          "start_index": 150845,
+          "similarity": 0.7057,
+          "preview": "The most marked difference in the habits of the Adelie and the Emperor lies in the respective seasons at which each lays and incubates its eggs. Unlike the Adelie, which, as we have seen, chooses the "
+        },
+        {
+          "start_index": 6444,
+          "similarity": 0.6883,
+          "preview": "The Adelies, as will be seen in these pages, are extremely brave, and though panic occasionally overtakes them, I have seen a bird return time after time to attack a seaman who was brutally sending it"
+        },
+        {
+          "start_index": 156099,
+          "similarity": 0.6871,
+          "preview": "Fortunately the Emperor chick escapes the depredation of the Skua gull, which plays such havoc in the Adelie rookeries, because the Skua does not come south until the summer, by which time the Emperor"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 0.5,
+        "context_precision": 0.25
+      },
+      "answer": "The Emperor lays and incubates its eggs in the darkest, coldest, most tempestuous part of the year—early spring—so the chicks are ready for the warmer summer. The Adelie, by contrast, breeds in the warmest, lightest months of the year, i.e., summer.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "The Emperor lays and incubates its eggs in the darkest, coldest, most tempestuous part of the year—early spring—so the chicks are ready for the warmer summer.",
+            "supported": true
+          },
+          {
+            "claim": "The Adelie, by contrast, breeds in the warmest, lightest months of the year, i.e., summer.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer includes both key facts: Emperor breeds in the darkest, coldest, tempestuous period and Adelie breeds in the warmest, lightest months, matching the reference without contradiction."
+      }
+    },
+    {
+      "id": "emperor-egg",
+      "question": "What does the egg of the Emperor penguin look like?",
+      "answerable": true,
+      "reference_answer": "It is white and pyriform (pear-shaped), and weighs just under 1 lb.",
+      "evidence": [
+        "The egg of the Emperor is white, pyriform in shape"
+      ],
+      "retrieved": [
+        {
+          "start_index": 156099,
+          "similarity": 0.6881,
+          "preview": "Fortunately the Emperor chick escapes the depredation of the Skua gull, which plays such havoc in the Adelie rookeries, because the Skua does not come south until the summer, by which time the Emperor"
+        },
+        {
+          "start_index": 70272,
+          "similarity": 0.6633,
+          "preview": "The comparative size of the penguin's egg is shown in some of my photographs. Ninety-six eggs averaged 4.56 ounces apiece. They vary in size from about 6.45 cm. to 7.2 cm. in length, and from 5.0 cm. "
+        },
+        {
+          "start_index": 154133,
+          "similarity": 0.6613,
+          "preview": "Again, in the spring of 1912, when nearing the end of a sledge journey from the northward to Cape Evans we passed large gatherings of Emperor penguins on some very old sea-ice under the Barrier's edge"
+        },
+        {
+          "start_index": 150471,
+          "similarity": 0.615,
+          "preview": "A SHORT NOTE ON EMPEROR PENGUINS(9)\n\n(9) _Aptenodytes forsteri._\n\nThe Emperor is by far the largest of all penguins, weighing between 80 and 90 lbs. It is also a particularly handsome and graceful bir"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "The Emperor penguin’s egg is about 6.5–7.2 cm long and 5.0–5.5 cm wide, with both ends nearly equally rounded. Its outer surface is a white, chalky texture, while the inside is green, a colour that shows through when light is transmitted.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "The Emperor penguin’s egg is about 6.5–7.2 cm long and 5.0–5.5 cm wide.",
+            "supported": true
+          },
+          {
+            "claim": "Both ends are nearly equally rounded.",
+            "supported": true
+          },
+          {
+            "claim": "Its outer surface is a white, chalky texture.",
+            "supported": true
+          },
+          {
+            "claim": "The inside is green, a colour that shows through when light is transmitted.",
+            "supported": true
+          }
+        ],
+        "correctness": 0.0,
+        "correctness_reason": "The answer describes size, shape (nearly equally rounded) and interior color, but does not mention weight and contradicts the reference's pear-shaped description, thus missing key facts."
+      }
+    },
+    {
+      "id": "crozier-winter",
+      "question": "Who visited Cape Crozier during the winter?",
+      "answerable": true,
+      "reference_answer": "Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard, a party of Captain Scott's officers.",
+      "evidence": [
+        "Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard"
+      ],
+      "retrieved": [
+        {
+          "start_index": 153417,
+          "similarity": 0.5873,
+          "preview": "The first time the rookery at Cape Crozier was visited, not above one thousand birds occupied it. On the second occasion their numbers were far short of this. By the springtime only one out of ten or "
+        },
+        {
+          "start_index": 9788,
+          "similarity": 0.5622,
+          "preview": "As I am about to describe the manners and customs of Adelie penguins at the Cape Adare rookery, I will give a short description of that spot.\n\nCape Adare is situated in lat. 71 deg. 14' S. long. 170 d"
+        },
+        {
+          "start_index": 157708,
+          "similarity": 0.5569,
+          "preview": "The cry of the Emperor is very loud and travels far across the ice. When sledging over the sea-ice in the spring, in the neighbourhood of Cape Adare, a curious sound was heard at times, reminding one "
+        },
+        {
+          "start_index": 17344,
+          "similarity": 0.5517,
+          "preview": "The exact whereabouts of the Adelie penguins during the winter months has been much discussed by different writers. It is agreed that they repair to the pack-ice, but our knowledge of the movements of"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          false
+        ],
+        "context_recall": 0.0,
+        "hit": false,
+        "reciprocal_rank": 0.0,
+        "context_precision": 0.0
+      },
+      "answer": "Mr. Cherry‑Garrard.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Mr. Cherry‑Garrard visited Cape Crozier during the winter.",
+            "supported": true
+          }
+        ],
+        "correctness": 0.5,
+        "correctness_reason": "The answer only mentions Mr. Cherry‑Garrard, omitting Dr. Wilson and Lieut. Bowers, so it is incomplete."
+      }
+    },
+    {
+      "id": "cape-adare",
+      "question": "Where is Cape Adare?",
+      "answerable": true,
+      "reference_answer": "At latitude 71 degrees 14 minutes South (and longitude 170 degrees 10 minutes East).",
+      "evidence": [
+        "Cape Adare is situated in lat. 71 deg. 14' S."
+      ],
+      "retrieved": [
+        {
+          "start_index": 9788,
+          "similarity": 0.6586,
+          "preview": "As I am about to describe the manners and customs of Adelie penguins at the Cape Adare rookery, I will give a short description of that spot.\n\nCape Adare is situated in lat. 71 deg. 14' S. long. 170 d"
+        },
+        {
+          "start_index": 15694,
+          "similarity": 0.6102,
+          "preview": "_Note._--Ross, Kristensen, Scott, Shackleton and Pennell all, however, found pack late in the season while trying to work west along the coast when only some forty-five to seventy-five miles north of "
+        },
+        {
+          "start_index": 82516,
+          "similarity": 0.5412,
+          "preview": "In some places at Cape Adare, large rocks some two or three feet in height stood about the rookery. Whenever the summit of one of these was accessible, a pair built their nest upon it,(4) though how t"
+        },
+        {
+          "start_index": 119836,
+          "similarity": 0.4971,
+          "preview": "Some of the items in my list require explanation. The screes at the foot of the cliff at Cape Adare are perhaps the most thickly populated part of the rookery. As the thaw proceeds, boulders of differ"
+        }
+      ],
+      "retrieval": {
+        "evidence_found": [
+          true
+        ],
+        "context_recall": 1.0,
+        "hit": true,
+        "reciprocal_rank": 1.0,
+        "context_precision": 0.25
+      },
+      "answer": "Cape Adare is a neck of land at 71° 14′ S, 170° 10′ E, jutting out from the sheer, ice‑bound foot‑hills of South Victoria Land northward for about twenty miles.",
+      "generation": {
+        "empty": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "faithfulness": 1.0,
+        "claims": [
+          {
+            "claim": "Cape Adare is a neck of land.",
+            "supported": true
+          },
+          {
+            "claim": "Cape Adare is at 71° 14′ S, 170° 10′ E.",
+            "supported": true
+          },
+          {
+            "claim": "Cape Adare juts out from the sheer, ice‑bound foot‑hills of South Victoria Land.",
+            "supported": true
+          },
+          {
+            "claim": "Cape Adare extends northward for about twenty miles.",
+            "supported": true
+          }
+        ],
+        "correctness": 1.0,
+        "correctness_reason": "The answer provides the exact latitude and longitude matching the reference and adds non‑contradictory detail."
+      }
+    },
+    {
+      "id": "unanswerable-france",
+      "question": "What is the capital of France?",
+      "answerable": false,
+      "reference_answer": null,
+      "evidence": [],
+      "retrieved": [
+        {
+          "start_index": 16346,
+          "similarity": 0.2588,
+          "preview": "TABLE B\n\n+---------------+-----------+----------+---------+----------------------+ | | | Northern | Extends | Minutes of latitude | | Date | Longitude | limit |N. and S.| Northern limit is N. | | | | "
+        },
+        {
+          "start_index": 9788,
+          "similarity": 0.213,
+          "preview": "As I am about to describe the manners and customs of Adelie penguins at the Cape Adare rookery, I will give a short description of that spot.\n\nCape Adare is situated in lat. 71 deg. 14' S. long. 170 d"
+        },
+        {
+          "start_index": 14767,
+          "similarity": 0.1973,
+          "preview": "TABLE A\n\n+---------------+----------+--------+----------+---------+--------------+ | | Northern | Miles | Southern | Miles | | | Mean date | limit | from | limit | of pack | Remarks | | | of pack |C. "
+        },
+        {
+          "start_index": 157005,
+          "similarity": 0.1611,
+          "preview": "Evidence goes to show that the young birds spend their immaturity on the pack-ice, as all those sighted and collected on the pack at any distance to the northward have been immature, and no immature b"
+        }
+      ],
+      "retrieval": null,
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": true,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": null,
+        "correctness_reason": null
+      }
+    },
+    {
+      "id": "unanswerable-world-cup",
+      "question": "Who won the 2018 football World Cup?",
+      "answerable": false,
+      "reference_answer": null,
+      "evidence": [],
+      "retrieved": [
+        {
+          "start_index": 45086,
+          "similarity": 0.1885,
+          "preview": "Fig. 24 shows the two combatants hard at it, using their weight as they lean their breasts against one another, and rain in the blows with their powerful flippers.\n\nFig. 25 shows the end of the fight,"
+        },
+        {
+          "start_index": 157708,
+          "similarity": 0.0963,
+          "preview": "The cry of the Emperor is very loud and travels far across the ice. When sledging over the sea-ice in the spring, in the neighbourhood of Cape Adare, a curious sound was heard at times, reminding one "
+        },
+        {
+          "start_index": 154674,
+          "similarity": 0.0873,
+          "preview": "The growth of the Emperor chick is slow, when compared with the mushroom-like rate at which the Adelie youngster increases its substance.\n\nApproximately the egg is laid at the beginning of July and ha"
+        },
+        {
+          "start_index": 45489,
+          "similarity": 0.087,
+          "preview": "When his conqueror left him at length, he lay for some two minutes or so on the ground, his heaving breast alone showing that he was alive, so completely exhausted was he, but recovering himself at le"
+        }
+      ],
+      "retrieval": null,
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": true,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": null,
+        "correctness_reason": null
+      }
+    },
+    {
+      "id": "unanswerable-bread",
+      "question": "How do I bake sourdough bread?",
+      "answerable": false,
+      "reference_answer": null,
+      "evidence": [],
+      "retrieved": [
+        {
+          "start_index": 143090,
+          "similarity": 0.1483,
+          "preview": "In order to find out how many eggs a Skua would lay, I marked some nests, and took the eggs as they were laid. In each case a second egg was laid, but when this was taken no more appeared. In two nest"
+        },
+        {
+          "start_index": 54627,
+          "similarity": 0.1148,
+          "preview": "an ass. When one bird of a pair starts to perform in this way, the other usually starts at once to pacify it. Very many times I saw this scene enacted when nesting was in progress. The two might be sq"
+        },
+        {
+          "start_index": 89531,
+          "similarity": 0.1059,
+          "preview": "After a variable period of this intercourse, the two parties would separate and continue on their respective ways, a clean stream issuing from the crowd in the direction of the rookery, a dirty one he"
+        },
+        {
+          "start_index": 113568,
+          "similarity": 0.1023,
+          "preview": "(6) Fig. 62."
+        }
+      ],
+      "retrieval": null,
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": true,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": null,
+        "correctness_reason": null
+      }
+    },
+    {
+      "id": "unanswerable-lifespan",
+      "question": "How many years does an Adelie penguin live?",
+      "answerable": false,
+      "reference_answer": null,
+      "evidence": [],
+      "retrieved": [
+        {
+          "start_index": 6444,
+          "similarity": 0.6861,
+          "preview": "The Adelies, as will be seen in these pages, are extremely brave, and though panic occasionally overtakes them, I have seen a bird return time after time to attack a seaman who was brutally sending it"
+        },
+        {
+          "start_index": 17344,
+          "similarity": 0.6551,
+          "preview": "The exact whereabouts of the Adelie penguins during the winter months has been much discussed by different writers. It is agreed that they repair to the pack-ice, but our knowledge of the movements of"
+        },
+        {
+          "start_index": 154133,
+          "similarity": 0.6534,
+          "preview": "Again, in the spring of 1912, when nearing the end of a sledge journey from the northward to Cape Evans we passed large gatherings of Emperor penguins on some very old sea-ice under the Barrier's edge"
+        },
+        {
+          "start_index": 156099,
+          "similarity": 0.6466,
+          "preview": "Fortunately the Emperor chick escapes the depredation of the Skua gull, which plays such havoc in the Adelie rookeries, because the Skua does not come south until the summer, by which time the Emperor"
+        }
+      ],
+      "retrieval": null,
+      "answer": "The book does not answer this question.",
+      "generation": {
+        "empty": false,
+        "abstained": true,
+        "abstention_correct": true,
+        "faithfulness": null,
+        "claims": [],
+        "correctness": null,
+        "correctness_reason": null
+      }
+    }
+  ]
+}

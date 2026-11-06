@@ -1,0 +1,131 @@
+[
+  {
+    "id": "nest-material",
+    "question": "Where do Adelie penguins get the stones for their nests?",
+    "reference_answer": "The penguins that were building took their stones from old, unoccupied nests.",
+    "evidence": ["Those that built took their stones from old nests"]
+  },
+  {
+    "id": "nest-theft",
+    "question": "What do the penguins steal from each other's nests?",
+    "reference_answer": "They steal the stones (such as pieces of white quartz) from nest to nest.",
+    "evidence": ["being stolen from nest to nest"]
+  },
+  {
+    "id": "eggs-incubation",
+    "question": "How many eggs does an Adelie penguin lay, and how long are they incubated?",
+    "reference_answer": "Two eggs, which are incubated for four weeks before the chicks hatch.",
+    "evidence": ["are incubated for four weeks"]
+  },
+  {
+    "id": "hen-on-nest",
+    "question": "Do the hens leave the nest while they are incubating the eggs?",
+    "reference_answer": "No. They never leave the nest under any circumstances until their mates relieve them.",
+    "evidence": ["they never leave the nest under any circumstances until relieved by their mates"]
+  },
+  {
+    "id": "fasting",
+    "question": "Do the penguins eat when they arrive at the rookery?",
+    "reference_answer": "No. All the birds were fasting absolutely when they arrived.",
+    "evidence": ["All the birds were fasting absolutely"]
+  },
+  {
+    "id": "food",
+    "question": "What do the penguins feed on in the sea?",
+    "reference_answer": "The shrimp-like (prawn-like) euphausia that swarm in the Antarctic seas.",
+    "evidence": ["feeding on the shrimp-like euphausia"]
+  },
+  {
+    "id": "rookery-size",
+    "question": "How many birds were in the Cape Adare rookery at its fullest?",
+    "reference_answer": "A vast crowd of some three-quarters of a million birds.",
+    "evidence": ["vast crowd of some three-quarters of a million"]
+  },
+  {
+    "id": "travel",
+    "question": "How do the penguins travel over the ice on their march to the rookery?",
+    "reference_answer": "They alternate between walking and tobogganing on their breasts.",
+    "evidence": ["a dozen or so tobogganing"]
+  },
+  {
+    "id": "skua-chicks",
+    "question": "How do skuas treat the penguin chicks?",
+    "reference_answer": "Skuas prey upon the chicks in a cruel manner, and a chick that wanders away from the old birds is almost certain to be pounced upon and killed.",
+    "evidence": ["the Skuas prey upon these in a most cruel manner"]
+  },
+  {
+    "id": "sea-leopards",
+    "question": "Why were the penguins reluctant to be the first to enter the water?",
+    "reference_answer": "Sea-leopards were gathered in the sea near the rookery to prey on the penguins.",
+    "evidence": ["a large number of sea-leopards were gathered in the sea"]
+  },
+  {
+    "id": "enemies",
+    "question": "Which enemies threaten the Adelie penguins?",
+    "reference_answer": "Skuas, which prey on the chicks, and sea-leopards, which prey on the penguins in the sea.",
+    "evidence": [
+      "the Skuas prey upon these in a most cruel manner",
+      "a large number of sea-leopards were gathered in the sea"
+    ]
+  },
+  {
+    "id": "avalanche",
+    "question": "What happened to the colony of Adelies below the slope when the avalanche came?",
+    "reference_answer": "The avalanche passed right through and over the crowded colony, causing terrible havoc: hundreds of birds were found injured and dying.",
+    "evidence": ["the avalanche passed right through and over them"]
+  },
+  {
+    "id": "moult",
+    "question": "When do young penguins grow the black throat feathers of the adult?",
+    "reference_answer": "After their first moult, in the autumn following their departure from the rookery.",
+    "evidence": ["It is not until after their first moult"]
+  },
+  {
+    "id": "emperor-season",
+    "question": "How does the breeding season of the Emperor penguin differ from the Adelie's?",
+    "reference_answer": "The Adelie breeds in the warmest and lightest months, but the Emperor rears its young in the darkest, coldest and most tempestuous time of the year.",
+    "evidence": ["in the darkest, coldest, and most tempestuous time"]
+  },
+  {
+    "id": "emperor-egg",
+    "question": "What does the egg of the Emperor penguin look like?",
+    "reference_answer": "It is white and pyriform (pear-shaped), and weighs just under 1 lb.",
+    "evidence": ["The egg of the Emperor is white, pyriform in shape"]
+  },
+  {
+    "id": "crozier-winter",
+    "question": "Who visited Cape Crozier during the winter?",
+    "reference_answer": "Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard, a party of Captain Scott's officers.",
+    "evidence": ["Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard"]
+  },
+  {
+    "id": "cape-adare",
+    "question": "Where is Cape Adare?",
+    "reference_answer": "At latitude 71 degrees 14 minutes South (and longitude 170 degrees 10 minutes East).",
+    "evidence": ["Cape Adare is situated in lat. 71 deg. 14' S."]
+  },
+  {
+    "id": "unanswerable-france",
+    "question": "What is the capital of France?",
+    "reference_answer": null,
+    "evidence": []
+  },
+  {
+    "id": "unanswerable-world-cup",
+    "question": "Who won the 2018 football World Cup?",
+    "reference_answer": null,
+    "evidence": []
+  },
+  {
+    "id": "unanswerable-bread",
+    "question": "How do I bake sourdough bread?",
+    "reference_answer": null,
+    "evidence": []
+  },
+  {
+    "id": "unanswerable-lifespan",
+    "question": "How many years does an Adelie penguin live?",
+    "reference_answer": null,
+    "evidence": []
+  }
+]

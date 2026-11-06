@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 book-rag = "book_rag.cli:main"
+book-rag-eval = "book_rag.evaluation.run:main"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14"]
@@ -27,4 +28,11 @@ module-name = "book_rag"
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: uses the real embedding model (cached locally); deselect with -m 'not integration'",
 ]
