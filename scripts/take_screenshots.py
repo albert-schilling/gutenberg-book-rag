@@ -1,8 +1,8 @@
 """Take the screenshots of the README (docs/images/) with a headless browser.
 
-    uv run playwright install chromium
-    uv run python scripts/take_screenshots.py            # real answers: needs the API key in .env
-    BOOK_RAG_OFFLINE=1 uv run python scripts/take_screenshots.py   # a fixed reply instead
+uv run playwright install chromium
+uv run python scripts/take_screenshots.py            # real answers: needs the API key in .env
+BOOK_RAG_OFFLINE=1 uv run python scripts/take_screenshots.py   # a fixed reply instead
 """
 
 import os
@@ -21,7 +21,9 @@ QUESTION = "Why were the penguins reluctant to be the first to enter the water?"
 
 def start(script: str, port: int) -> subprocess.Popen:
     command = [sys.executable, "-m", "streamlit", "run", script, "--server.headless=true", f"--server.port={port}"]
-    server = subprocess.Popen(command, cwd=ROOT, env=os.environ.copy(), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    server = subprocess.Popen(
+        command, cwd=ROOT, env=os.environ.copy(), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+    )
     for _ in range(90):
         try:
             if urllib.request.urlopen(f"http://127.0.0.1:{port}/_stcore/health", timeout=1).read() == b"ok":
