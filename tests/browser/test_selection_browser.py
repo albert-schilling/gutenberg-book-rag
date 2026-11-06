@@ -13,10 +13,16 @@ def ask(page, question="How do skuas attack penguin chicks?"):
     page.locator("textarea").first.fill(question)
     page.keyboard.press("Enter")
     page.get_by_text("Passage at position").first.wait_for(timeout=60_000)
+    page.wait_for_timeout(800)  # let the page finish scrolling: a scroll hides the tooltip, as intended
 
 
 def user_messages(page):
-    return page.locator('[data-testid="stChatMessage"]').filter(has_text=QUESTION_START)
+    """The questions that were asked through the tooltip (not the answers, which repeat the question)."""
+    return (
+        page.locator('[data-testid="stChatMessage"]')
+        .filter(has=page.locator('[data-testid="stChatMessageAvatarUser"]'))
+        .filter(has_text=QUESTION_START)
+    )
 
 
 def click_tooltip_and_wait_for_the_question(page, expected_count=1):

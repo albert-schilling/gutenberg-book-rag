@@ -5,6 +5,7 @@
 const TIP_ID = "book-rag-ask-tip"
 const MIN_LENGTH = 3
 const MAX_LENGTH = 400
+const SETTLE_MS = 600 // scrolls right after a selection (the browser scrolling it into view) do not hide the tooltip
 
 export function cleanSelection(raw) {
   const text = (raw || "").replace(/\s+/g, " ").trim()
@@ -47,13 +48,19 @@ export default function (component) {
   doc.body.appendChild(tip)
 
   let current = ""
+  let shownAt = 0
   const hide = () => {
     tip.style.display = "none"
     current = ""
   }
+  // The tooltip stays where it is, so a scroll that moves the text makes it stale: hide it, but not while the page settles.
+  const onScroll = () => {
+    if (Date.now() - shownAt > SETTLE_MS) hide()
+  }
 
   function show(text, x, y) {
     current = text
+    shownAt = Date.now()
     tip.style.display = "block"
     const width = tip.offsetWidth
     tip.style.left = `${Math.min(Math.max(8, x - width / 2), win.innerWidth - width - 8)}px`
@@ -89,13 +96,13 @@ export default function (component) {
   doc.addEventListener("mouseup", onSelectionEnd)
   doc.addEventListener("keyup", onKey)
   doc.addEventListener("mousedown", onPress)
-  doc.addEventListener("scroll", hide, true)
+  doc.addEventListener("scroll", onScroll, true)
 
   const dispose = () => {
     doc.removeEventListener("mouseup", onSelectionEnd)
     doc.removeEventListener("keyup", onKey)
     doc.removeEventListener("mousedown", onPress)
-    doc.removeEventListener("scroll", hide, true)
+    doc.removeEventListener("scroll", onScroll, true)
     tip.remove()
   }
   instances.set(parentElement, dispose)

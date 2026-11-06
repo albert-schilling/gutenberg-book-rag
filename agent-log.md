@@ -51,3 +51,8 @@ asked are listed under each task and in the last section.
   was the vector store being built the first time a book is selected; the reader opens in 0.2 s either way. I reverted
   the static-file change (more moving parts, no gain). The first selection of a book still takes 2-4 s (TODO: pre-build).
 
+- **Slip, fixed in the next commit:** commit `4f77550` (task 3) was made while one browser test was failing, because my
+  command took the exit status of `tail` instead of `pytest`. The failing test showed a real bug: the selection
+  tooltip hid itself on the scroll that often follows a selection (so the user could not click it). Fixed with a short
+  grace period (`selection.js`), test helper made precise, 6 of 6 reruns green. From now on commits are gated on pytest's exit status.
+
