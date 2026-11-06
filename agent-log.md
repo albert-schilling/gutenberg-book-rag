@@ -200,3 +200,19 @@ coverage of the evaluation command, running the evaluation and the live tests on
   stop rule, summary in the prompt, chat history to the model, live tests on Mistral, browser tests, the agent default). The file now has open
   items grouped by area and a "Done" list; duplicates were merged (the vector-store pre-build was listed twice) and Groq-only items marked.
 - Not committed.
+
+---
+# Batch 3: changes page, layout, design, restructure
+
+## Ground rules for this batch
+- Same branch (`agent/assignments`), one commit per task, only my files. You had already committed and pushed everything before this batch.
+- "Right sidebar": Streamlit has no right sidebar (`st.sidebar` is left-only). I read the request as a right-hand panel that can be made wider.
+- I do not ask questions while you are away; where a request is ambiguous I choose the reading above and note it.
+
+## A. Changes page restructured (done)
+- New order: Performance, the most important changes, why e5 and not MiniLM, Tried and rejected, all other changes, Known limits.
+- Mistakes fixed: the prompt row still described the strict refusal rule; "Why the embedding model changed" claimed correctness 0.44 to 0.76,
+  which the later correction undermined (removed); "Known limits" still said 17 and 21 questions (now 72), that whole-book questions are answered
+  poorly (they use the summary), and named Groq; a "Measured" bullet duplicated the performance section.
+- Duplicates merged: the similarity cutoff, HyDE and rewriting were each described twice; the 26-row table is now a 9-row "most important"
+  table plus a 13-row "all other changes" table.
