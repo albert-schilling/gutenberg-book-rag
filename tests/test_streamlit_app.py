@@ -7,7 +7,7 @@ import streamlit as st
 from langchain_core.documents import Document
 from streamlit.testing.v1 import AppTest
 
-from book_rag import rag, store
+from book_rag import memory, rag, store
 from book_rag.books import BOOKS, DEFAULT_BOOK
 
 APP = Path(__file__).resolve().parents[1] / "streamlit_app.py"
@@ -21,14 +21,19 @@ def app(monkeypatch):
     `app.questions` records (question, book id of the vector store) for every question,
     `app.built` the books whose vector store was built.
     """
-    questions, built = [], []
+    questions, built, conversations, summaries = [], [], [], []
 
     def fake_build_vector_store(book):
         built.append(book.id)
         return ("store", book.id)
 
-    def fake_ask(question, vector_store, chain):
+    def fake_summarizer(summary, question, answer):
+        summaries.append(question)
+        return f"{summary}|{question}".strip("|")
+
+    def fake_ask(question, vector_store, chain, conversation=""):
         questions.append((question, vector_store[1]))
+        conversations.append(conversation)
         passages = [
             (Document(page_content="Skuas prey upon the chicks.", metadata={"start_index": 147611}), 0.77),
             (Document(page_content="A perpetual feud.", metadata={"start_index": 62105}), 0.71),
@@ -38,10 +43,11 @@ def app(monkeypatch):
     monkeypatch.setattr(store, "build_vector_store", fake_build_vector_store)
     monkeypatch.setattr(rag, "build_chain", lambda book: ("chain", book.id))
     monkeypatch.setattr(rag, "ask", fake_ask)
+    monkeypatch.setattr(memory, "build_summarizer", lambda: fake_summarizer)
     st.cache_resource.clear()  # load_rag() is cached for the whole process: start every test fresh
 
     at = AppTest.from_file(str(APP), default_timeout=30).run()
-    at.questions, at.built = questions, built
+    at.questions, at.built, at.conversations, at.summaries = questions, built, conversations, summaries
     return at
 
 
@@ -86,16 +92,38 @@ def test_a_question_shows_the_answer_and_its_passages(app):
     assert app.expander[0].markdown[0].value == "Skuas prey upon the chicks."
 
 
-def test_the_history_stays_but_each_question_is_asked_alone(app):
+def test_the_history_stays_and_the_model_gets_the_latest_exchanges(app):
     app.chat_input[0].set_value("First question").run()
     app.chat_input[0].set_value("Second question").run()
 
     assert not app.exception
-    assert [q for q, _ in app.questions] == ["First question", "Second question"]  # no earlier turns are passed on
+    assert [q for q, _ in app.questions] == ["First question", "Second question"]
     assert [m.name for m in app.chat_message] == ["user", "assistant", "user", "assistant"]
     assert app.chat_message[0].markdown[0].value == "First question"
     assert app.chat_message[3].markdown[0].value == "Answer to: Second question"
     assert len(app.expander) == 4  # two passages per answer, the history keeps its passages
+    assert app.conversations[0] == ""  # nothing was said before the first question
+    assert "Q: First question\nA: Answer to: First question" in app.conversations[1]  # the second one sees the first
+
+
+def test_the_model_sees_only_two_exchanges_and_a_summary_of_the_older_ones(app):
+    for number in range(1, 5):
+        app.chat_input[0].set_value(f"Question {number}").run()
+    last = app.conversations[3]  # what the model saw with question 4
+    assert "Q: Question 2" in last and "Q: Question 3" in last and "Q: Question 4" not in last
+    assert "Q: Question 1" not in last  # too old to be word for word ...
+    assert "Summary of the earlier conversation: Question 1" in last  # ... but it is in the summary
+    assert app.summaries == ["Question 1", "Question 2"]  # one update for every exchange that left the window
+
+
+def test_every_book_has_its_own_memory(app):
+    app.chat_input[0].set_value("About the penguins").run()
+    choose_book(app, FRANKENSTEIN)
+    app.chat_input[0].set_value("About the monster").run()
+    assert "penguins" not in app.conversations[1]  # the other book's chat is not in this prompt
+    choose_book(app, DEFAULT_BOOK)
+    app.chat_input[0].set_value("More about the penguins").run()
+    assert "Q: About the penguins" in app.conversations[2] and "monster" not in app.conversations[2]
 
 
 def test_choosing_another_book_changes_the_page_and_the_vector_store(app):

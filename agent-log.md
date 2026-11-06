@@ -56,3 +56,14 @@ asked are listed under each task and in the last section.
   tooltip hid itself on the scroll that often follows a selection (so the user could not click it). Fixed with a short
   grace period (`selection.js`), test helper made precise, 6 of 6 reruns green. From now on commits are gated on pytest's exit status.
 
+## 4. Chat memory: summary and rolling window (done)
+- `memory.py`: the last 2 question/answer pairs word for word (answers cut to 400 characters), older pairs folded into a
+  rolling summary of at most 80 words. It is added to every LLM call as `{conversation}` in the prompt, only to
+  understand follow-ups. One memory per book, kept in the session. Error replies are not remembered.
+- Token budget (free Groq plan: 8,000 tokens/minute): about 350 extra tokens per call. The summary costs one small extra
+  call only when an exchange leaves the window, and a crude fallback keeps the chat working if that call fails.
+- Checked with the real model: "Do they also attack the adults?" after a question about skuas was understood.
+- Tests: 7 memory unit tests, 2 prompt tests, 3 app tests (the model sees the last 2 exchanges and the summary; one memory per book).
+- Friction: retrieval still searches with the current question only, so "Why do they do that?" got a refusal. The agent
+  of task 7 rewrites follow-up questions into standalone ones. `st.chat_input` cannot be pre-filled, which does not matter here.
+

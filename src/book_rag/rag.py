@@ -60,16 +60,16 @@ def format_context(scored_passages: ScoredPassages) -> str:
     return "\n\n".join(f"[Passage {i}]\n{p.page_content}" for i, (p, _) in enumerate(scored_passages, 1))
 
 
-def ask(question: str, vector_store: Chroma, chain: Runnable) -> tuple[str, ScoredPassages]:
+def ask(question: str, vector_store: Chroma, chain: Runnable, conversation: str = "") -> tuple[str, ScoredPassages]:
     """Return the answer and the (passage, similarity) pairs it is based on.
 
-    gpt-oss sometimes returns an empty reply. The question is then asked again, up to
+    `conversation` is the memory of the chat (see memory.py). gpt-oss sometimes returns an empty reply. The question is then asked again, up to
     EMPTY_ANSWER_RETRIES more times, before the reader gets FALLBACK_ANSWER.
     """
     scored_passages = retrieve(question, vector_store)
     if not scored_passages:  # nothing in the book is close enough to the question: skip the model
         return NO_ANSWER, []
-    inputs = {"context": format_context(scored_passages), "question": question}
+    inputs = {"context": format_context(scored_passages), "question": question, "conversation": conversation or "(none)"}
     for attempt in range(1 + EMPTY_ANSWER_RETRIES):
         answer = chain.invoke(inputs)
         if answer.strip():

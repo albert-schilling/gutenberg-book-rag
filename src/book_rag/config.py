@@ -32,5 +32,7 @@ SYSTEM_PROMPT = (  # {title} and {author} are filled in per book, {context} by t
     "Answer the question using ONLY the passages below. "
     f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}" '
     "Do not use any other knowledge. Keep the answer short.\n\n"
+    "Conversation so far, only to understand follow-up questions (facts must come from the passages):\n"
+    "{conversation}\n\n"
     "Passages:\n{context}"
 )

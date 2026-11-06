@@ -6,6 +6,7 @@ the book on the right, opened at the passage and highlighted.
 
 import streamlit as st
 
+from book_rag import memory
 from book_rag.books import get_book
 from book_rag.rag import ask, build_chain
 from book_rag.reader_component import book_reader, close_reader, current_reader, open_reader
@@ -21,7 +22,7 @@ PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the 
 def load_rag(book_id: str):
     """Load the vector store and the chain of a book once, not on every rerun."""
     book = get_book(book_id)
-    return build_vector_store(book), build_chain(book)
+    return build_vector_store(book), build_chain(book), memory.build_summarizer()
 
 
 def show_passages(scored_passages, message_number):
@@ -46,10 +47,11 @@ def show_earlier(book_id):
 book = get_book(st.session_state.book_id)
 st.caption(f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them.")
 
-vector_store, chain = load_rag(book.id)
+vector_store, chain, summarizer = load_rag(book.id)
 
-# The history only lives in the browser session, one per book; every question is answered independently.
+# The history (what is drawn) and the memory (what the model sees) only live in the browser session, one per book.
 history = st.session_state.setdefault("histories", {}).setdefault(book.id, [])
+chat_memory = st.session_state.setdefault("memories", {}).setdefault(book.id, memory.ChatMemory())  # what the model sees
 
 # At the root of the page, the input stays at the bottom of the window
 question = st.chat_input(f"Ask a question about {book.title}", submit_mode="disable")
@@ -88,10 +90,11 @@ with chat_area:
             st.write(question)
         with st.chat_message("assistant"):
             with st.spinner("Searching the book ..."):
-                answer, scored_passages = ask(question, vector_store, chain)
+                answer, scored_passages = ask(question, vector_store, chain, chat_memory.context())
             st.write(answer)
             show_passages(scored_passages, len(history) + 1)
 
+        chat_memory.add(question, answer, summarizer)
         history.append({"role": "user", "content": question})
         history.append({"role": "assistant", "content": answer, "passages": scored_passages})
 

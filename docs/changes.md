@@ -21,6 +21,7 @@ is a deliberate change, with the reason. The notebook still shows the original a
 | Code | notebook and `rag_cli.py` | `src/book_rag` package, tests, evaluation, this web app | The CLI and the web apps share the same code |
 | Web app | none | wide two-pane layout: chat on the left, the book on the right when a passage is open; a custom component for the book | Reading a passage in its context needs scrolling that the built-in elements do not offer |
 | Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click the tooltip "Ask about this" | Follow-up questions without typing; the question becomes `What does the book say about “…”?` (long selections are cut at 200 characters) |
+| Memory | none | the last 2 exchanges word for word, older ones as a rolling summary (one extra small LLM call when an exchange leaves the window), in every call | Follow-up questions ("and why?") can be understood |
 | Long chats | the whole history is drawn | only the latest 10 questions and answers are drawn; "Show earlier questions" adds 10 more | Streamlit draws every element it is given. Measured: without the cap the page grows by about 130 elements per question (8,300 after 60) and every rerun gets slower; with it the page stays at about 1,600 elements and 0.2 s per rerun |
 | Tests | none | unit tests, app tests, and browser tests with Playwright (headless Chromium) | Infinite scrolling, the steady reading position and the highlight only exist in a real browser. A browser test failed on a scroll-jump bug that no other test saw |
 | Offline mode | needs a Groq key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply (retrieval still runs) | Lets the app be tried and tested without a key, without cost and without the rate limit |
@@ -63,7 +64,7 @@ embedding model on their own.
 - Five questions still find no evidence, because the question and the book use different words ("feed on" and
   "feeding on the shrimp-like euphausia").
 - Questions about the whole book ("Summarize the book") are answered poorly: no single passage is about the whole book.
-- Each question is answered on its own: the chat history is shown but not given to the model.
+- The memory is small on purpose: the model sees the last 2 exchanges and a summary of 80 words at most (the free Groq plan allows 8,000 tokens a minute). Retrieval still uses only the current question, so a follow-up such as "and why?" finds passages poorly.
 
 The numbers come from the reports in `evals/reports/`; `evals/README.md` explains the metrics, and
 `TODO.md` lists what is planned next.
