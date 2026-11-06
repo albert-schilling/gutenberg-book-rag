@@ -29,6 +29,14 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Retrieval and answers
 
+- [ ] **Over-refusal with Mistral small.** The plain prompt makes it refuse when the evidence is at rank 1 (6 of 17 answerable
+  questions). Test a softer refusal rule for the plain pipeline (the agent's prompt without the loop) and larger models
+  (`mistral-medium-latest`), then re-run `book-rag-eval`. If it works, the agent's loop may not be worth its tokens.
+- [ ] The agent spends 3 to 5 searches on every unanswerable question and found nothing it missed. Stop after one extra round when
+  the new passages are not more similar than the first ones.
+- [ ] The agent's rewrites are not diverse: with Mistral small they are synonyms of the same question ("clutch size", "nest",
+  "typical number"), so retrieval returns the same passages. Ask for one query that sounds like a sentence of the book, and
+  one with other key words. Compare models with `book-rag-eval --agent` once the evaluation can run (see above).
 - [ ] Hybrid search (dense + BM25) is not in the app. It does not help e5, but it would make the original MiniLM setup
   competitive (recall 0.65 at 800/133). Add it as an option if the assignment's MiniLM has to be used. Chunk length in
   tokens (not characters) should be checked whenever the embedding model changes (`max_seq_length`).

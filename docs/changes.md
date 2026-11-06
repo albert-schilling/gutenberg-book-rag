@@ -21,12 +21,13 @@ is a deliberate change, with the reason. The notebook still shows the original a
 | Code | notebook and `rag_cli.py` | `src/book_rag` package, tests, evaluation, this web app | The CLI and the web apps share the same code |
 | Web app | none | wide two-pane layout: chat on the left, the book on the right when a passage is open; a custom component for the book | Reading a passage in its context needs scrolling that the built-in elements do not offer |
 | Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click the tooltip "Ask about this" | Follow-up questions without typing; the question becomes `What does the book say about “…”?` (long selections are cut at 200 characters) |
-| Agent | one retrieval, one answer | the model may rephrase the question and search the book again (at most 2 more searches, 2 new queries each); the searches are shown under the answer; a switch in the sidebar turns it off | Questions whose first passages do not answer them get a second chance. It can only search this book: no web search, no other tool. A question that the first passages answer still costs one call |
+| Agent | one retrieval, one answer | the model may rephrase the question and search the book again (at most 3 calls to the model and 5 searches: the question, then up to 2 new queries in each of 2 rounds); the searches are shown under the answer; a switch in the sidebar turns it off | Questions whose first passages do not answer them get a second chance. It can only search this book: no web search, no other tool. A question that the first passages answer still costs one call |
 | Where am I in the book? | none | a bar above the text shows "Page 12 of 64" and a progress bar while you scroll; the page number can be edited to jump to any page; a marker starts every page; the passages in the chat name their page | A passage opened from the chat otherwise has no place in the book. Pages are virtual (2,500 characters, about 400 words): the text files have no real pages |
 | Questions about the whole book | none: "What is this book about?" gets a refusal | a summary of every book (200 words) goes into every prompt | No single passage is about the whole book, so retrieval cannot answer such questions. The summaries are made once (`uv run book-rag-summarize`) from 14 evenly spaced excerpts, one call per book, and saved in `data/summaries/` |
 | Memory | none | the last 2 exchanges word for word, older ones as a rolling summary (one extra small LLM call when an exchange leaves the window), in every call | Follow-up questions ("and why?") can be understood |
 | Long chats | the whole history is drawn | only the latest 10 questions and answers are drawn; "Show earlier questions" adds 10 more | Streamlit draws every element it is given. Measured: without the cap the page grows by about 130 elements per question (8,300 after 60) and every rerun gets slower; with it the page stays at about 1,600 elements and 0.2 s per rerun |
 | Tests | none | unit tests, app tests, and browser tests with Playwright (headless Chromium) | Infinite scrolling, the steady reading position and the highlight only exist in a real browser. A browser test failed on a scroll-jump bug that no other test saw |
+| Language model | Groq `gpt-oss-20b` | Mistral by default (`mistral-small-latest` answers, `mistral-large-latest` judges); `BOOK_RAG_LLM=groq` switches the answers, the agent, the summaries and the judge back to Groq | The free Groq plan has a limit of 200,000 tokens a day. One module (`llm.py`) knows the providers |
 | Code quality | none | ruff (lint and format) configured in `pyproject.toml`; one `Companion` object for the web app and the command line; live tests with the real model (`BOOK_RAG_LIVE=1 uv run pytest -m live`, skipped by default) | A review found that no test used the real model, and that a missing Gutenberg line crashed with an unhelpful error |
 | Offline mode | needs a Groq key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply (retrieval still runs) | Lets the app be tried and tested without a key, without cost and without the rate limit |
 
@@ -69,6 +70,26 @@ re-run show:
   0.44 to 0.48) and needs no BM25 code, so it stays. For the original assignment (MiniLM), use chunks of at most about
   800 characters (stay under 256 tokens) and hybrid search.
 
+## Current performance
+
+The setup of the latest evaluation: `mistral-small-latest` answers and calls the agent, `mistral-large-latest` judges, `e5-small-v2`
+embeddings, chunks of 1000/200 characters, 4 passages, the book summary and the memory in the prompt. Penguin book, 21 questions (17
+answerable, 4 not); reports `20261106-151524-full` and `20261106-151938-agent`.
+
+| Metric | Plain pipeline | With the agent (current) |
+| :-- | --: | --: |
+| Context recall / hit rate | 0.71 | 0.71 |
+| MRR | 0.56 | 0.56 |
+| Answer correctness | 0.47 | **0.71** |
+| Abstention accuracy | 0.67 | **0.95** |
+| Faithfulness (claims supported by the passages) | 1.00 | 0.91 |
+| Searches per question | 1.0 | 1.9 |
+
+Still wrong with the agent: `fasting` and `rookery-size` (the passage is never retrieved, 5 and 3 searches did not help), and partly
+right: `nest-theft`, `enemies` (retrieval misses), `emperor-egg`, `emperor-season`, `skua-chicks`, `nest-material` (the answer lacks
+a detail or adds one). The gain from the agent comes from its prompt, not from the extra searches (see below). Earlier numbers on
+Groq with the older prompt (correctness 0.76) are not comparable. One question is worth 0.06.
+
 ## Tried and rejected
 
 - **Similarity cutoff.** With MiniLM, questions about the whole book ("What is this book about?", best similarity
@@ -77,6 +98,11 @@ re-run show:
 - **Rewriting the question with the LLM.** A keyword rewrite, a hypothetical answer (HyDE) and three paraphrases
   all scored lower than the plain question (recall 0.38 to 0.68 against 0.71). The model invented details and
   drifted away from the wording of the book, and every variant adds an LLM call per question.
+- **Clustering (UMAP and HDBSCAN, as taught in the topic-modelling day).** Fitted on the e5 chunk vectors, then used to route
+  the question to a cluster, to fill the passages from the best hit's cluster, or to boost that cluster: recall 0.29 for routing, 0.65
+  for the others, against 0.71 for plain search. The book is topically uniform (HDBSCAN found 16 clusters with 29% noise, or 2
+  clusters), and the misses are vocabulary mismatches, which clusters do not bridge. t-SNE is only for plots: it has no way to place a
+  new question.
 - **More passages.** Raising `k` to 5 or 6 did not help `e5-small-v2` (it did help MiniLM, from 0.35 to 0.59 at `k=8`, but sends 2 times more text to the model).
 
 ## Known limits
@@ -88,7 +114,11 @@ re-run show:
 - Five questions still find no evidence, because the question and the book use different words ("feed on" and
   "feeding on the shrimp-like euphausia").
 - Questions about the whole book ("Summarize the book") are answered poorly: no single passage is about the whole book.
-- The agent changed little on the penguin questions: with the book summary in the prompt the plain pipeline already answers most of the old misses, and the model usually answers at once. It does search again when it is not satisfied (four new queries for a fact that the retrieval never finds). The evaluation (`book-rag-eval --agent`) has not been run for it yet: the daily token limit was used up.
+- **Measured with Mistral** (`evals/reports/20261106-151524-full` and `...-151938-agent`; Groq was out of tokens): the agent raised answer
+  correctness from 0.47 to 0.71 and abstention accuracy from 0.67 to 0.95, at 1.9 searches a question and slightly lower faithfulness
+  (1.00 to 0.91). But all 6 improved questions were answered after **one** search: the gain comes from the agent's prompt (no strict
+  "refuse unless the passages answer it" rule), which cures `mistral-small`'s over-refusal, not from searching again. The loop rescued no
+  question (5 searches on "fasting" and 3 on "rookery-size" still failed) and spends 3 to 5 searches on every unanswerable question.
 - The memory is small on purpose: the model sees the last 2 exchanges and a summary of 80 words at most (the free Groq plan allows 8,000 tokens a minute). Retrieval still uses only the current question, so a follow-up such as "and why?" finds passages poorly.
 
 The numbers come from the reports in `evals/reports/`; `evals/README.md` explains the metrics, and

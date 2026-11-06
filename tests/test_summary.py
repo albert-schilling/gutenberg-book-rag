@@ -69,7 +69,7 @@ def test_braces_in_a_summary_do_not_break_the_prompt_template(summary_dir):
 
 @pytest.fixture
 def fake_model(monkeypatch):
-    monkeypatch.setattr(summary, "ChatGroq", lambda **kwargs: RunnableLambda(lambda prompt: "A fake summary."))
+    monkeypatch.setattr(summary, "build_llm", lambda *args, **kwargs: RunnableLambda(lambda prompt: "A fake summary."))
     monkeypatch.setattr(summary, "load_dotenv", lambda *args: None)
 
 
@@ -88,7 +88,7 @@ def test_force_makes_a_summary_again(summary_dir, fake_model):
 
 
 def test_an_empty_reply_is_an_error_and_nothing_is_saved(summary_dir, monkeypatch):
-    monkeypatch.setattr(summary, "ChatGroq", lambda **kwargs: RunnableLambda(lambda prompt: "  "))
+    monkeypatch.setattr(summary, "build_llm", lambda *args, **kwargs: RunnableLambda(lambda prompt: "  "))
     with pytest.raises(RuntimeError, match="empty summary"):
         summary.make_summary(DEFAULT_BOOK)
 
@@ -111,5 +111,5 @@ def test_a_long_text_without_sentence_ends_is_cut_with_an_ellipsis():
 
 def test_the_model_reply_is_limited_before_it_is_saved(summary_dir, monkeypatch):
     long_reply = " ".join(f"Sentence {n} is here." for n in range(200))
-    monkeypatch.setattr(summary, "ChatGroq", lambda **kwargs: RunnableLambda(lambda prompt: long_reply))
+    monkeypatch.setattr(summary, "build_llm", lambda *args, **kwargs: RunnableLambda(lambda prompt: long_reply))
     assert len(summary.make_summary(DEFAULT_BOOK).split()) <= summary.MAX_WORDS + 10

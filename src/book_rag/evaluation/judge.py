@@ -3,10 +3,10 @@
 from typing import Literal
 
 from langchain_core.language_models import BaseChatModel
-from langchain_groq import ChatGroq
 from pydantic import BaseModel, Field
 
 from book_rag.config import JUDGE_MODEL
+from book_rag.llm import build_llm
 
 FAITHFULNESS_PROMPT = """You check whether an answer is supported by the passages it was based on.
 
@@ -53,7 +53,7 @@ class CorrectnessVerdict(BaseModel):
 
 
 def build_judge() -> BaseChatModel:
-    return ChatGroq(model=JUDGE_MODEL, temperature=0, max_retries=6)
+    return build_llm(JUDGE_MODEL, max_retries=6)
 
 
 def faithfulness_score(claims: list[Claim]) -> float | None:

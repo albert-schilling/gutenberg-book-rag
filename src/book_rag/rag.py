@@ -7,7 +7,6 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableLambda
-from langchain_groq import ChatGroq
 
 from book_rag.books import Book
 from book_rag.config import (
@@ -21,6 +20,7 @@ from book_rag.config import (
     SYSTEM_PROMPT,
     TOP_K,
 )
+from book_rag.llm import build_llm
 from book_rag.summary import load_summary
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ def build_chain(book: Book) -> Runnable:
     if OFFLINE:
         return RunnableLambda(offline_reply)
     prompt = ChatPromptTemplate.from_messages([("system", build_system_prompt(book)), ("human", "{question}")])
-    llm = ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2)
+    llm = build_llm(LLM_MODEL)
     return prompt | llm | StrOutputParser()
 
 

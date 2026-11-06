@@ -10,9 +10,9 @@ from dataclasses import dataclass, field
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_groq import ChatGroq
 
 from book_rag.config import FALLBACK_ANSWER, LLM_MODEL, OFFLINE
+from book_rag.llm import build_llm
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +49,7 @@ def build_summarizer() -> Summarizer:
     """A summarizer that asks the language model, and falls back to the crude one if that fails."""
     if OFFLINE:
         return crude_summary
-    chain = (
-        ChatPromptTemplate.from_template(SUMMARY_PROMPT)
-        | ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2)
-        | StrOutputParser()
-    )
+    chain = ChatPromptTemplate.from_template(SUMMARY_PROMPT) | build_llm(LLM_MODEL) | StrOutputParser()
 
     def summarize(summary: str, question: str, answer: str) -> str:
         try:

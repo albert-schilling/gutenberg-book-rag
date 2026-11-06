@@ -147,3 +147,25 @@ coverage of the evaluation command, running the evaluation and the live tests on
   is corrected in `docs/changes.md` and `evals/README.md`. TODO added for a hybrid option and a token-length check.
 - Friction: their "token size around 252" cannot be the chunk length (400 characters is about 81 tokens); I read it as
   the model's `max_seq_length`. Not committed: you did not ask for a commit for this one.
+## Interlude: Mistral as the language model
+- The first key was rejected (401); the new one works. `llm.py` is now the only place that names a provider:
+  `BOOK_RAG_LLM=mistral` (default `groq`) switches the answers, the agent, the memory summaries, the book summaries and the
+  judge (`mistral-small-latest` / `mistral-large-latest`). Provider errors (Groq and Mistral rate limits, refused key, no
+  connection) give a message in the chat. New dependency `langchain-mistralai`. 6 unit tests for the seam.
+- Real runs on Mistral: plain answers, the whole-book question (summary), memory summary and the agent work. The 7 live tests
+  passed 3 of 3 runs. I did **not** run the evaluation (about 60 calls on your key); say if you want it.
+- Findings: (1) the agent's rewrites with Mistral small are synonyms of the same question, so retrieval does not change; in one
+  run the passage with the fact was retrieved and the model still refused in the last round (TODO). (2) I had written that the
+  agent makes "at most 3 searches"; it makes at most 3 model calls and up to 5 searches: fixed in code, docs and tests.
+  (3) Two live tests asserted retrieval quality and were flaky; they now check what must hold for any model.
+- Not committed.
+## Interlude: evaluation on Mistral (done)
+- Ran `book-rag-eval` and `book-rag-eval --agent` with `BOOK_RAG_LLM=mistral` (reports `20261106-151524-full`, `20261106-151938-agent`).
+  The first agent run crashed on a Mistral 429 because the evaluation had no rate-limit handling: `with_retries` (waits 30 s, up to 6
+  times, other errors are not retried) was added and tested; the rerun used `--pause 3` and needed no waits.
+- Plain: correctness 0.47, abstention accuracy 0.67. Agent: 0.71 and 0.95, faithfulness 0.91, 1.9 searches a question.
+- **The gain is a prompt effect, not search.** All 6 improved questions were answered after one search; 'fasting' (5 searches) and
+  'rookery-size' (3) stayed wrong; every unanswerable question cost 3 to 5 searches. `mistral-small` over-refuses with the plain
+  prompt even when the evidence is at rank 1. I had expected the loop to help; it did not on this set (17 answerable questions: one is 0.06).
+- Not run: the same evaluation on Groq (no tokens), a plain pipeline with the agent's prompt, other Mistral models. TODO added.
+- Not committed.

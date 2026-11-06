@@ -15,6 +15,7 @@ from book_rag.evaluation import judge as judging
 from book_rag.evaluation import metrics
 from book_rag.evaluation.dataset import EvalCase, load_dataset
 from book_rag.evaluation.report import run_metadata, summarize, write_report
+from book_rag.llm import PROVIDER_ERRORS, is_rate_limit
 from book_rag.rag import ScoredPassages, ask, build_chain, format_context, retrieve
 from book_rag.store import build_vector_store
 
@@ -101,6 +102,18 @@ def evaluate_case(
     }
 
 
+def with_retries(call, *, attempts: int = 6, wait: float = 30.0):
+    """Run `call`. A rate limit of the language model is waited out instead of ending a long run."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return call()
+        except PROVIDER_ERRORS as error:
+            if not is_rate_limit(error) or attempt == attempts:
+                raise
+            print(f"  rate limit, waiting {wait:.0f}s (attempt {attempt} of {attempts})", flush=True)
+            time.sleep(wait)
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Evaluate the retrieval and the answers of the RAG system.")
     parser.add_argument("--retrieval-only", action="store_true", help="skip the language models (no Groq calls)")
@@ -119,7 +132,7 @@ def main(argv: list[str] | None = None) -> None:
     results = []
     for i, case in enumerate(cases, 1):
         print(f"[{i}/{len(cases)}] {case.id}", flush=True)
-        results.append(evaluate_case(case, vector_store, chain, judge, step_chain))
+        results.append(with_retries(lambda: evaluate_case(case, vector_store, chain, judge, step_chain)))
         if (chain is not None or step_chain is not None) and i < len(cases):
             time.sleep(args.pause)
 

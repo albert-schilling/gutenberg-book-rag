@@ -3,7 +3,7 @@ import httpx
 import pytest
 from langchain_core.documents import Document
 
-from book_rag import agent, conversation, rag
+from book_rag import agent, conversation, llm, rag
 from book_rag.agent import AgentResult
 from book_rag.books import DEFAULT_BOOK
 from book_rag.memory import ChatMemory
@@ -71,12 +71,15 @@ def test_a_rate_limit_gives_a_message_and_is_not_remembered(monkeypatch):
     memory = ChatMemory()
     result = companion().respond("Q?", memory, agentic=True)
     assert result.error and result.passages == []
-    assert result.answer == "The free Groq plan is at its limit for now. Please try again in 6m47s."
+    assert (
+        result.answer
+        == f"The free {llm.LLM_PROVIDER.capitalize()} plan is at its limit for now. Please try again in 6m47s."
+    )
     assert memory.pairs == []  # an error is not part of the conversation
 
 
 def test_a_rate_limit_without_a_wait_time_still_says_what_to_do():
-    assert "wait a little" in conversation.error_message(rate_limit_error("Too many requests"))
+    assert "wait a little" in llm.error_message(rate_limit_error("Too many requests"))
 
 
 def test_a_connection_error_gives_a_message_too(monkeypatch):

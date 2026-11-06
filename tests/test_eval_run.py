@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from helpers import ANSWERABLE, UNANSWERABLE, FakeChain, FakeJudge, FakeVectorStore
 
 from book_rag.config import FALLBACK_ANSWER, NO_ANSWER
@@ -111,3 +112,32 @@ def test_without_the_agent_there_is_one_search_per_question():
     result = run.evaluate_case(ANSWERABLE, store, FakeChain("Four weeks."), FakeJudge())
     assert result["queries"] == [ANSWERABLE.question]
     assert summarize([result])["generation"]["searches_per_question"] == 1.0
+
+
+def test_a_rate_limit_is_waited_out_and_other_errors_are_not(monkeypatch):
+    import httpx
+
+    monkeypatch.setattr(run.time, "sleep", lambda seconds: None)
+    request = httpx.Request("POST", "https://api.mistral.ai/x")
+    limited = httpx.HTTPStatusError("x", request=request, response=httpx.Response(429, request=request))
+    calls = []
+
+    def flaky():
+        calls.append(1)
+        if len(calls) < 3:
+            raise limited
+        return "done"
+
+    assert run.with_retries(flaky, attempts=5) == "done" and len(calls) == 3  # waited twice
+
+    def always():
+        raise limited
+
+    with pytest.raises(httpx.HTTPStatusError):
+        run.with_retries(always, attempts=2)  # gives up after the last attempt
+
+    def broken():
+        raise httpx.HTTPStatusError("x", request=request, response=httpx.Response(500, request=request))
+
+    with pytest.raises(httpx.HTTPStatusError):
+        run.with_retries(broken, attempts=5)  # a server error is not retried

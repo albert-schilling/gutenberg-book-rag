@@ -120,3 +120,22 @@ of the gap. Same 17 questions, `k=4`:
 MiniLM with hybrid and chunks under the token limit is within one question of e5 on recall (0.65 against 0.71) but about
 0.1 lower on MRR. One question is 0.06, so only the MRR gap is consistent. e5 stays; the conclusion "e5 doubles recall" was
 too strong.
+
+## Plain pipeline against the agent, with Mistral (2026-11-06)
+
+Same 21 questions, `mistral-small-latest` answers, `mistral-large-latest` judges. The book summaries and the memory are in the prompt.
+These reports are not comparable with the Groq ones above (other model, other prompt).
+
+| Metric | Plain | Agent |
+| :-- | --: | --: |
+| context_recall / MRR | 0.71 / 0.56 | 0.71 / 0.56 (same retrieval for the first search) |
+| answer_correctness | 0.47 | 0.71 |
+| abstention_accuracy | 0.67 | 0.95 |
+| answered_when_answerable | 0.59 | 0.94 |
+| faithfulness | 1.00 | 0.91 |
+| searches_per_question | 1.0 | 1.9 |
+
+The agent fixed 6 questions that the plain pipeline refused **although the evidence was at rank 1** (nest material, eggs, hen on the
+nest, sea-leopards, ...), and every one of them needed only one search. The search loop itself rescued nothing. The difference is
+the prompt: the plain one tells the model to say "The book does not answer this question" unless the passages do, and
+`mistral-small` over-refuses; the agent's does not. Next test: give the plain pipeline the agent's prompt (one call, no loop).

@@ -11,10 +11,10 @@ import time
 from dotenv import load_dotenv
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_groq import ChatGroq
 
 from book_rag.books import BOOKS, Book, get_book
 from book_rag.config import DATA_DIR, ENV_FILE, JUDGE_MODEL
+from book_rag.llm import build_llm
 from book_rag.reader import paragraph_at, paragraph_starts, paragraphs_of
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def make_summary(book: Book) -> str:
     """One call to the language model."""
     chain = (
         ChatPromptTemplate.from_template(PROMPT)
-        | ChatGroq(model=JUDGE_MODEL, temperature=0, max_retries=6, reasoning_effort="low")
+        | build_llm(JUDGE_MODEL, max_retries=6, reasoning_effort="low")
         | StrOutputParser()
     )
     summary = chain.invoke(

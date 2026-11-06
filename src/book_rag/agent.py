@@ -14,16 +14,16 @@ from langchain_chroma import Chroma
 from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableLambda
-from langchain_groq import ChatGroq
 from pydantic import BaseModel, Field
 
 from book_rag.books import Book
 from book_rag.config import FALLBACK_ANSWER, LLM_MODEL, NO_ANSWER, OFFLINE, TOP_K
+from book_rag.llm import build_llm
 from book_rag.rag import ScoredPassages, build_system_prompt, format_context, offline_reply, retrieve
 
 logger = logging.getLogger(__name__)
 
-MAX_ROUNDS = 3  # searches in the book per question: the first one and at most two more
+MAX_ROUNDS = 3  # calls to the model per question; each of the first two may add new searches
 NEW_QUERIES_PER_ROUND = 2
 MAX_PASSAGES = TOP_K + 2  # passages kept when the results of several searches are put together
 
@@ -70,7 +70,7 @@ def build_step_chain(book: Book) -> Runnable:
             ("human", "{question}"),
         ]
     )
-    llm: BaseChatModel = ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2)
+    llm: BaseChatModel = build_llm(LLM_MODEL)
     return prompt | llm.with_structured_output(Step)
 
 

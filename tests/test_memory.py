@@ -67,7 +67,7 @@ def test_a_failing_language_model_does_not_break_the_summary(monkeypatch):
             raise RuntimeError("rate limit")
 
     monkeypatch.setattr(memory, "OFFLINE", False)
-    monkeypatch.setattr(memory, "ChatGroq", lambda **kwargs: Broken())
+    monkeypatch.setattr(memory, "build_llm", lambda *args, **kwargs: Broken())
     monkeypatch.setattr(
         memory, "ChatPromptTemplate", type("P", (), {"from_template": staticmethod(lambda t: Broken())})
     )

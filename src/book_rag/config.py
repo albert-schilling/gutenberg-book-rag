@@ -22,8 +22,16 @@ AGENTIC_DEFAULT = os.environ.get("BOOK_RAG_AGENT", "1") != "0"
 EMBEDDING_MODEL = "intfloat/e5-small-v2"  # found in the retrieval experiments, see evals/README.md
 QUERY_PREFIX = "query: "  # e5 models expect these prefixes
 PASSAGE_PREFIX = "passage: "
-LLM_MODEL = "openai/gpt-oss-20b"
-JUDGE_MODEL = "openai/gpt-oss-120b"  # grades the answers in the evaluation; a larger model than the generator
+# The language model: BOOK_RAG_LLM=mistral (default) or groq. The second model grades the answers in the evaluation
+# and writes the book summaries: a larger model than the one that answers.
+LLM_PROVIDER = os.environ.get("BOOK_RAG_LLM", "mistral")
+_MODELS = {
+    "groq": ("openai/gpt-oss-20b", "openai/gpt-oss-120b"),
+    "mistral": ("mistral-small-latest", "mistral-large-latest"),
+}
+if LLM_PROVIDER not in _MODELS:
+    raise ValueError(f"BOOK_RAG_LLM must be one of {sorted(_MODELS)}, not '{LLM_PROVIDER}'")
+LLM_MODEL, JUDGE_MODEL = _MODELS[LLM_PROVIDER]
 
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200

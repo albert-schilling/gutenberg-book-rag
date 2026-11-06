@@ -74,6 +74,7 @@ def run_metadata(mode: str, book: Book = DEFAULT_BOOK) -> dict:
             "top_k": config.TOP_K,
             "min_similarity": config.MIN_SIMILARITY,
             "embedding_model": config.EMBEDDING_MODEL,
+            "llm_provider": config.LLM_PROVIDER,
             "llm_model": config.LLM_MODEL,
             "judge_model": config.JUDGE_MODEL,
             "system_prompt_sha1": hashlib.sha1(config.SYSTEM_PROMPT.encode("utf-8")).hexdigest()[:10],

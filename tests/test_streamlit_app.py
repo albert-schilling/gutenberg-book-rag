@@ -9,7 +9,7 @@ import streamlit as st
 from langchain_core.documents import Document
 from streamlit.testing.v1 import AppTest
 
-from book_rag import agent, memory, rag, store
+from book_rag import agent, llm, memory, rag, store
 from book_rag.agent import AgentResult
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.reader import passage_page
@@ -358,7 +358,8 @@ def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
     app.chat_input[0].set_value("please break").run()
     assert not app.exception
     assert (
-        app.chat_message[1].markdown[0].value == "The free Groq plan is at its limit for now. Please try again in 2m5s."
+        app.chat_message[1].markdown[0].value
+        == f"The free {llm.LLM_PROVIDER.capitalize()} plan is at its limit for now. Please try again in 2m5s."
     )
     app.chat_input[0].set_value("Next question").run()
     assert not app.exception and app.conversations[-1] == ""  # the failed exchange is not in the memory
