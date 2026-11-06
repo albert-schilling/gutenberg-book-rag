@@ -10,6 +10,7 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from langchain_groq import ChatGroq
 
 from book_rag.books import Book
+from book_rag.summary import load_summary
 from book_rag.config import (
     EMPTY_ANSWER_RETRIES,
     FALLBACK_ANSWER,
@@ -27,8 +28,10 @@ ScoredPassages = list[tuple[Document, float]]
 
 
 def build_system_prompt(book: Book) -> str:
-    """The prompt of the book. {context} stays in it: the chain fills in the passages."""
-    return SYSTEM_PROMPT.replace("{title}", book.title).replace("{author}", book.author)
+    """The prompt of the book, with its summary. {context} and {conversation} stay in it: the chain fills them in."""
+    summary = load_summary(book) or "(not available)"
+    summary = summary.replace("{", "{{").replace("}", "}}")  # the prompt is a template: braces in the text are not slots
+    return SYSTEM_PROMPT.replace("{title}", book.title).replace("{author}", book.author).replace("{book_summary}", summary)
 
 
 def _offline_reply(inputs: dict) -> str:

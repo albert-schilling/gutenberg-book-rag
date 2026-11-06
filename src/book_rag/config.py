@@ -29,9 +29,11 @@ EMPTY_ANSWER_RETRIES = 2  # gpt-oss sometimes returns an empty reply: ask again 
 FALLBACK_ANSWER = "Sorry, the model did not return an answer. Please ask the question again."
 SYSTEM_PROMPT = (  # {title} and {author} are filled in per book, {context} by the chain
     "You are a reading companion for the book '{title}' by {author}. "
-    "Answer the question using ONLY the passages below. "
+    "Answer the question using ONLY the passages and the summary of the book below. "
     f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}" '
     "Do not use any other knowledge. Keep the answer short.\n\n"
+    "Summary of the whole book (use it for questions about the book as a whole, such as what it is about):\n"
+    "{book_summary}\n\n"
     "Conversation so far, only to understand follow-up questions (facts must come from the passages):\n"
     "{conversation}\n\n"
     "Passages:\n{context}"

@@ -67,3 +67,17 @@ asked are listed under each task and in the last section.
 - Friction: retrieval still searches with the current question only, so "Why do they do that?" got a refusal. The agent
   of task 7 rewrites follow-up questions into standalone ones. `st.chat_input` cannot be pre-filled, which does not matter here.
 
+## 5. Book summaries for "What is this book about?" (done)
+- Problem: no single passage is about the whole book, so retrieval cannot answer it. Fix: a ~200-word summary of every
+  book (`data/summaries/<book>.md`) is part of every prompt (about 300 tokens).
+- How the summaries are made (`uv run book-rag-summarize`): a book is 40,000-145,000 tokens but the free plan allows
+  8,000 tokens a minute, so a map-reduce over the whole book (about 25 calls of a minute each per big book) was not
+  sensible. Instead: 14 evenly spaced excerpts (opening, 12 places with their position, ending; about 4,000 tokens) and
+  **one call per book** with `gpt-oss-120b` (`reasoning_effort=low`): 8 calls and about 35,000 tokens in total, with a
+  65 s pause between books. The reply is cut after the last complete sentence within 210 words because the model
+  ignored the word limit (265 words for Frankenstein).
+- Tests: excerpt sampling for all 8 books (size, order, from the book), loading, prompt placement and brace escaping,
+  the command with a fake model, the word limit.
+- Limits / friction: only 14 excerpts, so details between them are missing; the model sometimes adds facts that are
+  not in the excerpts (it knows the famous books). The summaries should be read by a person (TODO).
+

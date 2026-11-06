@@ -39,6 +39,8 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Book summaries: made from 14 excerpts only (about 4,000 tokens, one call per book). A map-reduce over the whole book
+  would be better but needs about 25 calls (a minute each) per large book on the free Groq plan. Check the summaries by eye.
 - [ ] Pre-build the vector stores of all books (a script): the first selection of a book takes 2 to 4 s (spinner "Preparing the book").
 - [ ] Long chats: older answers still draw all four passage expanders. Draw a passage only when its expander is open
   (`st.expander(on_change="rerun")`), or draw the chat in a `st.fragment` so that closing the book does not redraw it.
