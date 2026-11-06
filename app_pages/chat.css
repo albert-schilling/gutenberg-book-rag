@@ -102,7 +102,16 @@ div:has(> .st-key-chat-pane) {
 
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
   background: var(--st-background-color);
-  border-style: dashed;
+  border: 1px dashed var(--st-border-color);
+}
+
+[data-testid^="stChatMessageAvatar"] {
+  background: var(--st-primary-color) !important;
+  color: var(--st-background-color) !important;
+}
+
+[data-testid="stChatMessageAvatarUser"] {
+  background: #6b6257 !important;
 }
 
 [data-testid="stChatMessage"] [data-testid="stExpander"] {

@@ -1,5 +1,5 @@
 This app started as the book RAG assignment and departs from it in a number of places. This page lists the results first, then the most
-important changes, the experiments, and at the end every smaller difference. The notebook still shows the original approach.
+important changes, the experiments, and at the end every smaller difference. The notebook (now in `assignment/`) still shows the original approach.
 
 ## Performance
 
@@ -96,7 +96,7 @@ and the question uses other words than the book ("feed on" against "feeding on t
 | Command line | loop until `quit` | `quit` or `exit`, `--book`, `--agent`; shares one `Companion` object with the web app |
 | Offline mode | needs a key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply: no key, no cost, no rate limit |
 | Tests | none | unit, app, browser (Playwright: scrolling, highlight, tooltip, pages, settings) and live tests (`BOOK_RAG_LIVE=1 uv run pytest -m live`) |
-| Code quality | none | ruff in `pyproject.toml`, `src/book_rag` package |
+| Code quality | none | ruff in `pyproject.toml`, `src/book_rag` package, a Makefile, a README with screenshots; the notebook and the assignment text moved to `assignment/` |
 
 ## Known limits
 

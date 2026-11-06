@@ -10,6 +10,7 @@ borderColor = "#ddd3c1"
 baseRadius = "0.5rem"
 headingFont = "serif"
 codeFont = "monospace"
+chartCategoricalColors = ["#8c2f39", "#c9a66b", "#4f6d7a", "#7c8f5a", "#6b6257"]
 
 [theme.sidebar]
 backgroundColor = "#f2ece0"

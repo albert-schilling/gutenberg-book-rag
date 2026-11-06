@@ -21,8 +21,8 @@ two reports are only comparable when the dataset hash matches.
 ## Dataset
 
 `dataset.json` is about the default book (Antarctic Penguins); the other books have no golden questions yet
-(see `TODO.md`). It has 17 answerable questions with a reference answer and **evidence phrases** copied
-from the cleaned book, and 4 questions the book cannot answer. Evidence phrases, not chunk ids,
+(see `TODO.md`). It has 72 questions in two splits (`dev`: 21, used while tuning; `test`: 51, never used for tuning). Most are facts with a reference answer
+and **evidence phrases** copied from the cleaned book; some are about the whole book, and 6 cannot be answered by the book. Evidence phrases, not chunk ids,
 keep the dataset valid when the chunking changes. `tests/test_eval_dataset.py` checks that every
 phrase is in the book and inside a single chunk.
 

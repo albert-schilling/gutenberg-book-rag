@@ -1,6 +1,8 @@
 [project]
-name = "amle-project-book-rag"
+name = "book-rag"
 version = "0.1.0"
+description = "Retrieval-augmented chat with books from Project Gutenberg: Chroma, e5 embeddings, an evaluation suite"
+readme = "README.md"
 requires-python = ">=3.13.17"
 dependencies = [
     "colorama>=0.4.6",

@@ -230,3 +230,11 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - New `.streamlit/config.toml` theme (paper `#fbf8f1`, ink, oxblood accent, serif headings) and a CSS section in `app_pages/chat.css`: bordered
   chat bubbles (questions dashed), softer passage cards, shadowed input and reader panel. The reader already used theme variables, so it follows.
 - Not done: a dark theme (the palette is light only); custom fonts (Streamlit's built-in serif is used, no font files added).
+
+### 9: restructure
+- `assignment/` holds the notebook (data and `chroma_db` paths patched to `..`), the original README (with a pointer to the new one) and the
+  diagram. `rag_cli.py` removed: `uv run book-rag` is the finished tool. `agent-log.md` moved to `docs/`. Project renamed `book-rag`.
+- New README (what it shows, results, quick start, phone views, layout), `Makefile`, `scripts/take_screenshots.py` (real Mistral answer).
+- Mobile: the reader fills the screen below the header (already in B+C); checked on 390x844, screenshots in `docs/images/`.
+- Not done: moving `streamlit_app.py`/`app_pages/` into an `app/` folder. Streamlit's theme and AppTest paths depend on the root entry
+  point; the gain was small. The notebook itself still shows the old approach (TODO).
