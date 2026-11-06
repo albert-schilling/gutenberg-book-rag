@@ -49,7 +49,7 @@ def build_summarizer() -> Summarizer:
     """A summarizer that asks the language model, and falls back to the crude one if that fails."""
     if OFFLINE:
         return crude_summary
-    chain = ChatPromptTemplate.from_template(SUMMARY_PROMPT) | ChatGroq(model=LLM_MODEL, temperature=0) | StrOutputParser()
+    chain = ChatPromptTemplate.from_template(SUMMARY_PROMPT) | ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2) | StrOutputParser()
 
     def summarize(summary: str, question: str, answer: str) -> str:
         try:

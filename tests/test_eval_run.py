@@ -82,3 +82,30 @@ def test_the_fallback_answer_counts_as_empty():
     result = run.evaluate_case(ANSWERABLE, store, FakeChain(""), judge=None)  # `ask` retries, then returns the fallback
     assert result["answer"] == FALLBACK_ANSWER
     assert result["generation"]["empty"] and not result["generation"]["abstained"]
+
+
+def test_the_agent_mode_counts_the_searches_and_uses_the_passages_of_all_of_them():
+    from book_rag.agent import Step
+
+    class Model:
+        def __init__(self):
+            self.calls = 0
+
+        def invoke(self, inputs):
+            self.calls += 1
+            return Step(new_queries=["more specific words"]) if self.calls == 1 else Step(answer="Four weeks.")
+
+    store = FakeVectorStore("The eggs are incubated for four weeks.")
+    result = run.evaluate_case(ANSWERABLE, store, chain=None, judge=FakeJudge(), step_chain=Model())
+    assert result["queries"] == [ANSWERABLE.question, "more specific words"]
+    assert result["answer"] == "Four weeks." and result["generation"]["correctness"] == 1.0
+    assert result["retrieval"]["context_recall"] == 1.0
+    summary = summarize([result])
+    assert summary["generation"]["searches_per_question"] == 2.0
+
+
+def test_without_the_agent_there_is_one_search_per_question():
+    store = FakeVectorStore("The eggs are incubated for four weeks.")
+    result = run.evaluate_case(ANSWERABLE, store, FakeChain("Four weeks."), FakeJudge())
+    assert result["queries"] == [ANSWERABLE.question]
+    assert summarize([result])["generation"]["searches_per_question"] == 1.0

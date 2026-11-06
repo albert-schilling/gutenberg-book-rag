@@ -37,6 +37,7 @@ def summarize(results: list[dict]) -> dict:
                 [float(not (r["generation"]["abstained"] or r["generation"]["empty"])) for r in answerable]
             ),
             "empty_answer_rate": mean([float(g["empty"]) for g in generation]),
+            "searches_per_question": mean([float(len(r.get("queries", [0]))) for r in results]),  # 1.0 without the agent
             "abstained_when_unanswerable": mean([float(r["generation"]["abstained"]) for r in unanswerable]),
             "faithfulness": mean([g["faithfulness"] for g in generation]),
             "answer_correctness": mean([r["generation"]["correctness"] for r in answerable]),

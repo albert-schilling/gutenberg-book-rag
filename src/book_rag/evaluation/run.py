@@ -8,6 +8,7 @@ from langchain_chroma import Chroma
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 
+from book_rag.agent import agent_ask, build_step_chain
 from book_rag.books import DEFAULT_BOOK
 from book_rag.config import ENV_FILE
 from book_rag.evaluation import judge as judging
@@ -62,11 +63,23 @@ def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPass
     return generation
 
 
-def evaluate_case(case: EvalCase, vector_store: Chroma, chain: Runnable | None, judge: BaseChatModel | None) -> dict:
-    if chain is None:  # retrieval only: no calls to the language model
+def evaluate_case(
+    case: EvalCase,
+    vector_store: Chroma,
+    chain: Runnable | None,
+    judge: BaseChatModel | None,
+    step_chain: Runnable | None = None,
+) -> dict:
+    """Evaluate one question: with the agent (`step_chain`), with the plain chain, or retrieval only (neither)."""
+    queries = [case.question]
+    if step_chain is not None:  # the agent may search the book again
+        found = agent_ask(case.question, vector_store, step_chain)
+        answer, scored_passages, queries = found.answer, found.passages, found.queries
+    elif chain is None:  # retrieval only: no calls to the language model
         answer, scored_passages = None, retrieve(case.question, vector_store)
     else:
         answer, scored_passages = ask(case.question, vector_store, chain)
+    generates = chain is not None or step_chain is not None
     return {
         "id": case.id,
         "question": case.question,
@@ -78,33 +91,36 @@ def evaluate_case(case: EvalCase, vector_store: Chroma, chain: Runnable | None, 
             for p, s in scored_passages
         ],
         "retrieval": evaluate_retrieval(case, scored_passages),
+        "queries": queries,
         "answer": answer,
-        "generation": None if chain is None else evaluate_generation(case, answer, scored_passages, judge),
+        "generation": evaluate_generation(case, answer, scored_passages, judge) if generates else None,
     }
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Evaluate the retrieval and the answers of the RAG system.")
     parser.add_argument("--retrieval-only", action="store_true", help="skip the language models (no Groq calls)")
+    parser.add_argument("--agent", action="store_true", help="let the model search the book again (see agent.py)")
     parser.add_argument("--limit", type=int, help="only run the first N questions")
     parser.add_argument("--pause", type=float, default=1.0, help="seconds between questions (Groq rate limit)")
     args = parser.parse_args(argv)
 
     load_dotenv(ENV_FILE)
     vector_store = build_vector_store(DEFAULT_BOOK)  # the golden questions are about this book
-    chain = None if args.retrieval_only else build_chain(DEFAULT_BOOK)
+    chain = None if args.retrieval_only or args.agent else build_chain(DEFAULT_BOOK)
+    step_chain = build_step_chain(DEFAULT_BOOK) if args.agent and not args.retrieval_only else None
     judge = None if args.retrieval_only else judging.build_judge()
     cases = load_dataset()[: args.limit]
 
     results = []
     for i, case in enumerate(cases, 1):
         print(f"[{i}/{len(cases)}] {case.id}", flush=True)
-        results.append(evaluate_case(case, vector_store, chain, judge))
-        if chain is not None and i < len(cases):
+        results.append(evaluate_case(case, vector_store, chain, judge, step_chain))
+        if (chain is not None or step_chain is not None) and i < len(cases):
             time.sleep(args.pause)
 
     report = {
-        "metadata": run_metadata("retrieval" if args.retrieval_only else "full"),
+        "metadata": run_metadata("retrieval" if args.retrieval_only else "agent" if args.agent else "full"),
         "summary": summarize(results),
         "results": results,
     }

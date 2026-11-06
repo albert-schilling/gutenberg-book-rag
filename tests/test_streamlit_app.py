@@ -7,7 +7,11 @@ import streamlit as st
 from langchain_core.documents import Document
 from streamlit.testing.v1 import AppTest
 
-from book_rag import memory, rag, store
+import groq
+import httpx
+
+from book_rag import agent, memory, rag, store
+from book_rag.agent import AgentResult
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.reader import passage_page
 
@@ -22,7 +26,7 @@ def app(monkeypatch):
     `app.questions` records (question, book id of the vector store) for every question,
     `app.built` the books whose vector store was built.
     """
-    questions, built, conversations, summaries = [], [], [], []
+    questions, built, conversations, summaries, paths = [], [], [], [], []
 
     def fake_build_vector_store(book):
         built.append(book.id)
@@ -33,6 +37,7 @@ def app(monkeypatch):
         return f"{summary}|{question}".strip("|")
 
     def fake_ask(question, vector_store, chain, conversation=""):
+        paths.append("plain")
         questions.append((question, vector_store[1]))
         conversations.append(conversation)
         passages = [
@@ -43,12 +48,23 @@ def app(monkeypatch):
 
     monkeypatch.setattr(store, "build_vector_store", fake_build_vector_store)
     monkeypatch.setattr(rag, "build_chain", lambda book: ("chain", book.id))
+    def fake_agent_ask(question, vector_store, step_chain, conversation=""):
+        if "break" in question:  # a rate limit of the language model
+            request = httpx.Request("POST", "https://api.groq.com/x")
+            raise groq.RateLimitError("limit. Please try again in 2m5.5s.", response=httpx.Response(429, request=request), body=None)
+        answer, passages = fake_ask(question, vector_store, step_chain, conversation)
+        paths[-1] = "agent"
+        queries = [question, "other words"] if "rephrase" in question else [question]
+        return AgentResult(answer, passages, queries)
+
     monkeypatch.setattr(rag, "ask", fake_ask)
+    monkeypatch.setattr(agent, "agent_ask", fake_agent_ask)
+    monkeypatch.setattr(agent, "build_step_chain", lambda book: ("step", book.id))
     monkeypatch.setattr(memory, "build_summarizer", lambda: fake_summarizer)
     st.cache_resource.clear()  # load_rag() is cached for the whole process: start every test fresh
 
     at = AppTest.from_file(str(APP), default_timeout=30).run()
-    at.questions, at.built, at.conversations, at.summaries = questions, built, conversations, summaries
+    at.questions, at.built, at.conversations, at.summaries, at.paths = questions, built, conversations, summaries, paths
     return at
 
 
@@ -304,3 +320,39 @@ def test_every_book_counts_its_own_visible_exchanges(app):
     assert len(app.chat_message) == 6 and not [b for b in app.button if b.key == "show-earlier"]
     choose_book(app, DEFAULT_BOOK)
     assert len(app.chat_message) == 20 and [b for b in app.button if b.key == "show-earlier"]
+
+
+def agent_toggle(app):
+    return next(t for t in app.sidebar.toggle if t.label == "Search again when needed")
+
+
+def test_the_model_may_search_again_by_default_and_the_sidebar_can_switch_it_off(app):
+    assert agent_toggle(app).value is True
+    app.chat_input[0].set_value("First").run()
+    agent_toggle(app).set_value(False).run()
+    app.chat_input[0].set_value("Second").run()
+    assert not app.exception
+    assert app.paths == ["agent", "plain"]  # the second question was answered without the agent
+
+
+def test_the_searches_of_the_model_are_shown_under_the_answer_and_stay_in_the_history(app):
+    app.chat_input[0].set_value("Please rephrase this").run()
+    caption = [c.value for c in app.caption if c.value.startswith("Searched the book for")]
+    assert caption == ["Searched the book for: “Please rephrase this” · “other words”"]
+    app.chat_input[0].set_value("A plain question").run()
+    captions = [c.value for c in app.caption if c.value.startswith("Searched the book for")]
+    assert captions == ["Searched the book for: “Please rephrase this” · “other words”"]  # still there, only once
+    assert len(app.chat_message) == 4
+
+
+def test_a_question_with_one_search_shows_no_searches_line(app):
+    app.chat_input[0].set_value("A plain question").run()
+    assert not [c for c in app.caption if c.value.startswith("Searched the book for")]
+
+
+def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
+    app.chat_input[0].set_value("please break").run()
+    assert not app.exception
+    assert app.chat_message[1].markdown[0].value == "The free Groq plan is at its limit for now. Please try again in 2m5s."
+    app.chat_input[0].set_value("Next question").run()
+    assert not app.exception and app.conversations[-1] == ""  # the failed exchange is not in the memory

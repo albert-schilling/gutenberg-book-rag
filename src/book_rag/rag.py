@@ -18,6 +18,7 @@ from book_rag.config import (
     MIN_SIMILARITY,
     NO_ANSWER,
     OFFLINE,
+    REFUSAL_RULE,
     SYSTEM_PROMPT,
     TOP_K,
 )
@@ -27,11 +28,19 @@ logger = logging.getLogger(__name__)
 ScoredPassages = list[tuple[Document, float]]
 
 
-def build_system_prompt(book: Book) -> str:
-    """The prompt of the book, with its summary. {context} and {conversation} stay in it: the chain fills them in."""
+def build_system_prompt(book: Book, refusal_rule: str = REFUSAL_RULE) -> str:
+    """The prompt of the book, with its summary. {context} and {conversation} stay in it: the chain fills them in.
+
+    `refusal_rule` says what to do when the passages do not answer the question (the agent replaces it).
+    """
     summary = load_summary(book) or "(not available)"
     summary = summary.replace("{", "{{").replace("}", "}}")  # the prompt is a template: braces in the text are not slots
-    return SYSTEM_PROMPT.replace("{title}", book.title).replace("{author}", book.author).replace("{book_summary}", summary)
+    return (
+        SYSTEM_PROMPT.replace("{title}", book.title)
+        .replace("{author}", book.author)
+        .replace("{refusal_rule}", refusal_rule)
+        .replace("{book_summary}", summary)
+    )
 
 
 def _offline_reply(inputs: dict) -> str:
@@ -43,7 +52,7 @@ def build_chain(book: Book) -> Runnable:
     if OFFLINE:
         return RunnableLambda(_offline_reply)
     prompt = ChatPromptTemplate.from_messages([("system", build_system_prompt(book)), ("human", "{question}")])
-    llm = ChatGroq(model=LLM_MODEL, temperature=0)
+    llm = ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2)
     return prompt | llm | StrOutputParser()
 
 

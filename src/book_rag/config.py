@@ -13,6 +13,10 @@ EVAL_DIR = PROJECT_ROOT / "evals"  # golden questions and the reports of the eva
 # tested without a Groq key, without rate limits and without cost. Retrieval still runs.
 OFFLINE = os.environ.get("BOOK_RAG_OFFLINE") == "1"
 
+# The agent may search the book again before it answers (agent.py). It can use two or three times the tokens of a
+# plain answer, and the free Groq plan allows only 8,000 tokens a minute and 200,000 a day: switchable in the sidebar.
+AGENTIC_DEFAULT = os.environ.get("BOOK_RAG_AGENT", "1") != "0"
+
 EMBEDDING_MODEL = "intfloat/e5-small-v2"  # found in the retrieval experiments, see evals/README.md
 QUERY_PREFIX = "query: "  # e5 models expect these prefixes
 PASSAGE_PREFIX = "passage: "
@@ -27,10 +31,11 @@ MIN_SIMILARITY = 0.0  # passages below this cosine similarity are dropped; 0.0 k
 NO_ANSWER = "The book does not answer this question."
 EMPTY_ANSWER_RETRIES = 2  # gpt-oss sometimes returns an empty reply: ask again this many times
 FALLBACK_ANSWER = "Sorry, the model did not return an answer. Please ask the question again."
+REFUSAL_RULE = f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}"'
 SYSTEM_PROMPT = (  # {title} and {author} are filled in per book, {context} by the chain
     "You are a reading companion for the book '{title}' by {author}. "
     "Answer the question using ONLY the passages and the summary of the book below. "
-    f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}" '
+    "{refusal_rule} "
     "Do not use any other knowledge. Keep the answer short.\n\n"
     "Summary of the whole book (use it for questions about the book as a whole, such as what it is about):\n"
     "{book_summary}\n\n"

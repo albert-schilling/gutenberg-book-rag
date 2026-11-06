@@ -95,3 +95,24 @@ asked are listed under each task and in the last section.
 - Friction: my first scrolling test picked markers from the middle of the loaded window and never advanced
   (test bug). Two helper modules named `helpers.py` clashed; the browser one is now `browser_helpers.py`.
 
+## 7. Agentic LLM (done, evaluation not run)
+- `agent.py`: the model reads the retrieved passages and either answers or proposes up to 2 new search queries
+  (rephrased, standalone, other words). At most 3 searches per question. **The only tool is a search in this book**:
+  no web search, no other tool. A question that the first passages answer costs one call, as before. The result
+  returns the answer, the merged passages and every search that was made; the chat shows "Searched the book for: ..."
+  under the answer. My reading of the cut-off sentence in the task: "return the answer with the questions it used".
+- `conversation.respond()`: one turn for the web app and the CLI (agent or plain, memory update). A rate limit or a
+  connection error of Groq gives a message ("The free Groq plan is at its limit for now. Please try again in 6m47s.")
+  instead of a traceback and is not remembered. Sidebar switch "Search again when needed"; CLI `--no-agent`;
+  `BOOK_RAG_AGENT=0` for the default.
+- Tests with a scripted fake model: answers at once, searches again, stops after the last round, drops repeated/blank
+  queries, merges passages, refuses only in the last round, error messages, UI (switch, searches line, rate limit).
+- **Friction 1: the daily token limit.** Besides 8,000 tokens/minute there is a limit of **200,000 tokens per day** per
+  model. I used it up (198,608 used) while testing, so I could not run the evaluation for the agent. It needs about
+  100,000 tokens: run `uv run book-rag-eval` and `uv run book-rag-eval --agent` on different days (TODO).
+- **Friction 2: a prompt conflict** found with the real model: the base prompt said "refuse if the passages do not
+  answer", the agent prompt said "search again": the model refused. The refusal rule is now a placeholder that the
+  agent replaces. Afterwards it searched again (4 new queries on a fact that retrieval never finds, 117 s with the rate limit).
+- Real-model observations (few calls): with the book summary in the prompt the plain pipeline already answers the old
+  misses (krill, eggs, enemies); the agent rarely needs a second search.
+

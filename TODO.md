@@ -5,6 +5,9 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Evaluation
 
+- [ ] **Run the evaluation again** (`uv run book-rag-eval`, then `uv run book-rag-eval --agent`): the last report is from before the
+  book summaries, the memory and the agent. One full run is about 60 calls and 100,000 tokens: the free Groq plan allows 200,000
+  tokens a day per model, so run them on different days. Then compare the reports in the dashboard.
 - [ ] **Golden questions for the other seven books.** Only the penguin book is measured (`evals/dataset.json`).
   The reports record the book, and `book-rag-eval` always evaluates the default book. Give every book its own set
   and a `--book` option, then check whether the embedding model and the chunk size chosen for the penguins also

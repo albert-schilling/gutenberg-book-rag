@@ -1,6 +1,7 @@
 import pytest
 
 from book_rag import cli
+from book_rag.agent import AgentResult
 
 
 def fake_input(monkeypatch, answer):
@@ -44,7 +45,15 @@ def run_main(monkeypatch, argv, inputs=("quit",)):
     built = []
     monkeypatch.setattr(cli, "build_vector_store", lambda book: built.append(book.id) or "store")
     monkeypatch.setattr(cli, "build_chain", lambda book: "chain")
-    monkeypatch.setattr(cli, "ask", lambda question, store, chain: ("an answer", []))
+    monkeypatch.setattr(cli, "build_step_chain", lambda book: "step chain")
+    monkeypatch.setattr(cli, "build_summarizer", lambda: "summarizer")
+    asked = []
+    monkeypatch.setattr(
+        cli, "respond",
+        lambda question, store, chain, step, memory, summarizer, agentic: asked.append((question, agentic))
+        or AgentResult("an answer", [], [question, "other words"] if "again" in question else [question]),
+    )
+    cli.asked = asked
     answers = iter(inputs)
     monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))
     cli.main(argv)
@@ -67,3 +76,17 @@ def test_an_unknown_book_is_rejected_with_the_choices(monkeypatch, capsys):
     with pytest.raises(SystemExit):
         run_main(monkeypatch, ["--book", "nope"])
     assert "frankenstein_shelley" in capsys.readouterr().err
+
+
+def test_the_agent_is_used_unless_the_user_switches_it_off(monkeypatch):
+    run_main(monkeypatch, [], inputs=("A question", "quit"))
+    assert cli.asked == [("A question", True)]
+    run_main(monkeypatch, ["--no-agent"], inputs=("A question", "quit"))
+    assert cli.asked == [("A question", False)]
+
+
+def test_the_searches_of_the_model_are_printed(monkeypatch, capsys):
+    run_main(monkeypatch, [], inputs=("Ask again", "quit"))
+    assert "Searched the book for: “Ask again” · “other words”" in capsys.readouterr().out
+    run_main(monkeypatch, [], inputs=("Plain", "quit"))
+    assert "Searched the book for" not in capsys.readouterr().out

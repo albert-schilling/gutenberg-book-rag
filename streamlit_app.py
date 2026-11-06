@@ -9,7 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from book_rag.books import BOOKS, DEFAULT_BOOK
-from book_rag.config import ENV_FILE
+from book_rag.config import AGENTIC_DEFAULT, ENV_FILE
 from book_rag.reader_component import open_reader
 from book_rag.selection_component import text_selection
 
@@ -51,6 +51,14 @@ with st.sidebar:
             args=(st.session_state.book_id,),
             help="Open the text of the book next to the chat, from the beginning.",
             width="stretch",
+        )
+    if page is chat:
+        st.toggle(
+            "Search again when needed",
+            value=AGENTIC_DEFAULT,
+            key="agentic",
+            help="The model may rephrase your question and search the book again before it answers. "
+            "This can use two or three times the tokens: the free Groq plan allows 8,000 a minute and 200,000 a day.",
         )
     st.divider()
     if page is chat:
