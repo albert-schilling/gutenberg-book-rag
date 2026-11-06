@@ -39,10 +39,7 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
-- [ ] **Committed browser test for the book reader.** The scrolling of `reader.js` (loading above and below, keeping
-  the position steady, dropping far paragraphs) can only be tested in a real browser. It was checked by hand with
-  headless Chromium (Playwright): 0.8 px of drift over 360,000 px of scrolling in a book of 2,500 paragraphs. A test would need
-  Playwright as a dev dependency, a running app, and `playwright install chromium` in CI.
+- [ ] Run the browser tests (`pytest -m browser`, about 40 s) in CI, and in Firefox and WebKit too. Today only Chromium.
 - [ ] Reader: a search in the book, a jump to a chapter, and remembering the reading position per book.
 - [ ] Reader: the highlight covers the whole chunk, including the 200 characters that overlap the chunk before.
   Highlight only the part that is new, or the sentences the answer used.

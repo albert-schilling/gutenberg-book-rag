@@ -1,12 +1,17 @@
 """Settings shared by the command-line tool and the web app."""
 
+import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
-CHROMA_DIR = PROJECT_ROOT / "chroma_db"  # rebuilt from the book, ignored by Git
+CHROMA_DIR = Path(os.environ.get("BOOK_RAG_CHROMA_DIR", PROJECT_ROOT / "chroma_db"))  # rebuilt from the book, ignored by Git
 ENV_FILE = PROJECT_ROOT / ".env"  # holds GROQ_API_KEY
 EVAL_DIR = PROJECT_ROOT / "evals"  # golden questions and the reports of the evaluation runs
+
+# Offline mode (BOOK_RAG_OFFLINE=1): the language model is replaced by a fixed reply, so the app can be tried and
+# tested without a Groq key, without rate limits and without cost. Retrieval still runs.
+OFFLINE = os.environ.get("BOOK_RAG_OFFLINE") == "1"
 
 EMBEDDING_MODEL = "intfloat/e5-small-v2"  # found in the retrieval experiments, see evals/README.md
 QUERY_PREFIX = "query: "  # e5 models expect these prefixes

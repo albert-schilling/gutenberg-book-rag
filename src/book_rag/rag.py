@@ -6,7 +6,7 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
+from langchain_core.runnables import Runnable, RunnableLambda
 from langchain_groq import ChatGroq
 
 from book_rag.books import Book
@@ -16,6 +16,7 @@ from book_rag.config import (
     LLM_MODEL,
     MIN_SIMILARITY,
     NO_ANSWER,
+    OFFLINE,
     SYSTEM_PROMPT,
     TOP_K,
 )
@@ -30,8 +31,14 @@ def build_system_prompt(book: Book) -> str:
     return SYSTEM_PROMPT.replace("{title}", book.title).replace("{author}", book.author)
 
 
+def _offline_reply(inputs: dict) -> str:
+    return f"Offline mode: no language model was called. The best passages for “{inputs['question']}” are below."
+
+
 def build_chain(book: Book) -> Runnable:
     """The LCEL chain: fill the prompt, call the model, return the reply as a string."""
+    if OFFLINE:
+        return RunnableLambda(_offline_reply)
     prompt = ChatPromptTemplate.from_messages([("system", build_system_prompt(book)), ("human", "{question}")])
     llm = ChatGroq(model=LLM_MODEL, temperature=0)
     return prompt | llm | StrOutputParser()
