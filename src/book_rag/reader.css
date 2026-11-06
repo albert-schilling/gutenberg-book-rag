@@ -1,0 +1,38 @@
+.reader {
+  height: 100%;
+  overflow-y: auto;
+  overflow-anchor: none; /* the script keeps the position itself when it adds text above */
+  position: relative;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  color: var(--st-text-color);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.reader:focus-visible {
+  outline: 2px solid var(--st-primary-color);
+  outline-offset: -2px;
+}
+
+.reader p {
+  margin: 0 0 1rem;
+}
+
+.reader mark {
+  background: color-mix(in srgb, var(--st-primary-color) 30%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  box-decoration-break: clone;
+}
+
+.reader .edge {
+  height: 1.5rem; /* a fixed height: the text comes and goes, the text of the book must not move */
+  line-height: 1.5rem;
+  padding: 0.75rem 0;
+  text-align: center;
+  font-family: var(--st-font);
+  font-size: 0.85rem;
+  opacity: 0.6;
+}

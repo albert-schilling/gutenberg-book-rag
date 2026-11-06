@@ -8,7 +8,8 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 - [ ] **Golden questions for the other seven books.** Only the penguin book is measured (`evals/dataset.json`).
   The reports record the book, and `book-rag-eval` always evaluates the default book. Give every book its own set
   and a `--book` option, then check whether the embedding model and the chunk size chosen for the penguins also
-  suit a novel or a textbook.
+  suit a novel or a textbook. Start with two more books, a novel (for example Frankenstein or Oz) and the climate
+  textbook, to see how far the penguin results carry.
 - [ ] **Larger golden set.** 21 questions (17 answerable) can only show big changes: one question is 0.06 of
   recall, so variants within about 0.1 of each other are ties. Aim for 60 to 100 questions, written in different
   styles (short and long, with and without the book's wording, about one fact and about several) and spread
@@ -38,6 +39,13 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] **Committed browser test for the book reader.** The scrolling of `reader.js` (loading above and below, keeping
+  the position steady, dropping far paragraphs) can only be tested in a real browser. It was checked by hand with
+  headless Chromium (Playwright): 0.8 px of drift over 360,000 px of scrolling in a book of 2,500 paragraphs. A test would need
+  Playwright as a dev dependency, a running app, and `playwright install chromium` in CI.
+- [ ] Reader: a search in the book, a jump to a chapter, and remembering the reading position per book.
+- [ ] Reader: the highlight covers the whole chunk, including the 200 characters that overlap the chunk before.
+  Highlight only the part that is new, or the sentences the answer used.
 - [ ] Review the cleaning of each book by eye. Only the first and last line are checked. Poems, tables and
   footnotes (Climate has many tables) are joined like prose and may produce odd passages.
 - [ ] Build the vector stores of all books in advance (a script), so the first question about a book is not slower.

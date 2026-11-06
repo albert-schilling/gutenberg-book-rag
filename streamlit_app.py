@@ -10,10 +10,11 @@ from dotenv import load_dotenv
 
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.config import ENV_FILE
+from book_rag.reader_component import open_reader
 
 load_dotenv(ENV_FILE)  # reads GROQ_API_KEY from the .env file
 
-st.set_page_config(page_title="Reading companion", page_icon=":material/menu_book:")
+st.set_page_config(page_title="Reading companion", page_icon=":material/menu_book:", layout="wide")
 
 chat = st.Page(
     "app_pages/chat.py",
@@ -41,6 +42,15 @@ with st.sidebar:
         help="Every book has its own vector store. It is built the first time you open the book.",
     )
     st.caption(f"by {BOOKS[st.session_state.book_id].author}")
+    if page is chat:
+        st.button(
+            "Read the book",
+            icon=":material/auto_stories:",
+            on_click=open_reader,
+            args=(st.session_state.book_id,),
+            help="Open the text of the book next to the chat, from the beginning.",
+            width="stretch",
+        )
     st.divider()
     if page is chat:
         st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")

@@ -163,3 +163,73 @@ def test_the_selected_book_survives_a_visit_to_the_changes_page(app):
     app.switch_page("app_pages/chat.py").run()
     assert not app.exception
     assert app.sidebar.selectbox[0].value == FRANKENSTEIN.id
+
+
+def passage_buttons(app):
+    return [b for b in app.button if b.label == "Read in the book"]
+
+
+def book_is_open(app):
+    """The book is open when its panel, with the Close button, is next to the chat."""
+    return any(b.label == "Close" for b in app.button)
+
+
+def test_every_passage_has_a_button_to_read_it_in_the_book(app):
+    app.chat_input[0].set_value("First").run()
+    app.chat_input[0].set_value("Second").run()
+    assert not app.exception  # no two buttons share a key
+    assert len(passage_buttons(app)) == 4  # two passages for each of the two answers
+
+
+def test_the_book_is_closed_until_a_passage_is_opened(app):
+    app.chat_input[0].set_value("Q").run()
+    assert "reader" not in app.session_state
+    assert not book_is_open(app)
+
+
+def test_clicking_a_passage_opens_the_book_at_that_passage_next_to_the_chat(app):
+    app.chat_input[0].set_value("Q").run()
+    passage_buttons(app)[1].click().run()
+
+    assert not app.exception
+    start = 62105  # the second fake passage
+    assert app.session_state["reader"] == {
+        "book": DEFAULT_BOOK.id, "start": start, "end": start + len("A perpetual feud."),
+    }
+    assert book_is_open(app)  # the book on the right ...
+    assert len(app.chat_message) == 2  # ... and the chat is still there
+    assert app.markdown[-1].value == f"**{DEFAULT_BOOK.title}**" or any(
+        m.value == f"**{DEFAULT_BOOK.title}**" for m in app.markdown
+    )
+
+
+def test_the_close_button_closes_the_book(app):
+    app.chat_input[0].set_value("Q").run()
+    passage_buttons(app)[0].click().run()
+    next(b for b in app.button if b.label == "Close").click().run()
+
+    assert not app.exception
+    assert "reader" not in app.session_state
+    assert not book_is_open(app)
+    assert len(app.chat_message) == 2
+
+
+def test_the_sidebar_opens_the_book_from_the_beginning(app):
+    app.sidebar.button[0].click().run()
+
+    assert not app.exception
+    assert app.sidebar.button[0].label == "Read the book"
+    assert app.session_state["reader"] == {"book": DEFAULT_BOOK.id, "start": 0, "end": 0}
+    assert book_is_open(app)
+
+
+def test_an_open_book_does_not_follow_to_another_book(app):
+    app.chat_input[0].set_value("Q").run()
+    passage_buttons(app)[0].click().run()
+    assert book_is_open(app)
+
+    choose_book(app, FRANKENSTEIN)
+    assert not book_is_open(app)  # the open passage belongs to the penguin book
+
+    choose_book(app, DEFAULT_BOOK)
+    assert book_is_open(app)  # and is still open there
