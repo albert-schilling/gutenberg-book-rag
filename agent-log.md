@@ -225,3 +225,8 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Friction: the reader opened at the wrong place because its shadow-root wrappers had no height; fixed with CSS and by opening the text
   only once the panel has a stable size (`reader.js`). A draggable splitter is not possible without a custom component: in TODO.
 - Also fixed 10 ruff findings; tests: AppTest title assertions, 3 new browser tests (`test_layout_browser.py`). 426 unit and 28 browser tests pass.
+
+### D: design
+- New `.streamlit/config.toml` theme (paper `#fbf8f1`, ink, oxblood accent, serif headings) and a CSS section in `app_pages/chat.css`: bordered
+  chat bubbles (questions dashed), softer passage cards, shadowed input and reader panel. The reader already used theme variables, so it follows.
+- Not done: a dark theme (the palette is light only); custom fonts (Streamlit's built-in serif is used, no font files added).

@@ -84,3 +84,47 @@ div:has(> .st-key-chat-pane) {
     display: none;
   }
 }
+
+/* ---- Look: a reading room. Colours come from .streamlit/config.toml. ---- */
+[data-testid="stMainBlockContainer"] h1 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--st-border-color);
+}
+
+[data-testid="stChatMessage"] {
+  border: 1px solid var(--st-border-color);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 55%, var(--st-background-color));
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 1px 2px rgb(60 40 20 / 0.06);
+}
+
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+  background: var(--st-background-color);
+  border-style: dashed;
+}
+
+[data-testid="stChatMessage"] [data-testid="stExpander"] {
+  background: var(--st-background-color);
+  border-radius: 0.5rem;
+}
+
+[data-testid="stChatInput"] {
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgb(60 40 20 / 0.08);
+}
+
+[data-testid="stSidebar"] {
+  border-right: 1px solid var(--st-border-color);
+}
+
+.st-key-reader-panel {
+  background: var(--st-background-color);
+  box-shadow: -6px 0 18px rgb(60 40 20 / 0.1);
+}
+
+.st-key-reader-header [data-testid="stMarkdownContainer"] p {
+  font-family: var(--st-heading-font, Georgia, serif);
+  font-weight: 600;
+}
