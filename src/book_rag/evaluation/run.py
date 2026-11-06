@@ -1,13 +1,18 @@
 """Run the evaluation and save a report: `uv run book-rag-eval`."""
 
 import argparse
+import copy
+import json
 import time
+from datetime import UTC, datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 
+from book_rag import config
 from book_rag.agent import agent_ask, build_step_chain
 from book_rag.books import DEFAULT_BOOK
 from book_rag.config import ENV_FILE
@@ -21,8 +26,8 @@ from book_rag.store import build_vector_store
 
 
 def evaluate_retrieval(case: EvalCase, scored_passages: ScoredPassages) -> dict | None:
-    """Retrieval metrics. Unanswerable questions have no evidence, so they have none."""
-    if not case.answerable:
+    """Retrieval metrics. Questions without evidence (unanswerable, or about the whole book) have none."""
+    if not case.answerable or not case.evidence:
         return None
     texts = [passage.page_content for passage, _ in scored_passages]
     return {
@@ -89,6 +94,8 @@ def evaluate_case(
         "id": case.id,
         "question": case.question,
         "answerable": case.answerable,
+        "kind": case.kind,
+        "split": case.split,
         "reference_answer": case.reference_answer,
         "evidence": list(case.evidence),
         "retrieved": [
@@ -100,6 +107,30 @@ def evaluate_case(
         "answer": answer,
         "generation": evaluate_generation(case, answer, scored_passages, judge) if generates else None,
     }
+
+
+def rejudge(report: dict, judge: BaseChatModel, pause: float = 0.0) -> dict:
+    """The same answers, graded again with the current rubric of the judge. Faithfulness and retrieval are kept.
+
+    Only the answers that were given are graded again: an abstention or an empty answer stays at 0.
+    """
+    results = copy.deepcopy(report["results"])
+    for result in results:
+        generation = result["generation"]
+        if generation and result["answerable"] and not (generation["abstained"] or generation["empty"]):
+            generation["correctness"], generation["correctness_reason"] = with_retries(
+                lambda result=result: judging.judge_correctness(
+                    judge, result["question"], result["answer"], result["reference_answer"]
+                )
+            )
+            time.sleep(pause)
+    metadata = copy.deepcopy(report["metadata"])
+    metadata["rejudged_from"] = metadata["timestamp"]
+    metadata["timestamp"] = datetime.now(UTC).isoformat(timespec="seconds")
+    metadata["mode"] = f"{metadata['mode']}-rejudged"
+    metadata["config"]["judge_model"] = config.JUDGE_MODEL
+    metadata["config"]["judge_rubric"] = judging.RUBRIC_VERSION
+    return {"metadata": metadata, "summary": summarize(results), "results": results}
 
 
 def with_retries(call, *, attempts: int = 6, wait: float = 30.0):
@@ -118,11 +149,19 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Evaluate the retrieval and the answers of the RAG system.")
     parser.add_argument("--retrieval-only", action="store_true", help="skip the language models (no Groq calls)")
     parser.add_argument("--agent", action="store_true", help="let the model search the book again (see agent.py)")
+    parser.add_argument(
+        "--rejudge", type=Path, help="grade the answers of a saved report (.json) again, with no new answers"
+    )
     parser.add_argument("--limit", type=int, help="only run the first N questions")
     parser.add_argument("--pause", type=float, default=1.0, help="seconds between questions (Groq rate limit)")
     args = parser.parse_args(argv)
 
     load_dotenv(ENV_FILE)
+    if args.rejudge:
+        report = rejudge(json.loads(args.rejudge.read_text(encoding="utf-8")), judging.build_judge(), args.pause)
+        json_path, md_path = write_report(report)
+        print(f"Report: {md_path}\n        {json_path}")
+        return
     vector_store = build_vector_store(DEFAULT_BOOK)  # the golden questions are about this book
     chain = None if args.retrieval_only or args.agent else build_chain(DEFAULT_BOOK)
     step_chain = build_step_chain(DEFAULT_BOOK) if args.agent and not args.retrieval_only else None

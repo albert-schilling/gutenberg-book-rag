@@ -72,23 +72,34 @@ re-run show:
 
 ## Current performance
 
-The setup of the latest evaluation: `mistral-small-latest` answers and calls the agent, `mistral-large-latest` judges, `e5-small-v2`
-embeddings, chunks of 1000/200 characters, 4 passages, the book summary and the memory in the prompt. Penguin book, 21 questions (17
-answerable, 4 not); reports `20261106-151524-full` and `20261106-151938-agent`.
+Penguin book, **72 questions**: 21 `dev` (used while the system was tuned) and 51 `test` (written later, never used for tuning: 42 facts, 3 about
+the whole book, 6 that the book cannot answer). `mistral-small-latest` answers, `mistral-large-latest` judges with rubric 3 (see below),
+`e5-small-v2`, chunks of 1000/200, 4 passages, book summary and memory in the prompt. One test question is worth 0.02, one dev question 0.06.
 
-| Metric | Plain pipeline | With the agent (current) |
-| :-- | --: | --: |
-| Context recall / hit rate | 0.71 | 0.71 |
-| MRR | 0.56 | 0.56 |
-| Answer correctness | 0.47 | **0.71** |
-| Abstention accuracy | 0.67 | **0.95** |
-| Faithfulness (claims supported by the passages) | 1.00 | 0.91 |
-| Searches per question | 1.0 | 1.9 |
+| Setup | Correctness, facts dev / **test** | Whole-book (3) | Abstention accuracy | Faithfulness | Calls per question |
+| :-- | --: | --: | --: | --: | --: |
+| Plain, strict refusal rule (the old prompt) | 0.53 / 0.50 | 0.50 | 0.61 | 0.96 | 1.0 |
+| **Plain, soft refusal rule (the default)** | **0.74 / 0.69** | 0.50 | 0.79 | 0.94 | 1.0 |
+| Agent (searches again; stops when nothing gets closer) | 0.82 / 0.68 | 0.83 | 0.85 | 0.92 | 1.7 (3.2 if unanswerable) |
+| Plain, soft rule, `mistral-medium` | 0.82 / 0.69 | 0.67 | 0.82 | 0.95 | 1.0 |
 
-Still wrong with the agent: `fasting` and `rookery-size` (the passage is never retrieved, 5 and 3 searches did not help), and partly
-right: `nest-theft`, `enemies` (retrieval misses), `emperor-egg`, `emperor-season`, `skua-chicks`, `nest-material` (the answer lacks
-a detail or adds one). The gain from the agent comes from its prompt, not from the extra searches (see below). Earlier numbers on
-Groq with the older prompt (correctness 0.76) are not comparable. One question is worth 0.06.
+Retrieval is the same in every row: context recall 0.71 on dev and 0.67 to 0.69 on test, MRR 0.55. All 6 unanswerable questions are
+refused in every setup.
+
+- **The soft refusal rule is the real gain** (+0.19 on the held-out questions): the strict rule makes `mistral-small` refuse when the
+  evidence is at rank 1. It costs nothing, so it is the default.
+- **The agent adds nothing measurable on facts the system was not tuned on** (0.68 against 0.69; better on 5, worse on 3, same on 37 test
+  questions) for 1.7 to 3.2 times the calls. Its +0.08 on the dev questions is what tuning on them looks like. It may help whole-book
+  questions (0.83 against 0.50) but that is 3 questions. A larger model does not help either on the test split.
+- **Retrieval generalises** (recall 0.67 to 0.69 on the test split against 0.71): the 17 dev questions were not too optimistic.
+- Earlier numbers (Groq with the old prompt, correctness 0.76 on 21 questions; the first Mistral reports) are not comparable.
+
+### The judge
+
+The first judge took points off for extra detail although the rubric said not to (4 of 8 imperfect verdicts looked wrong to a reader).
+Rubric 3 makes the judge list the key facts of the reference and tick which the answer states; the score follows from the ticks, in code,
+and extra details cannot lower it. It agrees with one annotator's labels on 15 of 17 answers (the old judge: 13 of 17); the same saved
+answers score 0.71 under the old judge and 0.82 under the new one. One annotator is not ground truth: human labels are a TODO.
 
 ## Tried and rejected
 
@@ -121,11 +132,7 @@ Groq with the older prompt (correctness 0.76) are not comparable. One question i
 - Five questions still find no evidence, because the question and the book use different words ("feed on" and
   "feeding on the shrimp-like euphausia").
 - Questions about the whole book ("Summarize the book") are answered poorly: no single passage is about the whole book.
-- **Measured with Mistral** (`evals/reports/20261106-151524-full` and `...-151938-agent`; Groq was out of tokens): the agent raised answer
-  correctness from 0.47 to 0.71 and abstention accuracy from 0.67 to 0.95, at 1.9 searches a question and slightly lower faithfulness
-  (1.00 to 0.91). But all 6 improved questions were answered after **one** search: the gain comes from the agent's prompt (no strict
-  "refuse unless the passages answer it" rule), which cures `mistral-small`'s over-refusal, not from searching again. The loop rescued no
-  question (5 searches on "fasting" and 3 on "rookery-size" still failed) and spends 3 to 5 searches on every unanswerable question.
+- **Measured** (see Current performance): the agent's gain on the 21 first questions came from its prompt, and on 51 held-out questions it adds nothing for facts. It stays an option in the sidebar.
 - The memory is small on purpose: the model sees the last 2 exchanges and a summary of 80 words at most (the free Groq plan allows 8,000 tokens a minute). Retrieval still uses only the current question, so a follow-up such as "and why?" finds passages poorly.
 
 The numbers come from the reports in `evals/reports/`; `evals/README.md` explains the metrics, and

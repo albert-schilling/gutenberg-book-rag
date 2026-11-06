@@ -63,8 +63,13 @@ def test_the_model_can_search_again_with_a_new_query_and_then_answers():
 
 
 def test_the_search_stops_after_the_last_round_and_the_model_must_give_a_final_answer():
+    improving = {
+        "What?": [(1, 0.5)],
+        "q1": [(2, 0.4)],
+        "q2": [(3, 0.3)],
+    }  # distance 0.5 -> 0.75, 0.4 -> 0.8, 0.3 -> 0.85
     steps = [Step(new_queries=["q1"]), Step(new_queries=["q2"]), Step(answer=NO_ANSWER)]
-    model, store = ScriptedModel(*steps), FakeVectorStore({})
+    model, store = ScriptedModel(*steps), FakeVectorStore(improving)
     result = agent_ask("What?", store, model)
     assert len(model.calls) == agent.MAX_ROUNDS == 3  # never more calls than rounds
     assert store.queries == ["What?", "q1", "q2"]
@@ -72,9 +77,30 @@ def test_the_search_stops_after_the_last_round_and_the_model_must_give_a_final_a
     assert result.answer == NO_ANSWER
 
 
+def test_the_agent_stops_searching_when_a_new_search_finds_nothing_more_similar():
+    # the new query finds a passage that is further away (distance 0.9) than the first one (0.2): more searching will not help
+    store = FakeVectorStore({"What?": [(1, 0.2)], "q1": [(2, 0.9)], "q2": [(3, 0.9)]})
+    model = ScriptedModel(Step(new_queries=["q1"]), Step(new_queries=["q2"]), Step(answer=NO_ANSWER))
+    result = agent_ask("What?", store, model)
+    assert len(model.calls) == 2  # the second call is already the last one: "you cannot search again"
+    assert "cannot search again" in model.calls[1]["rule"]
+    assert store.queries == ["What?", "q1"]  # q2 was never searched
+    assert result.answer == NO_ANSWER
+
+
+def test_an_unanswerable_question_costs_at_most_three_searches_when_nothing_gets_closer():
+    store = FakeVectorStore(
+        {"Capital of France?": [(1, 0.8)]}
+    )  # nothing in the book is close, and no rewrite is closer
+    model = ScriptedModel(Step(new_queries=["a", "b"]), Step(answer=NO_ANSWER))
+    result = agent_ask("Capital of France?", store, model)
+    assert len(result.queries) == 3 and len(model.calls) == 2  # not the five searches of before
+
+
 def test_a_model_that_still_asks_for_a_search_in_the_last_round_gets_the_refusal():
     model = ScriptedModel(Step(new_queries=["a"]), Step(new_queries=["b"]), Step(new_queries=["c"]))
-    result = agent_ask("What?", FakeVectorStore({"What?": [(1, 0.5)]}), model)
+    getting_closer = {"What?": [(1, 0.5)], "a": [(2, 0.4)], "b": [(3, 0.3)]}  # every search finds a closer passage
+    result = agent_ask("What?", FakeVectorStore(getting_closer), model)
     assert result.answer == NO_ANSWER and len(model.calls) == 3
     assert result.queries == ["What?", "a", "b"]  # "c" was never searched
 

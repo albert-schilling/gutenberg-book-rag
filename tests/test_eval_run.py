@@ -141,3 +141,71 @@ def test_a_rate_limit_is_waited_out_and_other_errors_are_not(monkeypatch):
 
     with pytest.raises(httpx.HTTPStatusError):
         run.with_retries(broken, attempts=5)  # a server error is not retried
+
+
+def test_rejudge_grades_the_given_answers_again_and_keeps_the_rest():
+    from helpers import build_report
+
+    from book_rag.evaluation import judge as judging
+
+    class Strict(FakeJudge):
+        def invoke(self, prompt):
+            if self.schema is judging.FaithfulnessVerdict:
+                return super().invoke(prompt)
+            return judging.CorrectnessVerdict(
+                key_facts=[judging.KeyFact(fact="a", stated=True), judging.KeyFact(fact="b", stated=False)],
+                says_the_opposite=False,
+                reason="one fact missing",
+            )
+
+    original = build_report("2026-01-01T10:00:00+00:00", good=True)
+    assert original["results"][0]["generation"]["correctness"] == 1.0
+    again = run.rejudge(original, Strict())
+
+    eggs, france = again["results"]
+    assert eggs["generation"]["correctness"] == 0.5 and eggs["generation"]["correctness_reason"] == "one fact missing"
+    assert eggs["answer"] == original["results"][0]["answer"]  # no new answer
+    assert eggs["generation"]["faithfulness"] == original["results"][0]["generation"]["faithfulness"]
+    assert france["generation"]["correctness"] is None  # an abstention on an unanswerable question: nothing to grade
+    assert again["summary"]["generation"]["answer_correctness"] == 0.5
+    assert again["metadata"]["mode"] == "full-rejudged"
+    assert again["metadata"]["rejudged_from"] == "2026-01-01T10:00:00+00:00"
+    assert again["metadata"]["config"]["judge_rubric"] == judging.RUBRIC_VERSION
+    assert original["results"][0]["generation"]["correctness"] == 1.0  # the saved report is not changed
+
+
+def test_rejudge_leaves_an_abstention_on_an_answerable_question_at_zero():
+    from helpers import build_report
+
+    report = build_report("2026-01-01T10:00:00+00:00", good=False)  # the system refused
+    again = run.rejudge(report, judge=None)  # a judge would fail if it were asked
+    assert again["results"][0]["generation"]["correctness"] == 0.0
+
+
+def test_the_summary_is_given_per_split_and_whole_book_questions_have_no_retrieval_score():
+    from book_rag.evaluation.dataset import EvalCase
+
+    whole = EvalCase("whole", "What is it about?", "Penguins.", (), kind="whole-book", split="test")
+    store = FakeVectorStore("The eggs are incubated for four weeks.")
+    results = [
+        run.evaluate_case(ANSWERABLE, store, FakeChain("Four weeks."), FakeJudge()),
+        run.evaluate_case(whole, store, FakeChain("Penguins."), FakeJudge()),
+    ]
+    assert results[1]["retrieval"] is None and results[1]["split"] == "test" and results[1]["kind"] == "whole-book"
+
+    summary = summarize(results)
+    assert summary["retrieval"]["context_recall"] == 1.0  # only the question that has evidence counts
+    assert set(summary["by_split"]) == {"dev", "test"}
+    assert summary["by_split"]["dev"]["questions"] == 1 and summary["by_split"]["test"]["questions"] == 1
+    assert summary["by_split"]["test"]["answer_correctness"] == 1.0
+    assert summary["by_split"]["test"]["context_recall"] is None  # nothing to score for retrieval in this split
+
+    report = {"metadata": run_metadata("full"), "summary": summary, "results": results}
+    markdown = render_markdown(report)
+    assert "## By split" in markdown and "| test | 1 |" in markdown and "| dev | 1 |" in markdown
+
+
+def test_one_split_gives_no_split_table():
+    store = FakeVectorStore("The eggs are incubated for four weeks.")
+    result = run.evaluate_case(ANSWERABLE, store, FakeChain("Four weeks."), FakeJudge())
+    assert "by_split" not in summarize([result])

@@ -49,7 +49,9 @@ class FakeJudge:
             return judge.FaithfulnessVerdict(
                 claims=[judge.Claim(claim="a", supported=True), judge.Claim(claim="b", supported=False)]
             )
-        return judge.CorrectnessVerdict(verdict="correct", reason="matches")
+        return judge.CorrectnessVerdict(
+            key_facts=[judge.KeyFact(fact="f", stated=True)], says_the_opposite=False, reason="matches"
+        )
 
 
 def build_report(timestamp, *, good, embedding_model="model-a", mode="full"):

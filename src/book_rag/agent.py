@@ -88,8 +88,10 @@ def agent_ask(question: str, vector_store: Chroma, step_chain: Runnable, convers
     """Answer a question, searching the book again with new queries when the passages are not enough."""
     queries = [question]
     passages = retrieve(question, vector_store)
+    best = max((score for _, score in passages), default=-1.0)
+    stalled = False  # the last extra search found nothing more similar than before: more searching will not help
     for round_number in range(1, MAX_ROUNDS + 1):
-        last_round = round_number == MAX_ROUNDS
+        last_round = round_number == MAX_ROUNDS or stalled
         step = step_chain.invoke(
             {
                 "context": format_context(passages),
@@ -108,4 +110,7 @@ def agent_ask(question: str, vector_store: Chroma, step_chain: Runnable, convers
         for query in fresh:
             queries.append(query)
             passages = merge(passages, retrieve(query, vector_store))
+        new_best = max((score for _, score in passages), default=-1.0)
+        stalled = new_best <= best
+        best = max(best, new_best)
     return AgentResult(NO_ANSWER if passages else FALLBACK_ANSWER, passages, queries)

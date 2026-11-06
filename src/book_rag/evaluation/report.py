@@ -8,6 +8,7 @@ from pathlib import Path
 
 from book_rag import config
 from book_rag.books import DEFAULT_BOOK, Book
+from book_rag.evaluation import judge
 from book_rag.evaluation.dataset import DATASET_FILE
 from book_rag.evaluation.metrics import mean
 
@@ -17,16 +18,17 @@ REPORT_DIR = config.EVAL_DIR / "reports"
 def summarize(results: list[dict]) -> dict:
     """Average the per-question results. Retrieval metrics only count the answerable questions."""
     answerable = [r for r in results if r["answerable"]]
+    retrieved = [r for r in answerable if r["retrieval"]]  # not the questions about the whole book
     unanswerable = [r for r in results if not r["answerable"]]
     summary = {
         "questions": len(results),
         "answerable": len(answerable),
         "unanswerable": len(unanswerable),
         "retrieval": {
-            "context_recall": mean([r["retrieval"]["context_recall"] for r in answerable]),
-            "hit_rate": mean([float(r["retrieval"]["hit"]) for r in answerable]),
-            "mrr": mean([r["retrieval"]["reciprocal_rank"] for r in answerable]),
-            "context_precision": mean([r["retrieval"]["context_precision"] for r in answerable]),
+            "context_recall": mean([r["retrieval"]["context_recall"] for r in retrieved]),
+            "hit_rate": mean([float(r["retrieval"]["hit"]) for r in retrieved]),
+            "mrr": mean([r["retrieval"]["reciprocal_rank"] for r in retrieved]),
+            "context_precision": mean([r["retrieval"]["context_precision"] for r in retrieved]),
         },
     }
     if all(r["generation"] is not None for r in results):
@@ -44,7 +46,27 @@ def summarize(results: list[dict]) -> dict:
             "faithfulness": mean([g["faithfulness"] for g in generation]),
             "answer_correctness": mean([r["generation"]["correctness"] for r in answerable]),
         }
+    splits = sorted({r.get("split", "dev") for r in results})
+    if len(splits) > 1:  # "dev": used while tuning; "test": not used, so its scores are not fitted to the system
+        summary["by_split"] = {
+            split: _headline(summarize([r for r in results if r.get("split", "dev") == split])) for split in splits
+        }
     return summary
+
+
+def _headline(summary: dict) -> dict:
+    """The few numbers that are shown per split."""
+    generation = summary.get("generation", {})
+    return {
+        "questions": summary["questions"],
+        "context_recall": summary["retrieval"]["context_recall"],
+        "mrr": summary["retrieval"]["mrr"],
+        **{
+            key: generation.get(key)
+            for key in ("answer_correctness", "abstention_accuracy", "faithfulness")
+            if generation
+        },
+    }
 
 
 def _git_state() -> dict:
@@ -77,6 +99,8 @@ def run_metadata(mode: str, book: Book = DEFAULT_BOOK) -> dict:
             "llm_provider": config.LLM_PROVIDER,
             "llm_model": config.LLM_MODEL,
             "judge_model": config.JUDGE_MODEL,
+            "judge_rubric": judge.RUBRIC_VERSION,
+            "refusal_rule": "soft" if config.REFUSAL_RULE == config.SOFT_REFUSAL_RULE else "strict",
             "system_prompt_sha1": hashlib.sha1(config.SYSTEM_PROMPT.encode("utf-8")).hexdigest()[:10],
         },
         "dataset_sha1": hashlib.sha1(DATASET_FILE.read_bytes()).hexdigest()[:10],
@@ -85,6 +109,24 @@ def run_metadata(mode: str, book: Book = DEFAULT_BOOK) -> dict:
 
 def _fmt(value: float | None) -> str:
     return "n/a" if value is None else f"{value:.2f}"
+
+
+def _split_table(summary: dict) -> list[str]:
+    if "by_split" not in summary:
+        return []
+    keys = [k for k in next(iter(summary["by_split"].values())) if k != "questions"]
+    rows = [
+        f"| {split} | {h['questions']} | " + " | ".join(_fmt(h.get(k)) for k in keys) + " |"
+        for split, h in summary["by_split"].items()
+    ]
+    return [
+        "## By split (dev: used while tuning, test: not used)",
+        "",
+        "| Split | Questions | " + " | ".join(keys) + " |",
+        "| :-- | --: |" + " --: |" * len(keys),
+        *rows,
+        "",
+    ]
 
 
 def render_markdown(report: dict) -> str:
@@ -110,6 +152,7 @@ def render_markdown(report: dict) -> str:
         *[f"| {key} | {_fmt(value)} |" for key, value in summary["retrieval"].items()],
         *[f"| {key} | {_fmt(value)} |" for key, value in summary.get("generation", {}).items()],
         "",
+        *_split_table(summary),
         "## Questions",
         "",
         "| Question | Recall | Rank | Abstained | Faithful | Correct |",

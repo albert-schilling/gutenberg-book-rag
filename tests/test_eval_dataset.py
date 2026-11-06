@@ -20,22 +20,32 @@ def test_ids_are_unique():
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c.id)
-def test_answerable_cases_have_a_reference_and_evidence(case):
+def test_every_case_has_a_reference_and_evidence_as_its_kind_requires(case):
     assert case.question.endswith("?")
-    if case.answerable:
-        assert case.reference_answer.strip()
-        assert case.evidence
-    else:
+    assert case.split in {"dev", "test"} and case.kind in {"fact", "whole-book"}
+    if not case.answerable:
         assert case.evidence == ()
+    elif case.kind == "whole-book":
+        assert case.reference_answer.strip() and case.evidence == ()  # no single phrase of the book answers it
+    else:
+        assert case.reference_answer.strip() and case.evidence
 
 
-@pytest.mark.parametrize("case", [c for c in CASES if c.answerable], ids=lambda c: c.id)
+def test_there_is_a_test_split_that_was_not_used_for_tuning():
+    dev = [c for c in CASES if c.split == "dev"]
+    test = [c for c in CASES if c.split == "test"]
+    assert len(dev) >= 20 and len(test) >= 30
+    assert {c.id for c in dev}.isdisjoint({c.id for c in test})
+    assert any(not c.answerable for c in test) and any(c.kind == "whole-book" for c in test)
+
+
+@pytest.mark.parametrize("case", [c for c in CASES if c.evidence], ids=lambda c: c.id)
 def test_evidence_phrases_are_in_the_cleaned_book(case):
     book = load_book(DEFAULT_BOOK).page_content
     assert all(evidence_found(case.evidence, [book])), f"{case.id}: a phrase is not in the book"
 
 
-@pytest.mark.parametrize("case", [c for c in CASES if c.answerable], ids=lambda c: c.id)
+@pytest.mark.parametrize("case", [c for c in CASES if c.evidence], ids=lambda c: c.id)
 def test_every_evidence_phrase_is_inside_one_chunk(case):
     """A phrase that falls on a chunk boundary could never be retrieved, whatever the retriever does."""
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)

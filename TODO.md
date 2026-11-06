@@ -5,6 +5,10 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Evaluation
 
+- [ ] **Decide whether the agent should be on by default.** On 51 held-out questions it adds nothing for facts (0.68 against 0.69) at 1.7 to 3.2
+  calls per question. It may help whole-book questions (3 questions: too few to say). Add 20 or more whole-book and multi-fact questions.
+- [ ] **Human labels for the judge.** The judge was checked against one annotator (15 of 17); label 30 or more answers by hand.
+- [ ] The test split comes from one model's drafts (plain words, one fact each): add multi-fact, comparison and "how many" questions by hand.
 - [ ] **Run the evaluation again** (`uv run book-rag-eval`, then `uv run book-rag-eval --agent`): the last report is from before the
   book summaries, the memory and the agent. One full run is about 60 calls and 100,000 tokens: the free Groq plan allows 200,000
   tokens a day per model, so run them on different days. Then compare the reports in the dashboard.
@@ -31,7 +35,7 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 - [ ] **Stop tuning retrieval on these 17 questions.** Nine different ideas left the same five misses (see `docs/changes.md`), and `food`
   was answered correctly with recall 0: the evidence-phrase recall under-counts. A larger golden set first (above).
-- [ ] **Judge calibration.** Many 0.5 scores say "adds details not in the reference" (`skua-chicks`, `emperor-egg`): the rubric says extra
+- [x] (done: rubric 3, 15 of 17 agree with one annotator; human labels are still needed) **Judge calibration.** Many 0.5 scores say "adds details not in the reference" (`skua-chicks`, `emperor-egg`): the rubric says extra
   detail is fine, but the judge penalises it. Re-read the verdicts, complete the reference answers (`crozier-winter` lists three people),
   and the correctness numbers will move without any change to the system.
 - [ ] Table of contents: it does not help retrieval (see above), but it is cheap and useful for structure questions ("which part is
@@ -39,10 +43,10 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
   `books.py`), add the list to the book summary in the prompt (about 100 to 250 tokens), and offer a chapter jump in the reader.
 - [ ] HyDE as an option of the agent (a `hypothetical_passage` field in the agent's answer; about 30 lines): only after the evaluation set
   is larger, because the best case measured is half a question.
-- [ ] **Over-refusal with Mistral small.** The plain prompt makes it refuse when the evidence is at rank 1 (6 of 17 answerable
+- [x] (done: the soft rule is the default, +0.19 on the held-out set) **Over-refusal with Mistral small.** The plain prompt makes it refuse when the evidence is at rank 1 (6 of 17 answerable
   questions). Test a softer refusal rule for the plain pipeline (the agent's prompt without the loop) and larger models
   (`mistral-medium-latest`), then re-run `book-rag-eval`. If it works, the agent's loop may not be worth its tokens.
-- [ ] The agent spends 3 to 5 searches on every unanswerable question and found nothing it missed. Stop after one extra round when
+- [x] (done: stops when nothing gets closer; 3.2 searches on unanswerable questions, was 3 to 5) The agent spends 3 to 5 searches on every unanswerable question and found nothing it missed. Stop after one extra round when
   the new passages are not more similar than the first ones.
 - [ ] The agent's rewrites are not diverse: with Mistral small they are synonyms of the same question ("clutch size", "nest",
   "typical number"), so retrieval returns the same passages. Ask for one query that sounds like a sentence of the book, and

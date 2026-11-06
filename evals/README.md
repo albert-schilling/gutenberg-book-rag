@@ -139,3 +139,20 @@ The agent fixed 6 questions that the plain pipeline refused **although the evide
 nest, sea-leopards, ...), and every one of them needed only one search. The search loop itself rescued nothing. The difference is
 the prompt: the plain one tells the model to say "The book does not answer this question" unless the passages do, and
 `mistral-small` over-refuses; the agent's does not. Next test: give the plain pipeline the agent's prompt (one call, no loop).
+
+## Bigger question set, held-out split and a calibrated judge (2026-11-06)
+
+`dataset.json` has 72 questions: 21 `dev` (used while tuning) and 51 `test`, which were drafted by `mistral-large` from 52 evenly spaced chunks
+of the book (every evidence quote is checked by code against the book; 10 drafts that depended on context were dropped by hand), plus 3
+whole-book and 6 unanswerable questions. Reports show a "By split" table. The judge is rubric 3 (key facts ticked by the judge, verdict
+computed in code); `book-rag-eval --rejudge report.json` grades the saved answers of an older report again.
+
+| Setup (Mistral small) | Correctness dev / test | Abstention accuracy | Faithfulness | Calls per question |
+| :-- | --: | --: | --: | --: |
+| Plain, strict refusal rule | 0.53 / 0.50 | 0.61 | 0.96 | 1.0 |
+| Plain, soft refusal rule (default) | 0.74 / 0.69 | 0.79 | 0.94 | 1.0 |
+| Agent with the stop rule | 0.82 / 0.68 | 0.85 | 0.92 | 1.7 |
+| Plain, soft rule, `mistral-medium` | 0.82 / 0.69 | 0.82 | 0.95 | 1.0 |
+
+The soft rule is worth +0.19 on the held-out questions. The agent and the larger model improve the `dev` questions and not the `test` ones:
+that gap is what tuning on a small set looks like. Retrieval: recall 0.71 on dev, 0.67 to 0.69 on test, MRR 0.55.

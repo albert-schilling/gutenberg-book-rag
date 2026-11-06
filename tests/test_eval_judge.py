@@ -41,8 +41,34 @@ def test_judge_faithfulness_returns_score_and_claims_and_shows_the_context():
     assert "the context" in fake.prompts[0] and "Because." in fake.prompts[0] and "Why?" in fake.prompts[0]
 
 
-@pytest.mark.parametrize(("verdict", "score"), [("correct", 1.0), ("partially_correct", 0.5), ("incorrect", 0.0)])
-def test_correctness_verdicts_map_to_scores(verdict, score):
-    fake = FakeJudge(judge.CorrectnessVerdict(verdict=verdict, reason="because"))
-    assert judge.judge_correctness(fake, "Q?", "An answer.", "The reference.") == (score, "because")
+def verdict(*stated, says_the_opposite=False):
+    return judge.CorrectnessVerdict(
+        key_facts=[judge.KeyFact(fact=f"fact {i}", stated=s) for i, s in enumerate(stated)],
+        says_the_opposite=says_the_opposite,
+        reason="because",
+    )
+
+
+@pytest.mark.parametrize(
+    ("verdict_", "score"),
+    [
+        (verdict(True), 1.0),
+        (verdict(True, True, True), 1.0),
+        (verdict(True, False), 0.5),  # one of two key facts: partly right
+        (verdict(False, False), 0.0),
+        (verdict(True, True, says_the_opposite=True), 0.0),  # a wrong number or person: wrong, whatever else is right
+        (verdict(), 0.0),  # no key facts found in the reference: nothing to give credit for
+    ],
+)
+def test_the_score_follows_from_the_key_facts_that_the_answer_states(verdict_, score):
+    assert judge.correctness_score(verdict_) == score
+
+
+def test_judge_correctness_returns_the_score_and_the_reason_and_shows_both_texts():
+    fake = FakeJudge(verdict(True, False))
+    assert judge.judge_correctness(fake, "Q?", "An answer.", "The reference.") == (0.5, "because")
     assert "The reference." in fake.prompts[0] and "An answer." in fake.prompts[0]
+
+
+def test_the_prompt_never_asks_the_judge_to_take_points_off_for_extra_detail():
+    assert "Do NOT take points off for extra details" in judge.CORRECTNESS_PROMPT

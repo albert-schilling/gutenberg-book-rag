@@ -32,6 +32,7 @@ _MODELS = {
 if LLM_PROVIDER not in _MODELS:
     raise ValueError(f"BOOK_RAG_LLM must be one of {sorted(_MODELS)}, not '{LLM_PROVIDER}'")
 LLM_MODEL, JUDGE_MODEL = _MODELS[LLM_PROVIDER]
+LLM_MODEL = os.environ.get("BOOK_RAG_MODEL", LLM_MODEL)  # e.g. mistral-medium-latest, to compare answer models
 
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
@@ -41,7 +42,12 @@ MIN_SIMILARITY = 0.0  # passages below this cosine similarity are dropped; 0.0 k
 NO_ANSWER = "The book does not answer this question."
 EMPTY_ANSWER_RETRIES = 2  # gpt-oss sometimes returns an empty reply: ask again this many times
 FALLBACK_ANSWER = "Sorry, the model did not return an answer. Please ask the question again."
-REFUSAL_RULE = f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}"'
+STRICT_REFUSAL_RULE = f'If the passages do not contain the answer, say exactly: "{NO_ANSWER}"'
+SOFT_REFUSAL_RULE = (
+    "Answer from the passages and the summary whenever they contain the information, even if only in part or in other "
+    f'words. Only if they contain nothing relevant to the question, say exactly: "{NO_ANSWER}"'
+)
+REFUSAL_RULE = SOFT_REFUSAL_RULE if os.environ.get("BOOK_RAG_REFUSAL", "soft") == "soft" else STRICT_REFUSAL_RULE
 SYSTEM_PROMPT = (  # {title} and {author} are filled in per book, {context} by the chain
     "You are a reading companion for the book '{title}' by {author}. "
     "Answer the question using ONLY the passages and the summary of the book below. "

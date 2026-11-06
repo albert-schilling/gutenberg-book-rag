@@ -176,3 +176,16 @@ coverage of the evaluation command, running the evaluation and the live tests on
   chunk-size runs. Nothing moved the five misses. Not implemented, only documented.
 - Conclusion: the biggest measured lever is the refusal prompt (0.47 to 0.71), then the evaluation itself (a larger set, a calibrated
   judge). Not committed.
+## Four improvements, measured (done)
+1. **Soft refusal rule for the plain pipeline** (default now; `BOOK_RAG_REFUSAL=strict` for the old one): correctness 0.47 to 0.76 on the 21
+   questions with the old judge; held-out 0.50 to 0.69 on the 51 new ones. `BOOK_RAG_MODEL=mistral-medium-latest` tried: no gain on held-out.
+2. **Judge calibration:** I audited the 8 imperfect verdicts (4 looked wrong), built rubric 2 (key facts ticked, verdict in code) and measured
+   it against my labels: 12 of 17, worse than the old judge (13), because the judge misused a "contradicts" flag for extra details.
+   Rubric 3 (clear definition, three examples) reaches 15 of 17. `--rejudge` regrades saved answers. One annotator (me), so not ground truth.
+3. **72 questions** (21 dev, 51 test; test drafted by mistral-large from 52 chunks, quotes verified by code, 10 drafts dropped by hand) with a
+   `split` field and a "By split" table in the report; whole-book questions have no evidence and no retrieval score.
+4. **Agent stop rule:** stop after an extra search that found nothing closer. Searches on unanswerable questions 3.2 (before 3 to 5).
+- Result: only the soft rule survives the held-out split. The agent and the medium model gain on dev (+0.08) and not on test (0.68, 0.69 against 0.69).
+- Frictions: two jobs on one Mistral key rate-limited each other (drafting lost 36 of 52 calls; rerun alone with backoff); my first judge
+  rubric made things worse and I had to measure it before noticing; I changed the default refusal rule but left the agent default on: your call.
+- Not committed.
