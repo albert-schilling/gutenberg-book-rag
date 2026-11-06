@@ -81,3 +81,17 @@ asked are listed under each task and in the last section.
 - Limits / friction: only 14 excerpts, so details between them are missing; the model sometimes adds facts that are
   not in the excerpts (it knows the famous books). The summaries should be read by a person (TODO).
 
+## 6. Pagination together with the infinite scrolling (done)
+- Yes, it works. Pages are **virtual**: 2,500 characters (about 400 words) each, counted in the cleaned text, because
+  the text files have no real pages (64 pages for the penguin book, 230 for Tom Brown).
+- A bar above the text shows "Page N of M" and a progress bar. The page is that of the text on a reading line a quarter
+  down from the top and follows the scrolling in both directions. The page number can be edited: a jump needs no
+  server round trip (the browser has all paragraphs) and goes to the first paragraph that starts on that page. A small
+  "PAGE N" marker starts every page inside the text. Passages in the chat name their page and open on that page.
+- Works with the window of at most 250 paragraphs: markers and page numbers come from the position of a paragraph, not
+  from the DOM, so loading and dropping paragraphs does not change them; jumps keep the steady-scroll behaviour.
+- Tests: 8 browser tests (indicator, markers, follows scrolling down and up against the markers, progress, jump,
+  clamping, scrolling after a jump, a passage opens on its labelled page), JS helper tests, 3 Python tests.
+- Friction: my first scrolling test picked markers from the middle of the loaded window and never advanced
+  (test bug). Two helper modules named `helpers.py` clashed; the browser one is now `browser_helpers.py`.
+

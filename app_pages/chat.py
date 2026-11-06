@@ -9,6 +9,7 @@ import streamlit as st
 from book_rag import memory
 from book_rag.books import get_book
 from book_rag.rag import ask, build_chain
+from book_rag.reader import passage_page
 from book_rag.reader_component import book_reader, close_reader, current_reader, open_reader
 from book_rag.selection import question_about
 from book_rag.store import build_vector_store
@@ -29,7 +30,8 @@ def show_passages(scored_passages, message_number):
     """Show every passage the answer is based on in an expander, with a button to read it in the book."""
     for rank, (passage, similarity) in enumerate(scored_passages, 1):
         start = passage.metadata["start_index"]
-        with st.expander(f"Passage at position {start:,} (similarity {similarity:.2f})"):
+        page = passage_page(book, start)
+        with st.expander(f"Passage at position {start:,} (page {page}, similarity {similarity:.2f})"):
             st.write(passage.page_content)
             st.button(
                 "Read in the book",

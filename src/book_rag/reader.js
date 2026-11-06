@@ -23,11 +23,41 @@ export function initialWindow(count, focus) {
   return { first: Math.max(0, focus - BATCH), last: Math.min(count - 1, focus + BATCH) }
 }
 
+// Pages are virtual: `pageChars` characters of the cleaned text each, counted from the start of the book.
+export function pageOf(offset, pageChars, pageCount) {
+  return Math.min(pageCount, Math.max(1, Math.floor(offset / pageChars) + 1))
+}
+
+// The index of the last paragraph that starts at or before `offset` (`starts` is sorted).
+export function paragraphIndexAt(starts, offset) {
+  let lo = 0
+  let hi = starts.length - 1
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1
+    if (starts[mid] <= offset) lo = mid
+    else hi = mid - 1
+  }
+  return lo
+}
+
+// The first paragraph that starts on the given page (or the first one after it, if a long paragraph covers the page).
+export function firstParagraphOnPage(starts, page, pageChars) {
+  const offset = (page - 1) * pageChars
+  const index = paragraphIndexAt(starts, offset)
+  return starts[index] < offset && index < starts.length - 1 ? index + 1 : index
+}
+
 const instances = new WeakMap()
 
 export default function (component) {
   const { data, parentElement } = component
-  const root = parentElement.querySelector(".reader")
+  const win = parentElement.ownerDocument.defaultView
+  const shell = parentElement.querySelector(".shell")
+  const root = shell.querySelector(".reader")
+  const pageInput = shell.querySelector(".bar .page")
+  const pagesLabel = shell.querySelector(".bar .pages")
+  const progress = shell.querySelector(".bar .progress")
+  const progressFill = shell.querySelector(".bar .fill")
   const body = root.querySelector(".body")
   const topEdge = root.querySelector(".edge.top")
   const bottomEdge = root.querySelector(".edge.bottom")
@@ -37,7 +67,7 @@ export default function (component) {
   if (previous && previous.id === data.id) return
   instances.set(parentElement, { id: data.id })
 
-  root.style.height = `min(${data.height}px, calc(100vh - 17rem))` // the panel scrolls inside this height
+  shell.style.height = `min(${data.height}px, calc(100vh - 17rem))` // the text scrolls inside this height
 
   const paragraphs = data.paragraphs
   const [hs, he] = data.highlight || [0, 0]
@@ -48,11 +78,21 @@ export default function (component) {
     position += p.length + 2 // paragraphs are separated by a blank line
   }
 
-  let { first, last } = initialWindow(paragraphs.length, data.focus)
+  const total = starts[starts.length - 1] + paragraphs[paragraphs.length - 1].length
+  const pageChars = data.pageChars
+  const pageCount = Math.max(1, Math.ceil(total / pageChars))
+  pagesLabel.textContent = String(pageCount)
+  pageInput.max = String(pageCount)
+
+  let first = 0
+  let last = 0
 
   function paragraphElement(i) {
     const el = body.ownerDocument.createElement("p")
     el.dataset.i = String(i)
+    if (i === 0 || pageOf(starts[i], pageChars, pageCount) !== pageOf(starts[i - 1], pageChars, pageCount)) {
+      el.dataset.page = String(pageOf(starts[i], pageChars, pageCount)) // shown above the paragraph by the style
+    }
     for (const piece of segments(paragraphs[i], starts[i], hs, he)) {
       if (piece.marked) {
         const mark = el.ownerDocument.createElement("mark")
@@ -110,13 +150,55 @@ export default function (component) {
     }
   }
 
-  body.replaceChildren()
-  for (let i = first; i <= last; i++) body.appendChild(paragraphElement(i))
-  updateEdges()
+  // The reading line is a quarter of the height from the top: the text there decides the page that is shown.
+  function readingOffset() {
+    const line = root.scrollTop + root.clientHeight / 4
+    const children = body.children
+    let lo = 0
+    let hi = children.length - 1
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1
+      if (children[mid].offsetTop <= line) lo = mid
+      else hi = mid - 1
+    }
+    const el = children[lo]
+    const i = Number(el.dataset.i)
+    const fraction = Math.min(1, Math.max(0, (line - el.offsetTop) / Math.max(1, el.offsetHeight)))
+    return starts[i] + fraction * paragraphs[i].length
+  }
 
-  // Open at the passage: a quarter of the height from the top, so some text before it is visible.
-  const target = body.querySelector(`p[data-i="${data.focus}"]`)
-  root.scrollTop = target && he > hs ? Math.max(0, target.offsetTop - root.clientHeight / 4) : 0
-  root.onscroll = fill // assigned, not added: this function can run again
-  fill()
+  let frame = 0
+  function updateIndicator() {
+    frame = 0
+    const offset = readingOffset()
+    if (shell.getRootNode().activeElement !== pageInput) pageInput.value = String(pageOf(offset, pageChars, pageCount))
+    const percent = Math.min(100, (offset / total) * 100)
+    progressFill.style.width = `${percent}%`
+    progress.setAttribute("aria-valuenow", String(Math.round(percent)))
+  }
+
+  // Show the text around paragraph `index`, with the paragraph a quarter of the height from the top.
+  function openAt(index) {
+    ;({ first, last } = initialWindow(paragraphs.length, index))
+    body.replaceChildren()
+    for (let i = first; i <= last; i++) body.appendChild(paragraphElement(i))
+    updateEdges()
+    const target = body.querySelector(`p[data-i="${index}"]`)
+    root.scrollTop = target && index > 0 ? Math.max(0, target.offsetTop - root.clientHeight / 4) : 0
+    fill()
+    updateIndicator()
+  }
+
+  root.onscroll = () => {
+    // assigned, not added: this function can run again
+    fill()
+    if (!frame) frame = win.requestAnimationFrame(updateIndicator)
+  }
+  pageInput.onchange = () => {
+    const page = Math.min(pageCount, Math.max(1, parseInt(pageInput.value, 10) || 1))
+    pageInput.blur() // so that the indicator may write the page again
+    openAt(firstParagraphOnPage(starts, page, pageChars))
+  }
+
+  openAt(data.focus)
 }

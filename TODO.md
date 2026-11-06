@@ -39,6 +39,8 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Pagination: pages are virtual. Real page numbers or chapter titles (a table of contents per book) would be better;
+  the chapter headings differ in every book, so they need a rule per book (like the start and end lines in `books.py`).
 - [ ] Book summaries: made from 14 excerpts only (about 4,000 tokens, one call per book). A map-reduce over the whole book
   would be better but needs about 25 calls (a minute each) per large book on the free Groq plan. Check the summaries by eye.
 - [ ] Pre-build the vector stores of all books (a script): the first selection of a book takes 2 to 4 s (spinner "Preparing the book").

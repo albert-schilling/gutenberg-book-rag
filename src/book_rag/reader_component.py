@@ -10,10 +10,16 @@ from book_rag.reader import reader_data
 _HERE = Path(__file__).parent
 
 _HTML = """\
-<div class="reader" tabindex="0" role="document" aria-label="Text of the book">
-  <div class="edge top"></div>
-  <div class="body"></div>
-  <div class="edge bottom"></div>
+<div class="shell">
+  <div class="bar">
+    <label>Page <input class="page" type="number" min="1" inputmode="numeric"> of <span class="pages"></span></label>
+    <div class="progress" role="progressbar" aria-label="Position in the book"><div class="fill"></div></div>
+  </div>
+  <div class="reader" tabindex="0" role="document" aria-label="Text of the book">
+    <div class="edge top"></div>
+    <div class="body"></div>
+    <div class="edge bottom"></div>
+  </div>
 </div>
 """
 

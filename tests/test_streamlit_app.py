@@ -9,6 +9,7 @@ from streamlit.testing.v1 import AppTest
 
 from book_rag import memory, rag, store
 from book_rag.books import BOOKS, DEFAULT_BOOK
+from book_rag.reader import passage_page
 
 APP = Path(__file__).resolve().parents[1] / "streamlit_app.py"
 FRANKENSTEIN = BOOKS["frankenstein_shelley"]
@@ -85,9 +86,10 @@ def test_a_question_shows_the_answer_and_its_passages(app):
     user, assistant = app.chat_message
     assert user.markdown[0].value == "What do skua gulls do?"
     assert assistant.markdown[0].value == "Answer to: What do skua gulls do?"
+    page = lambda start: passage_page(DEFAULT_BOOK, start)  # noqa: E731
     assert [e.label for e in app.expander] == [
-        "Passage at position 147,611 (similarity 0.77)",
-        "Passage at position 62,105 (similarity 0.71)",
+        f"Passage at position 147,611 (page {page(147611)}, similarity 0.77)",
+        f"Passage at position 62,105 (page {page(62105)}, similarity 0.71)",
     ]
     assert app.expander[0].markdown[0].value == "Skuas prey upon the chicks."
 
