@@ -80,3 +80,19 @@ def test_the_app_loads_the_rag_system_only_once(app, monkeypatch):
     at.chat_input[0].set_value("Two").run()
 
     assert calls == [1]
+
+
+def test_the_changes_page_documents_the_differences_from_the_assignment(app):
+    app.switch_page("app_pages/changes.py").run()
+
+    assert not app.exception
+    text = " ".join(m.value for m in app.markdown)
+    assert "Embedding model" in text and "e5-small-v2" in text
+    assert "Tried and rejected" in text
+    assert len(app.chat_input) == 0  # a documentation page, not the chat
+
+
+def test_the_app_has_a_chat_page_and_a_changes_page(app):
+    assert app.title[0].value == "Reading companion"
+    app.switch_page("app_pages/changes.py").run()
+    assert app.title[0].value == "Changes from the assignment"

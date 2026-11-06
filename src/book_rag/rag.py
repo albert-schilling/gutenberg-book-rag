@@ -1,5 +1,7 @@
 """Retrieve passages from the vector store and answer questions with them."""
 
+import logging
+
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
@@ -7,7 +9,17 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_groq import ChatGroq
 
-from book_rag.config import LLM_MODEL, MIN_SIMILARITY, NO_ANSWER, SYSTEM_PROMPT, TOP_K
+from book_rag.config import (
+    EMPTY_ANSWER_RETRIES,
+    FALLBACK_ANSWER,
+    LLM_MODEL,
+    MIN_SIMILARITY,
+    NO_ANSWER,
+    SYSTEM_PROMPT,
+    TOP_K,
+)
+
+logger = logging.getLogger(__name__)
 
 ScoredPassages = list[tuple[Document, float]]
 
@@ -36,8 +48,18 @@ def format_context(scored_passages: ScoredPassages) -> str:
 
 
 def ask(question: str, vector_store: Chroma, chain: Runnable) -> tuple[str, ScoredPassages]:
-    """Return the answer and the (passage, similarity) pairs it is based on."""
+    """Return the answer and the (passage, similarity) pairs it is based on.
+
+    gpt-oss sometimes returns an empty reply. The question is then asked again, up to
+    EMPTY_ANSWER_RETRIES more times, before the reader gets FALLBACK_ANSWER.
+    """
     scored_passages = retrieve(question, vector_store)
     if not scored_passages:  # nothing in the book is close enough to the question: skip the model
         return NO_ANSWER, []
-    return chain.invoke({"context": format_context(scored_passages), "question": question}), scored_passages
+    inputs = {"context": format_context(scored_passages), "question": question}
+    for attempt in range(1 + EMPTY_ANSWER_RETRIES):
+        answer = chain.invoke(inputs)
+        if answer.strip():
+            return answer, scored_passages
+        logger.warning("Empty answer from the model (attempt %d of %d)", attempt + 1, 1 + EMPTY_ANSWER_RETRIES)
+    return FALLBACK_ANSWER, scored_passages

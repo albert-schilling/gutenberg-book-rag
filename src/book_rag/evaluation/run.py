@@ -34,7 +34,7 @@ def evaluate_retrieval(case: EvalCase, scored_passages: ScoredPassages) -> dict 
 def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPassages, judge: BaseChatModel) -> dict:
     """Abstention (no LLM), then faithfulness and correctness (LLM judge)."""
     abstained = metrics.is_abstention(answer)
-    empty = not answer.strip()  # gpt-oss sometimes returns nothing at all
+    empty = metrics.is_empty_answer(answer)  # the model returned nothing, even after the retries of `ask`
     generation = {
         "empty": empty,
         "abstained": abstained,

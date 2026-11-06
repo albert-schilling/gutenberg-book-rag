@@ -1,41 +1,10 @@
 import json
 
-from langchain_core.documents import Document
+from helpers import ANSWERABLE, UNANSWERABLE, FakeChain, FakeJudge, FakeVectorStore
 
-from book_rag.config import NO_ANSWER
-from book_rag.evaluation import judge, run
-from book_rag.evaluation.dataset import EvalCase
+from book_rag.config import FALLBACK_ANSWER, NO_ANSWER
+from book_rag.evaluation import run
 from book_rag.evaluation.report import render_markdown, run_metadata, summarize, write_report
-
-ANSWERABLE = EvalCase("eggs", "How long are eggs incubated?", "Four weeks.", ("incubated for four weeks",))
-UNANSWERABLE = EvalCase("france", "What is the capital of France?", None, ())
-
-
-class FakeVectorStore:
-    def __init__(self, text):
-        self.text = text
-
-    def similarity_search_with_score(self, question, k):
-        return [(Document(page_content=self.text, metadata={"start_index": 7}), 0.4)]
-
-
-class FakeChain:
-    def __init__(self, answer):
-        self.answer = answer
-
-    def invoke(self, inputs):
-        return self.answer
-
-
-class FakeJudge:
-    def with_structured_output(self, schema):
-        self.schema = schema
-        return self
-
-    def invoke(self, prompt):
-        if self.schema is judge.FaithfulnessVerdict:
-            return judge.FaithfulnessVerdict(claims=[judge.Claim(claim="a", supported=True), judge.Claim(claim="b", supported=False)])
-        return judge.CorrectnessVerdict(verdict="correct", reason="matches")
 
 
 def test_retrieval_only_makes_no_generation_results():
@@ -106,3 +75,10 @@ def test_an_empty_answer_is_flagged_and_scores_zero_without_calling_the_judge():
     assert summary["generation"]["answered_when_answerable"] == 0.0
     report = {"metadata": run_metadata("full"), "summary": summary, "results": [result]}
     assert "EMPTY ANSWER" in render_markdown(report)
+
+
+def test_the_fallback_answer_counts_as_empty():
+    store = FakeVectorStore("The eggs are incubated for four weeks.")
+    result = run.evaluate_case(ANSWERABLE, store, FakeChain(""), judge=None)  # `ask` retries, then returns the fallback
+    assert result["answer"] == FALLBACK_ANSWER
+    assert result["generation"]["empty"] and not result["generation"]["abstained"]

@@ -1,6 +1,6 @@
 import pytest
 
-from book_rag.config import NO_ANSWER
+from book_rag.config import FALLBACK_ANSWER, NO_ANSWER
 from book_rag.evaluation import metrics
 
 EVIDENCE = ("incubated for four weeks", "brownish olive")
@@ -59,3 +59,11 @@ def test_mean_ignores_missing_values():
     assert metrics.mean([1.0, None, 0.0]) == 0.5
     assert metrics.mean([None, None]) is None
     assert metrics.mean([]) is None
+
+
+def test_empty_answers():
+    assert metrics.is_empty_answer("")
+    assert metrics.is_empty_answer("  \n")
+    assert metrics.is_empty_answer(FALLBACK_ANSWER)  # what `ask` returns when every retry was empty
+    assert not metrics.is_empty_answer("Two eggs.")
+    assert not metrics.is_empty_answer(NO_ANSWER)

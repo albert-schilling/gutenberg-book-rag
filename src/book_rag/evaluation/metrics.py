@@ -1,6 +1,6 @@
 """Metrics that need no language model: the same input always gives the same score."""
 
-from book_rag.config import NO_ANSWER
+from book_rag.config import FALLBACK_ANSWER, NO_ANSWER
 
 
 def _normalize(text: str) -> str:
@@ -42,6 +42,11 @@ def context_precision(evidence: tuple[str, ...], passages: list[str]) -> float:
 def is_abstention(answer: str) -> bool:
     """Did the system say that the book does not answer the question?"""
     return _normalize(NO_ANSWER) in _normalize(answer)
+
+
+def is_empty_answer(answer: str) -> bool:
+    """Did the model return nothing, even after the retries of `ask`?"""
+    return not answer.strip() or answer == FALLBACK_ANSWER
 
 
 def abstention_correct(answerable: bool, answer: str) -> bool:

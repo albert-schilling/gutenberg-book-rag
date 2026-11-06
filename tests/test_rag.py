@@ -2,7 +2,7 @@ import pytest
 from langchain_core.documents import Document
 
 from book_rag import rag
-from book_rag.config import NO_ANSWER, TOP_K
+from book_rag.config import EMPTY_ANSWER_RETRIES, FALLBACK_ANSWER, NO_ANSWER, TOP_K
 
 
 class FakeVectorStore:
@@ -19,12 +19,15 @@ class FakeVectorStore:
 
 
 class FakeChain:
-    def __init__(self):
+    """Replies with the given answers one after the other (the last one is repeated)."""
+
+    def __init__(self, *answers):
+        self.answers = list(answers) or ["the answer"]
         self.calls = []
 
     def invoke(self, inputs):
         self.calls.append(inputs)
-        return "the answer"
+        return self.answers[min(len(self.calls), len(self.answers)) - 1]
 
 
 def test_distance_is_converted_to_cosine_similarity():
@@ -56,3 +59,25 @@ def test_ask_skips_the_model_when_no_passage_is_close_enough(monkeypatch):
     chain = FakeChain()
     assert rag.ask("q", FakeVectorStore([1.5, 1.8]), chain) == (NO_ANSWER, [])
     assert chain.calls == []
+
+
+def test_an_empty_reply_is_asked_again():
+    chain = FakeChain("", "  ", "the answer")  # empty twice, then fine
+    answer, passages = rag.ask("q", FakeVectorStore([0.2]), chain)
+    assert answer == "the answer"
+    assert len(chain.calls) == 3 == 1 + EMPTY_ANSWER_RETRIES
+    assert len(passages) == 1
+
+
+def test_a_good_reply_is_not_asked_again():
+    chain = FakeChain("the answer", "another answer")
+    assert rag.ask("q", FakeVectorStore([0.2]), chain)[0] == "the answer"
+    assert len(chain.calls) == 1
+
+
+def test_the_reader_gets_a_fallback_when_every_attempt_is_empty():
+    chain = FakeChain("")
+    answer, passages = rag.ask("q", FakeVectorStore([0.2]), chain)
+    assert answer == FALLBACK_ANSWER
+    assert len(chain.calls) == 1 + EMPTY_ANSWER_RETRIES
+    assert len(passages) == 1  # the passages are still shown

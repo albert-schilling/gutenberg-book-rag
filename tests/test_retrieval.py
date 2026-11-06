@@ -1,6 +1,6 @@
 """Retrieval quality with the real embedding model (cached locally), no language model involved.
 
-The thresholds are a regression floor set just below the first baseline report: they stop the
+The thresholds are a regression floor set just below the latest baseline report: they stop the
 retrieval from getting worse. They are not a target. Raise them when the retrieval improves.
 """
 
@@ -17,14 +17,11 @@ ANSWERABLE = [case for case in load_dataset() if case.answerable]
 
 # Questions whose evidence the retriever does not find yet (see evals/reports). They are expected
 # to fail; when one starts to pass it shows up as XPASS and can be removed from this set.
-KNOWN_MISSES = {
-    "nest-theft", "eggs-incubation", "fasting", "food", "rookery-size", "travel",
-    "sea-leopards", "enemies", "moult", "emperor-egg", "crozier-winter",
-}
+KNOWN_MISSES = {"nest-theft", "fasting", "food", "rookery-size", "enemies"}
 
-MIN_CONTEXT_RECALL = 0.30
-MIN_HIT_RATE = 0.30
-MIN_MRR = 0.25
+MIN_CONTEXT_RECALL = 0.65
+MIN_HIT_RATE = 0.65
+MIN_MRR = 0.50
 
 
 @pytest.fixture(scope="module")

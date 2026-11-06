@@ -4,21 +4,20 @@ import hashlib
 import logging
 
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from book_rag.book import load_book
-from book_rag.config import CHROMA_DIR, CHUNK_OVERLAP, CHUNK_SIZE, COLLECTION_NAME, EMBEDDING_MODEL
+from book_rag.config import CHROMA_DIR, CHUNK_OVERLAP, CHUNK_SIZE, COLLECTION_NAME
+from book_rag.embeddings import build_embeddings
 
 logger = logging.getLogger(__name__)
 
 
 def build_vector_store() -> Chroma:
     """Open the Chroma vector store and fill it with the book, but only if it is empty."""
-    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     vector_store = Chroma(
         collection_name=COLLECTION_NAME,
-        embedding_function=embeddings,
+        embedding_function=build_embeddings(),
         persist_directory=str(CHROMA_DIR),
     )
 
