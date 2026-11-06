@@ -238,3 +238,9 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Mobile: the reader fills the screen below the header (already in B+C); checked on 390x844, screenshots in `docs/images/`.
 - Not done: moving `streamlit_app.py`/`app_pages/` into an `app/` folder. Streamlit's theme and AppTest paths depend on the root entry
   point; the gain was small. The notebook itself still shows the old approach (TODO).
+
+### 10: TODOs picked
+- CI workflow (ruff + unit tests; not run on GitHub yet, there is no way to check from here), `book-rag-stores build|clean` with a test.
+- Did not delete the one stale collection in the local `chroma_db/` (user data, rebuilt on demand): run `uv run book-rag-stores clean`.
+- Skipped on purpose: fixing the penguin summary ("Discovery Expedition" is wrong). A new summary changes the prompt of all whole-book answers,
+  so the reported numbers would no longer match; noted in TODO.

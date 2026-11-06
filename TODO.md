@@ -14,7 +14,7 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
   penguin results (e5, 1000/200, the soft refusal rule) carry.
 - [ ] **A better recall metric.** Evidence phrases are a proxy: a retrieval that finds another passage with the same fact scores 0 (`food` was
   answered correctly with recall 0). Accept several phrases per question, or let a judge decide whether the passages contain the answer.
-- [ ] **Run the evaluation in CI** with the retrieval-only mode (no tokens), and fail when recall drops.
+- [ ] **Run the retrieval evaluation in CI** with the retrieval-only mode (no tokens), and fail when recall drops.
 - [ ] Groq: the current setup was only measured on Mistral. Run `BOOK_RAG_LLM=groq uv run book-rag-eval` on a day with tokens left.
 
 ## Retrieval and answers
@@ -38,16 +38,14 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
 ## Project
 
 - [ ] **Check the book summaries by eye.** The penguin summary says "Discovery Expedition" (wrong: it came from a passing mention). They are made
-  from 14 excerpts only (about 4,000 tokens, one call per book); a map-reduce over the whole book would be better but needs about 25 calls
+  from 14 excerpts only (about 4,000 tokens, one call per book); fixing it changes the prompt of the whole-book questions, so measure them again afterwards. A map-reduce over the whole book would be better but needs about 25 calls
   per large book.
-- [ ] Pre-build the vector stores of all books with a script: the first selection of a book takes 2 to 4 s (spinner "Preparing the book").
-- [ ] Remove old collections from `chroma_db/`: every change of the model, the chunking or the cleaned text leaves one behind.
 - [ ] Review follow-ups: the session state of the web app is a set of string keys spread over four files (`book_id`, `histories`, `memories`,
   `visible_exchanges`, `reader`, `selected_text`, `agentic_on`); one small typed helper would make it safe to change. `streamlit_reports.py`
   and `app_pages/chat.py` are long top-level scripts: move the table-building and rendering helpers into the package where they can be tested.
 - [ ] Type checking: `ty` still reports about 10 findings, mostly Streamlit and colorama typing (the real ones are fixed). Add `ty` or `mypy` to CI.
 - [ ] Coverage of `book-rag-eval`'s `main` (the command line and the printing): `rejudge`, `with_retries` and the cases are tested, `main` is not.
-- [ ] Run the browser tests (`pytest -m browser`, about 90 s) in CI, and in Firefox and WebKit. Today only Chromium.
+- [ ] Run the browser tests (`pytest -m browser`, about 2 min) in CI, and in Firefox and WebKit. Today only Chromium; CI runs lint and the unit tests.
 - [ ] Long chats: older answers still draw all four passage expanders. Draw a passage only when its expander is open
   (`st.expander(on_change="rerun")`), or draw the chat in a `st.fragment` so that closing the book does not redraw it.
 - [ ] Reader panel: a draggable splitter (needs a custom component; today "Wider" toggles 38% and 62% of the width). The panel is a CSS
@@ -66,6 +64,8 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
 
 ## Done
 
+- [x] CI (`.github/workflows/ci.yml`): ruff and the unit tests on every push. Not yet tried on GitHub.
+- [x] `book-rag-stores build` pre-builds the vector stores; `book-rag-stores clean` removes stale collections (`chroma_db/` of this checkout has one: `penguins-b237154c`, not removed).
 - [x] Larger golden set: 72 questions with a `dev` and a `test` split, whole-book and unanswerable questions, a "By split" table in reports.
 - [x] Judge calibration: rubric 3 (key facts ticked, verdict in code), `book-rag-eval --rejudge`, checked against one annotator.
 - [x] Over-refusal with `mistral-small`: the soft refusal rule is the default (+0.19 on the held-out questions).

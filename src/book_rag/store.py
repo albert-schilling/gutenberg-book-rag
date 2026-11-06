@@ -1,13 +1,15 @@
 """The Chroma vector store: one collection per book, all in the same folder."""
 
+import argparse
 import hashlib
 import logging
 
+import chromadb
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from book_rag.book import load_book
-from book_rag.books import Book
+from book_rag.books import BOOKS, Book, get_book
 from book_rag.config import (
     CHROMA_DIR,
     CHUNK_OVERLAP,
@@ -51,3 +53,27 @@ def build_vector_store(book: Book) -> Chroma:
         vector_store.add_documents(chunks, ids=ids)
 
     return vector_store
+
+
+def stale_collections() -> list[str]:
+    """The collections in the folder that no book uses any more (an older model, chunking or text)."""
+    current = {collection_name(book, load_book(book).page_content) for book in BOOKS.values()}
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    names = [getattr(collection, "name", collection) for collection in client.list_collections()]
+    return sorted(set(names) - current)
+
+
+def main(argv: list[str] | None = None) -> None:
+    """`book-rag-stores build` fills the stores of all books (or one); `clean` removes the stale collections."""
+    parser = argparse.ArgumentParser(description="Build or clean the vector stores in chroma_db/.")
+    parser.add_argument("action", choices=["build", "clean"])
+    parser.add_argument("--book", choices=list(BOOKS), help="only this book (build)")
+    args = parser.parse_args(argv)
+    if args.action == "build":
+        for book in [get_book(args.book)] if args.book else BOOKS.values():
+            print(f"{book.title}: {len(build_vector_store(book).get()['ids'])} chunks")
+    else:
+        client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+        for name in stale_collections():
+            client.delete_collection(name)
+            print(f"removed {name}")

@@ -83,6 +83,7 @@ and the question uses other words than the book ("feed on" against "feeding on t
 | :-- | :-- | :-- |
 | Chunking | free choice | 1000 characters, overlap 200 (unchanged: smaller chunks only helped MiniLM) |
 | Chroma ids | `f"{BOOK}-{i}"` | SHA-1 hash of the chunk text: the id changes exactly when the text changes |
+| Vector stores | none | `book-rag-stores build` (all books) and `clean` (collections that no book uses any more) |
 | Building the store | `add_documents` | only if empty; the collection name carries a fingerprint of the model, chunk settings and cleaned text, so a change builds a fresh collection |
 | Cleaning | text between START and END, wrapped lines joined | also drops front matter (ads, contents, prefaces), back matter (printer's line, the climate book's index), `[Illustration]` and indentation; the first and last line of each book are in `books.py` |
 | Passages | `as_retriever(k=4)` | `similarity_search_with_score`, `k=4`; the cosine similarity (1 - distance / 2 for unit vectors) is shown per passage |

@@ -79,3 +79,16 @@ def test_collection_names_are_valid_for_chroma(book):
     name = store.collection_name(book, "some text")
     assert re.fullmatch(rf"{book.id}-[0-9a-f]{{8}}", name)
     assert 3 <= len(name) <= 63  # Chroma's limit
+
+
+def test_stale_collections_are_found_and_removed(monkeypatch, tmp_path):
+    patch_store(monkeypatch, tmp_path)
+    store.build_vector_store(DEFAULT_BOOK)  # the current collection of one book
+    import chromadb
+
+    client = chromadb.PersistentClient(path=str(tmp_path / "chroma_db"))
+    client.create_collection("old-model-collection")
+    assert store.stale_collections() == ["old-model-collection"]
+    store.main(["clean"])
+    assert store.stale_collections() == []
+    assert stored(store.build_vector_store(DEFAULT_BOOK)) > 200  # the current one is kept
