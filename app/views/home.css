@@ -7,7 +7,7 @@
   min-height: 15rem;
   background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
   border-left: 4px solid var(--accent);
-  box-shadow: 0 1px 3px rgb(60 40 20 / 0.08);
+  box-shadow: 0 1px 3px rgb(30 30 40 / 0.08);
   transition: box-shadow 0.15s, transform 0.15s;
 }
 
@@ -16,7 +16,7 @@
 }
 
 [class*="st-key-book-"]:hover {
-  box-shadow: 0 6px 18px rgb(60 40 20 / 0.14);
+  box-shadow: 0 6px 18px rgb(30 30 40 / 0.14);
   transform: translateY(-2px);
 }
 

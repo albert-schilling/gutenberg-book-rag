@@ -107,7 +107,7 @@ div:has(> .st-key-chat-pane) {
   border-radius: 0.75rem;
   background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
   padding: 0.9rem 1.1rem;
-  box-shadow: 0 1px 2px rgb(60 40 20 / 0.06);
+  box-shadow: 0 1px 2px rgb(30 30 40 / 0.06);
 }
 
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
@@ -128,7 +128,7 @@ div:has(> .st-key-chat-pane) {
 
 [data-testid="stChatInput"] {
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgb(60 40 20 / 0.08);
+  box-shadow: 0 2px 8px rgb(30 30 40 / 0.08);
 }
 
 [data-testid="stSidebar"] {
@@ -137,7 +137,7 @@ div:has(> .st-key-chat-pane) {
 
 .st-key-reader-panel {
   background: var(--paper);
-  box-shadow: -6px 0 18px rgb(60 40 20 / 0.1);
+  box-shadow: -6px 0 18px rgb(30 30 40 / 0.1);
 }
 
 .st-key-reader-header [data-testid="stMarkdownContainer"] p {

@@ -1,20 +1,20 @@
-# A quiet library look: paper, ink and one muted accent (oxblood, like a cloth binding).
+# A quiet library look: pale grey paper, ink and one muted accent (oxblood, like a cloth binding).
 [theme]
 base = "light"
 primaryColor = "#8c2f39"
-backgroundColor = "#fbf8f1"
-secondaryBackgroundColor = "#f2ece0"
-textColor = "#2b2622"
+backgroundColor = "#f8f8f6"
+secondaryBackgroundColor = "#eeeeeb"
+textColor = "#25262a"
 linkColor = "#8c2f39"
-borderColor = "#ddd3c1"
+borderColor = "#d9d9d4"
 baseRadius = "0.5rem"
 headingFont = "serif"
 codeFont = "monospace"
-chartCategoricalColors = ["#8c2f39", "#c9a66b", "#4f6d7a", "#7c8f5a", "#6b6257"]
+chartCategoricalColors = ["#8c2f39", "#7d8fa3", "#4a6b57", "#b5764a", "#6b6d72"]
 
 [theme.sidebar]
-backgroundColor = "#f2ece0"
-secondaryBackgroundColor = "#e9e1d1"
+backgroundColor = "#eeeeeb"
+secondaryBackgroundColor = "#e4e4e0"
 
 [client]
 toolbarMode = "minimal"

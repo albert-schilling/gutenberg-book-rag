@@ -264,3 +264,7 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Now: `app/streamlit_app.py` (entry), `app/views/` (pages and CSS), `app/reports.py`; run with `make app` or `uv run streamlit run app/streamlit_app.py`.
   `.streamlit/config.toml` stays at the root (Streamlit reads it from the folder it is started in). `app_pages` renamed `views` to avoid
   Streamlit's own `pages/` folder convention. The README explains this. All tests (428 + 30 browser) pass.
+
+### Batch 5, task 3: theme less yellow
+- Palette now pale grey (`#f8f8f6` page, `#eeeeeb` sidebar and cards, `#d9d9d4` lines, ink `#25262a`); shadows neutral; the chart colours no
+  longer include a sand tone. Same oxblood accent. Changed in `.streamlit/config.toml` and `app/views/base.css` (keep the two in step).
