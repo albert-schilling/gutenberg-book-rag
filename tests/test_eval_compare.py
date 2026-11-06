@@ -30,7 +30,9 @@ def test_metrics_frame_has_a_row_per_metric_and_a_column_per_report():
 
 def test_changed_settings_lists_only_the_differences():
     changes = compare.changed_settings(OLD, NEW)
-    assert changes.to_dict("records") == [{"setting": "embedding_model", "before": "org/model-a", "after": "org/model-b"}]
+    assert changes.to_dict("records") == [
+        {"setting": "embedding_model", "before": "org/model-a", "after": "org/model-b"}
+    ]
     assert compare.changed_settings(NEW, NEW).empty
 
 

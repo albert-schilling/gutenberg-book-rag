@@ -3,61 +3,101 @@
     "id": "nest-material",
     "question": "Where do Adelie penguins get the stones for their nests?",
     "reference_answer": "The penguins that were building took their stones from old, unoccupied nests.",
-    "evidence": ["Those that built took their stones from old nests"]
+    "evidence": [
+      "Those that built took their stones from old nests"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "nest-theft",
     "question": "What do the penguins steal from each other's nests?",
     "reference_answer": "They steal the stones (such as pieces of white quartz) from nest to nest.",
-    "evidence": ["being stolen from nest to nest"]
+    "evidence": [
+      "being stolen from nest to nest"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "eggs-incubation",
     "question": "How many eggs does an Adelie penguin lay, and how long are they incubated?",
     "reference_answer": "Two eggs, which are incubated for four weeks before the chicks hatch.",
-    "evidence": ["are incubated for four weeks"]
+    "evidence": [
+      "are incubated for four weeks"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "hen-on-nest",
     "question": "Do the hens leave the nest while they are incubating the eggs?",
     "reference_answer": "No. They never leave the nest under any circumstances until their mates relieve them.",
-    "evidence": ["they never leave the nest under any circumstances until relieved by their mates"]
+    "evidence": [
+      "they never leave the nest under any circumstances until relieved by their mates"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "fasting",
     "question": "Do the penguins eat when they arrive at the rookery?",
     "reference_answer": "No. All the birds were fasting absolutely when they arrived.",
-    "evidence": ["All the birds were fasting absolutely"]
+    "evidence": [
+      "All the birds were fasting absolutely"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "food",
     "question": "What do the penguins feed on in the sea?",
     "reference_answer": "The shrimp-like (prawn-like) euphausia that swarm in the Antarctic seas.",
-    "evidence": ["feeding on the shrimp-like euphausia"]
+    "evidence": [
+      "feeding on the shrimp-like euphausia"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "rookery-size",
     "question": "How many birds were in the Cape Adare rookery at its fullest?",
     "reference_answer": "A vast crowd of some three-quarters of a million birds.",
-    "evidence": ["vast crowd of some three-quarters of a million"]
+    "evidence": [
+      "vast crowd of some three-quarters of a million"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "travel",
     "question": "How do the penguins travel over the ice on their march to the rookery?",
     "reference_answer": "They alternate between walking and tobogganing on their breasts.",
-    "evidence": ["a dozen or so tobogganing"]
+    "evidence": [
+      "a dozen or so tobogganing"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "skua-chicks",
     "question": "How do skuas treat the penguin chicks?",
     "reference_answer": "Skuas prey upon the chicks in a cruel manner, and a chick that wanders away from the old birds is almost certain to be pounced upon and killed.",
-    "evidence": ["the Skuas prey upon these in a most cruel manner"]
+    "evidence": [
+      "the Skuas prey upon these in a most cruel manner"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "sea-leopards",
     "question": "Why were the penguins reluctant to be the first to enter the water?",
     "reference_answer": "Sea-leopards were gathered in the sea near the rookery to prey on the penguins.",
-    "evidence": ["a large number of sea-leopards were gathered in the sea"]
+    "evidence": [
+      "a large number of sea-leopards were gathered in the sea"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "enemies",
@@ -66,66 +106,592 @@
     "evidence": [
       "the Skuas prey upon these in a most cruel manner",
       "a large number of sea-leopards were gathered in the sea"
-    ]
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "avalanche",
     "question": "What happened to the colony of Adelies below the slope when the avalanche came?",
     "reference_answer": "The avalanche passed right through and over the crowded colony, causing terrible havoc: hundreds of birds were found injured and dying.",
-    "evidence": ["the avalanche passed right through and over them"]
+    "evidence": [
+      "the avalanche passed right through and over them"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "moult",
     "question": "When do young penguins grow the black throat feathers of the adult?",
     "reference_answer": "After their first moult, in the autumn following their departure from the rookery.",
-    "evidence": ["It is not until after their first moult"]
+    "evidence": [
+      "It is not until after their first moult"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "emperor-season",
     "question": "How does the breeding season of the Emperor penguin differ from the Adelie's?",
     "reference_answer": "The Adelie breeds in the warmest and lightest months, but the Emperor rears its young in the darkest, coldest and most tempestuous time of the year.",
-    "evidence": ["in the darkest, coldest, and most tempestuous time"]
+    "evidence": [
+      "in the darkest, coldest, and most tempestuous time"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "emperor-egg",
     "question": "What does the egg of the Emperor penguin look like?",
     "reference_answer": "It is white and pyriform (pear-shaped), and weighs just under 1 lb.",
-    "evidence": ["The egg of the Emperor is white, pyriform in shape"]
+    "evidence": [
+      "The egg of the Emperor is white, pyriform in shape"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "crozier-winter",
     "question": "Who visited Cape Crozier during the winter?",
     "reference_answer": "Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard, a party of Captain Scott's officers.",
-    "evidence": ["Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard"]
+    "evidence": [
+      "Dr. Wilson, Lieut. Bowers and Mr. Cherry-Garrard"
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "cape-adare",
     "question": "Where is Cape Adare?",
     "reference_answer": "At latitude 71 degrees 14 minutes South (and longitude 170 degrees 10 minutes East).",
-    "evidence": ["Cape Adare is situated in lat. 71 deg. 14' S."]
+    "evidence": [
+      "Cape Adare is situated in lat. 71 deg. 14' S."
+    ],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "unanswerable-france",
     "question": "What is the capital of France?",
     "reference_answer": null,
-    "evidence": []
+    "evidence": [],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "unanswerable-world-cup",
     "question": "Who won the 2018 football World Cup?",
     "reference_answer": null,
-    "evidence": []
+    "evidence": [],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "unanswerable-bread",
     "question": "How do I bake sourdough bread?",
     "reference_answer": null,
-    "evidence": []
+    "evidence": [],
+    "kind": "fact",
+    "split": "dev"
   },
   {
     "id": "unanswerable-lifespan",
     "question": "How many years does an Adelie penguin live?",
     "reference_answer": null,
-    "evidence": []
+    "evidence": [],
+    "kind": "fact",
+    "split": "dev"
+  },
+  {
+    "id": "t-4540",
+    "question": "What does the Adelie penguin do with its wings when it prepares to defend itself against an enemy?",
+    "reference_answer": "The Adelie penguin extends its wings when taking a stand for combat or defending itself.",
+    "evidence": [
+      "the wings extended, not losing sight of its enemy"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-8792",
+    "question": "How long do Adelie penguin chicks stay on the pack ice before returning to breed?",
+    "reference_answer": "Adelie penguin chicks remain on the pack ice for two winters after leaving the rookery.",
+    "evidence": [
+      "the first year's birds remain there for two winters"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-12095",
+    "question": "Why do Adelie penguins on Duke of York Island have to travel long distances for food during most of the breeding season?",
+    "reference_answer": "The penguins on Duke of York Island have to travel long distances for food because the island is cut off from open water by many miles of sea-ice, leaving them no access except for occasional tide cracks or seals' blow holes.",
+    "evidence": [
+      "cut off from open water by many miles of sea-ice"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-14767",
+    "question": "In which year did an expedition first record the southern limit of the pack ice at 70 degrees 30 minutes south?",
+    "reference_answer": "The first recorded southern limit of the pack ice at 70 degrees 30 minutes south was in 1904 during Scott's expedition.",
+    "evidence": [
+      "70 deg. 30' | ? | Scott"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-24739",
+    "question": "What made some Adelie penguins appear much smaller than others during nest-building conflicts?",
+    "reference_answer": "Penguins that were fleeing after being caught stealing pebbles appeared smaller because their feathers lay close back on their skin, giving them a sleek look.",
+    "evidence": [
+      "his feathers lay close back on his skin, giving him a sleek look which made him appear half the size"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-27565",
+    "question": "Do Adelie penguin thieves ever fight back when caught stealing nesting materials?",
+    "reference_answer": "No, Adelie penguin thieves never resist or fight back when caught; they always retreat and do not use violence.",
+    "evidence": [
+      "violence is never under any circumstances resorted to by the thieves"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-31854",
+    "question": "Why did Adelie penguins switch between walking and tobogganing while traveling?",
+    "reference_answer": "The Adelie penguins switched between walking and tobogganing to relieve the monotony of their march and to give periodic rest to different groups of muscles and nerve-centers.",
+    "evidence": [
+      "they relieved the monotony of their march, and gave periodical rest to different groups of muscles and nerve-centres"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-38310",
+    "question": "What happens to a person's legs when Adelie penguins peck at them while walking among the nests?",
+    "reference_answer": "The pecking from Adelie penguins is painful and severe enough to leave bruises on a person's legs.",
+    "evidence": [
+      "the operation is painful and severe enough to leave bruises behind it"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-40307",
+    "question": "What did the female Adelie penguin do while waiting for a mate during the nesting season?",
+    "reference_answer": "The female Adelie penguin would establish herself on an old nest or scoop out a hollow in the ground and sit in or by it, waiting for a mate without attempting to build the nest further.",
+    "evidence": [
+      "scoop out a hollow in the ground and sit in or by this, waiting for a mate to propose himself"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-43035",
+    "question": "What do Adelie penguin males use to fight each other when defending their nests?",
+    "reference_answer": "Adelie penguin males use their flippers to fight savagely when defending their nests.",
+    "evidence": [
+      "each used his flippers savagely"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-46364",
+    "question": "What sound do Adelie penguins make when they rapidly hit each other with their flippers during a fight?",
+    "reference_answer": "The sound they make resembles that of a boy running and dragging his hoop-stick along an iron paling.",
+    "evidence": [
+      "resembles that of a boy running and dragging his hoop-stick along an iron paling"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-48622",
+    "question": "What object does a male Adelie penguin often pick up to offer a female as part of his courtship behavior?",
+    "reference_answer": "The male Adelie penguin often picks up a stone and lays it in front of the female as part of his courtship behavior.",
+    "evidence": [
+      "pick up a stone and lay it in front of her"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-52503",
+    "question": "What did some Adelie penguins do after getting injured in fights during the busy arrival period?",
+    "reference_answer": "Injured penguins were seen moping around the rookery, often covered in blood and guano.",
+    "evidence": [
+      "temporarily disabled, were to be seen moping about the rookery, smeared with blood and guano"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-55048",
+    "question": "What happens to the King penguin at the Zoological Gardens when its keeper strokes its neck?",
+    "reference_answer": "The King penguin throws itself into an ecstatic attitude and sings a sort of song when its keeper strokes its neck.",
+    "evidence": [
+      "throws itself into the ecstatic attitude and sings a sort of song"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-58174",
+    "question": "On what date did Adelie penguins start to have plenty of eggs in their nests at Cape Adare?",
+    "reference_answer": "Adelie penguins began to have plenty of eggs in their nests on November 4th.",
+    "evidence": [
+      "on the 4th these were beginning to be plentiful"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-66640",
+    "question": "What did Adelie penguins do when they encountered a sagging guide rope blocking their path?",
+    "reference_answer": "The penguins would push against the rope repeatedly, then often walk a long way around the hut instead of going under the rope, even though it was easy to do so.",
+    "evidence": [
+      "each bird as it was caught invariably went through the same ridiculous procedure"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-69132",
+    "question": "What emotion does the Adelie penguin typically show toward humans after something upsetting, like having its egg taken?",
+    "reference_answer": "The Adelie penguin shows emotions like fear, anger, or curiosity toward humans, but these emotions last only for a fleeting moment and are quickly forgotten.",
+    "evidence": [
+      "fear of us, anger at us, curiosity over us, although frequently shown, are displayed only for a fleeting moment"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-72152",
+    "question": "What color does the Adelie penguin guano turn when the penguins feed on shrimp-like euphausia from the sea?",
+    "reference_answer": "The guano turns a bright brick-red color when Adelie penguins feed on shrimp-like euphausia.",
+    "evidence": [
+      "characteristic bright brick-red guano"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-77367",
+    "question": "What do Adelie penguin males (cocks) deliver to the females (hens) to help build their nests?",
+    "reference_answer": "The male Adelie penguin delivers stones to the female to help build their nest.",
+    "evidence": [
+      "the cock is seen in the act of delivering another stone to the hen"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-83698",
+    "question": "What nickname did the researchers give to the messy and fight-filled penguin colony near their hut?",
+    "reference_answer": "The researchers nicknamed the disorderly colony 'Casey's Court' because of the frequent fighting there.",
+    "evidence": [
+      "we christened the locality \"Casey's Court\""
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-86425",
+    "question": "What do Adelie penguins often try to avoid when they gather at the water's edge?",
+    "reference_answer": "Adelie penguins try to avoid being the first one to enter the water when they gather at the edge.",
+    "evidence": [
+      "intent on finding any excuse from being the first in"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-90047",
+    "question": "Where did Adelie penguins prefer to play their game of 'touch last' instead of in the rookery?",
+    "reference_answer": "Adelie penguins played their game of 'touch last' on the sea-ice and the ice-foot near the water's edge, as well as in the water, but never in the rookery itself.",
+    "evidence": [
+      "They never played on the ground of the rookery itself, but only on the sea-ice and the ice-foot and in the water"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-92589",
+    "question": "How fast was the tide running at the open water leads where Adelie penguins bathed?",
+    "reference_answer": "The tide at the open water leads where Adelie penguins bathed ran at about six knots.",
+    "evidence": [
+      "ran a good six knots"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-95431",
+    "question": "How high was the highest leap recorded for an Adelie penguin when jumping out of the water onto a ledge?",
+    "reference_answer": "The highest leap recorded for an Adelie penguin was exactly five feet.",
+    "evidence": [
+      "the highest leap I recorded was exactly five feet"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-100881",
+    "question": "What kind of boat did Commander Campbell and the author use to hunt sea-leopards?",
+    "reference_answer": "They used a small Norwegian pram, which is a type of dinghy, to hunt sea-leopards.",
+    "evidence": [
+      "a little Norwegian pram (a species of dinghy)"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-103499",
+    "question": "What is the only natural enemy (besides humans) that threatens adult Adelie penguins?",
+    "reference_answer": "The only natural enemy that threatens the life of the adult Adelie penguin, besides humans, is the sea-leopard.",
+    "evidence": [
+      "the sea-leopard is the only living enemy"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-105830",
+    "question": "What do Adelie penguins do with the food they gather when their stomachs are full?",
+    "reference_answer": "Adelie penguins vomit the entire meal back into the water after their stomachs are full, then start eating again.",
+    "evidence": [
+      "vomit the whole meal into the water as they swam"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-111870",
+    "question": "How much does an Adelie penguin chick weigh when it is eight days old?",
+    "reference_answer": "An Adelie penguin chick weighs 24.75 ounces when it is eight days old.",
+    "evidence": [
+      "Eight \" 24.75"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-114383",
+    "question": "Why are Adelie penguin chicks at the back of the rookery or at the top of the Cape just as well fed as those closer to the water?",
+    "reference_answer": "The chicks at the back of the rookery and at the top of the Cape are just as well nourished because food-laden parents constantly pass by and provide for them, ensuring they get enough food.",
+    "evidence": [
+      "just as well nourished as those nearer the water"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-117201",
+    "question": "How long could it take a small group of Adelie penguins to climb to the top of a slope?",
+    "reference_answer": "It could take a small band of climbers as much as an hour or more to reach the summit.",
+    "evidence": [
+      "take as much as an hour or more over climbing to the summit"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-119836",
+    "question": "What causes the landslides that bury many Adelie penguin nests at Cape Adare?",
+    "reference_answer": "The landslides are caused by thaw water that bursts out after being dammed up at the top of the cliff.",
+    "evidence": [
+      "owing to the bursting out of thaw water which has been dammed up at the top of the cliff, large landslides are caused"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-123005",
+    "question": "How do Adelie penguins treat injured members of their group?",
+    "reference_answer": "Adelie penguins never molest or harm an injured penguin, unlike many other birds.",
+    "evidence": [
+      "however badly a penguin was injured it was never molested by the others"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-125957",
+    "question": "What happens to Adelie penguin eggs when the male penguins get into fights?",
+    "reference_answer": "The eggs often get spilled during the fights and are lost as a result.",
+    "evidence": [
+      "very often spilling the eggs, which are lost in consequence"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-129951",
+    "question": "What do Adelie penguin chicks do once they lose their down and grow their feathers?",
+    "reference_answer": "After their down is moulted and their plumage is acquired, Adelie penguin chicks go to the water's edge to learn how to swim.",
+    "evidence": [
+      "they proceed to the water's edge and here they learn to swim"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-133164",
+    "question": "What happened to the Adelie penguins after they swam northward from Cape Adare in 1911?",
+    "reference_answer": "After swimming northward, the Adelie penguins were seen no more.",
+    "evidence": [
+      "entering the water and swimming northward they were seen no more"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-136874",
+    "question": "What color are the eyelids of an immature Adelie penguin?",
+    "reference_answer": "The eyelids of an immature Adelie penguin are black, unlike the white eyelids of the adults.",
+    "evidence": [
+      "the eyelids are black, as in the chick"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-140128",
+    "question": "What fraction represents the estimated proportion of Isabelline forms among Adelie penguins in the observed rookery?",
+    "reference_answer": "The estimated proportion of Isabelline forms among Adelie penguins is roughly 3 out of 750,000.",
+    "evidence": [
+      "3/750000 roughly represents the proportion"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-143452",
+    "question": "What did Adelie penguins sometimes hit when trying to scare away people near their nests?",
+    "reference_answer": "The Adelie penguins would sometimes knock people's heads with their wings or swoop at a ski-stick or ice-axe handle held above them.",
+    "evidence": [
+      "actually knock our heads with a wing"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-146593",
+    "question": "What unusual tactic did the Skuas at Cape Royds use against the visitors in the penguin rookery?",
+    "reference_answer": "The Skuas at Cape Royds repeatedly dropped their guano on the visitors with surprising accuracy instead of swooping at their heads.",
+    "evidence": [
+      "dropped their guano on to us as they passed over, timing the process with such surprising accuracy"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-149656",
+    "question": "What color is the patch found just above the tibio-metatarsal joint in young Adelie penguin fledglings?",
+    "reference_answer": "The patch just above the tibio-metatarsal joint in young Adelie penguin fledglings is bright blue.",
+    "evidence": [
+      "a patch of bright blue just above the tibio-metatarsal joint"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-153417",
+    "question": "How many Adelie penguins were present in the rookery at Cape Crozier during the first visit?",
+    "reference_answer": "During the first visit to the rookery at Cape Crozier, there were no more than one thousand Adelie penguins.",
+    "evidence": [
+      "not above one thousand birds occupied it"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "t-156099",
+    "question": "What bird preys on Adelie penguin chicks in their rookeries?",
+    "reference_answer": "The Skua gull preys on Adelie penguin chicks and causes havoc in their rookeries.",
+    "evidence": [
+      "the depredation of the Skua gull, which plays such havoc in the Adelie rookeries"
+    ],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "whole-about",
+    "question": "What is this book about?",
+    "reference_answer": "A natural-history study of the social habits of Adelie penguins at their rookeries in Antarctica (mainly Cape Adare): arrival, nest building, mating, fighting, eggs and chicks, with notes on skuas, sea-leopards and Emperor penguins.",
+    "evidence": [],
+    "kind": "whole-book",
+    "split": "test"
+  },
+  {
+    "id": "whole-structure",
+    "question": "How is the book organised?",
+    "reference_answer": "An introduction, then Part I on the fasting period (arrival, mating and nest building, as a diary), Part II on the domestic life of the Adelie penguin, an appendix, and Part III on the skua gull with a short note on Emperor penguins.",
+    "evidence": [],
+    "kind": "whole-book",
+    "split": "test"
+  },
+  {
+    "id": "whole-other-animals",
+    "question": "Which animals other than Adelie penguins does the book describe?",
+    "reference_answer": "Skua gulls, sea-leopards and Emperor penguins.",
+    "evidence": [],
+    "kind": "whole-book",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-funding",
+    "question": "Who paid for the expedition?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-fahrenheit",
+    "question": "How cold did it get in winter at Cape Adare, in degrees Fahrenheit?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-treaty",
+    "question": "What does the Antarctic Treaty say about disturbing penguins?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-cost",
+    "question": "How much did the expedition cost?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-mona-lisa",
+    "question": "Who painted the Mona Lisa?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
+  },
+  {
+    "id": "unanswerable-jupiter",
+    "question": "How many moons does Jupiter have?",
+    "reference_answer": null,
+    "evidence": [],
+    "kind": "fact",
+    "split": "test"
   }
 ]

@@ -22,10 +22,21 @@ from book_rag.evaluation.compare import (
 from book_rag.evaluation.report import REPORT_DIR
 
 RETRIEVAL_METRICS = ["context_recall", "hit_rate", "mrr", "context_precision"]
-GENERATION_METRICS = ["answer_correctness", "faithfulness", "abstention_accuracy", "answered_when_answerable",
-                      "abstained_when_unanswerable", "empty_answer_rate"]
-KPIS = {"context_recall": "Context recall", "mrr": "MRR", "answer_correctness": "Answer correctness",
-        "faithfulness": "Faithfulness", "abstention_accuracy": "Abstention accuracy"}
+GENERATION_METRICS = [
+    "answer_correctness",
+    "faithfulness",
+    "abstention_accuracy",
+    "answered_when_answerable",
+    "abstained_when_unanswerable",
+    "empty_answer_rate",
+]
+KPIS = {
+    "context_recall": "Context recall",
+    "mrr": "MRR",
+    "answer_correctness": "Answer correctness",
+    "faithfulness": "Faithfulness",
+    "abstention_accuracy": "Abstention accuracy",
+}
 
 st.set_page_config(page_title="Evaluation reports", page_icon=":material/monitoring:", layout="wide")
 st.title("Evaluation reports")
@@ -42,9 +53,11 @@ labels = {name: report_label(report) for name, report in reports.items()}
 with st.sidebar:
     selected = st.selectbox("Report", names[::-1], format_func=labels.get, help="Newest first")
     others = [name for name in names[::-1] if name != selected]
-    older = [name for name in names[: names.index(selected)]]
+    older = names[: names.index(selected)]
     compare_with = st.selectbox(
-        "Compare with", [None, *others], index=1 + others.index(older[-1]) if older else 0,
+        "Compare with",
+        [None, *others],
+        index=1 + others.index(older[-1]) if older else 0,
         format_func=lambda name: "Nothing" if name is None else labels[name],
     )
     st.caption(f"{len(names)} reports in `{REPORT_DIR.name}/`")
@@ -64,7 +77,8 @@ with st.container(horizontal=True):
         if baseline_scores.get(metric) is not None:
             delta = scores[metric] - baseline_scores[metric]
         st.metric(
-            name, f"{scores[metric]:.2f}",
+            name,
+            f"{scores[metric]:.2f}",
             delta=None if delta is None else round(delta, 2),
             delta_color="inverse" if metric in LOWER_IS_BETTER else "normal",
             border=True,
@@ -80,7 +94,9 @@ if baseline:
         else:
             st.dataframe(changes, hide_index=True, width="stretch", alt="Settings that differ between the reports")
         if baseline["metadata"]["dataset_sha1"] != report["metadata"]["dataset_sha1"]:
-            st.warning("The question set changed, so the scores are not directly comparable.", icon=":material/warning:")
+            st.warning(
+                "The question set changed, so the scores are not directly comparable.", icon=":material/warning:"
+            )
 
 # --- Comparison charts ---------------------------------------------------------------------------
 shown = {labels[selected]: selected, **({labels[compare_with]: compare_with} if baseline else {})}
@@ -93,8 +109,14 @@ for column, title, metrics in [(left, "Retrieval", RETRIEVAL_METRICS), (right, "
         if rows.empty:
             st.caption("Not in this report (it ran with --retrieval-only).")
         else:
-            st.bar_chart(rows, horizontal=True, stack=False, x_label="Score (0 to 1)", y_label="",
-                         alt=f"{title} metrics of the selected reports")
+            st.bar_chart(
+                rows,
+                horizontal=True,
+                stack=False,
+                x_label="Score (0 to 1)",
+                y_label="",
+                alt=f"{title} metrics of the selected reports",
+            )
 
 # --- History ---------------------------------------------------------------------------------------
 if len(names) > 1:
@@ -103,7 +125,9 @@ if len(names) > 1:
         history = metrics_frame(reports).T
         history.index = [report_label(reports[name]) for name in history.index]
         trend = [m for m in ["context_recall", "mrr", "answer_correctness", "faithfulness"] if m in history.columns]
-        st.line_chart(history[trend], x_label="Report", y_label="Score (0 to 1)", alt="Key metrics of all reports over time")
+        st.line_chart(
+            history[trend], x_label="Report", y_label="Score (0 to 1)", alt="Key metrics of all reports over time"
+        )
         with st.expander("Table"):
             st.dataframe(history, alt="All metrics of all reports")
 
@@ -120,8 +144,12 @@ column_config = {
     "correctness": st.column_config.ProgressColumn("Correct", min_value=0, max_value=1, format="%.2f"),
     "rank": st.column_config.NumberColumn("Rank", format="%d", help="Rank of the first passage with evidence"),
 }
-st.dataframe(questions.drop(columns=["answerable"]), column_config=column_config, width="stretch",
-             alt="Scores for every question of the selected report")
+st.dataframe(
+    questions.drop(columns=["answerable"]),
+    column_config=column_config,
+    width="stretch",
+    alt="Scores for every question of the selected report",
+)
 
 # --- One question in detail ------------------------------------------------------------------------
 st.subheader("One question in detail")
@@ -140,14 +168,22 @@ if generation:
         st.caption(f"Judge ({generation['correctness']:.1f}): {generation['correctness_reason']}")
     if generation["claims"]:
         with st.expander("Claims of the answer checked against the passages"):
-            st.dataframe(pd.DataFrame(generation["claims"]), hide_index=True, width="stretch", alt="Claims and whether the passages support them")
+            st.dataframe(
+                pd.DataFrame(generation["claims"]),
+                hide_index=True,
+                width="stretch",
+                alt="Claims and whether the passages support them",
+            )
 
 st.markdown("**Retrieved passages**")
 if retrieval:
-    st.caption("Evidence the retrieval should find: " + " · ".join(
-        f"{':green[found]' if found else ':red[missing]'} “{phrase}”"
-        for phrase, found in zip(result["evidence"], retrieval["evidence_found"])
-    ))
+    st.caption(
+        "Evidence the retrieval should find: "
+        + " · ".join(
+            f"{':green[found]' if found else ':red[missing]'} “{phrase}”"
+            for phrase, found in zip(result["evidence"], retrieval["evidence_found"], strict=True)
+        )
+    )
 for rank, passage in enumerate(result["retrieved"], 1):
     with st.expander(f"{rank}. position {passage['start_index']:,} · similarity {passage['similarity']:.2f}"):
         st.write(passage["preview"] + " …")

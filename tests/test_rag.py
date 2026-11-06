@@ -10,8 +10,9 @@ class FakeVectorStore:
     """Returns fixed (passage, squared L2 distance) pairs, like Chroma does."""
 
     def __init__(self, distances):
-        self.results = [(Document(page_content=f"passage {i}", metadata={"start_index": i}), d)
-                        for i, d in enumerate(distances)]
+        self.results = [
+            (Document(page_content=f"passage {i}", metadata={"start_index": i}), d) for i, d in enumerate(distances)
+        ]
         self.k = None
 
     def similarity_search_with_score(self, question, k):
@@ -84,10 +85,22 @@ def test_the_reader_gets_a_fallback_when_every_attempt_is_empty():
     assert len(passages) == 1  # the passages are still shown
 
 
+def test_ask_gives_the_conversation_to_the_model():
+    chain = FakeChain()
+    rag.ask("and why?", FakeVectorStore([0.2]), chain, conversation="Q: What do skuas eat?\nA: Eggs.")
+    assert chain.calls[0]["conversation"] == "Q: What do skuas eat?\nA: Eggs."
+
+
+def test_without_a_conversation_the_prompt_says_none():
+    chain = FakeChain()
+    rag.ask("What?", FakeVectorStore([0.2]), chain)
+    assert chain.calls[0]["conversation"] == "(none)"
+
+
 def test_the_prompt_names_the_book_and_keeps_the_slot_for_the_passages():
     prompt = rag.build_system_prompt(BOOKS["frankenstein_shelley"])
     assert "'Frankenstein; or, The Modern Prometheus' by Mary Wollstonecraft Shelley" in prompt
-    assert "{context}" in prompt  # filled in by the chain
+    assert "{context}" in prompt and "{conversation}" in prompt  # filled in by the chain
     assert "{title}" not in prompt and "{author}" not in prompt
     assert NO_ANSWER in prompt
 

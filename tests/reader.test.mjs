@@ -50,3 +50,29 @@ test("the first window is centred on the passage and stays inside the book", () 
   assert.deepEqual(initialWindow(40, 39), { first: 14, last: 39 })
   assert.deepEqual(initialWindow(1, 0), { first: 0, last: 0 })
 })
+
+import { firstParagraphOnPage, pageOf, paragraphIndexAt } from "../src/book_rag/reader.js"
+
+const starts = [0, 100, 220, 900, 1000] // paragraphs of 98, 118, 678 and 98 characters, then the last one
+
+test("the page of a position, from 1 up to the number of pages", () => {
+  assert.equal(pageOf(0, 500, 3), 1)
+  assert.equal(pageOf(499, 500, 3), 1)
+  assert.equal(pageOf(500, 500, 3), 2)
+  assert.equal(pageOf(5000, 500, 3), 3) // never beyond the last page
+})
+
+test("the paragraph at a position is found by binary search", () => {
+  assert.equal(paragraphIndexAt(starts, 0), 0)
+  assert.equal(paragraphIndexAt(starts, 99), 0)
+  assert.equal(paragraphIndexAt(starts, 100), 1)
+  assert.equal(paragraphIndexAt(starts, 899), 2)
+  assert.equal(paragraphIndexAt(starts, 99999), 4)
+})
+
+test("a jump goes to the first paragraph that starts on the page", () => {
+  assert.equal(firstParagraphOnPage(starts, 1, 500), 0)
+  assert.equal(firstParagraphOnPage(starts, 2, 500), 3) // page 2 starts at 500, inside paragraph 2: go to the next
+  assert.equal(firstParagraphOnPage(starts, 3, 500), 4)
+  assert.equal(firstParagraphOnPage(starts, 2, 100), 1) // pages of 100 characters: page 2 starts exactly at paragraph 1
+})
