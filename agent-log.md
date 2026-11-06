@@ -189,3 +189,14 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Frictions: two jobs on one Mistral key rate-limited each other (drafting lost 36 of 52 calls; rerun alone with backoff); my first judge
   rubric made things worse and I had to measure it before noticing; I changed the default refusal rule but left the agent default on: your call.
 - Not committed.
+## Agent off by default, Settings page, TODO audit
+- `BOOK_RAG_AGENT` now defaults to off (`AGENTIC_DEFAULT`); the plain pipeline with the soft refusal rule is what runs. New page
+  `app_pages/settings.py` (agent switch, language model and refusal rule shown); the link sits above "Changes from the assignment" in the
+  sidebar, and the switch left the sidebar. CLI: `--agent` / `--no-agent`.
+- Friction: Streamlit forgets the state of a widget that is not drawn, so a switch on its own page would reset when you leave it. The choice is
+  copied to `agentic_on` in a callback, and the page reads it back (tested in AppTest and in a real browser).
+- Tests: 4 new AppTest tests, 3 browser tests (links and order, the switch is off, the choice survives leaving the page, the model is named).
+- TODO audit: 11 items were done or obsolete (larger golden set, whole-book questions, evaluation re-run, judge calibration, over-refusal, the
+  stop rule, summary in the prompt, chat history to the model, live tests on Mistral, browser tests, the agent default). The file now has open
+  items grouped by area and a "Done" list; duplicates were merged (the vector-store pre-build was listed twice) and Groq-only items marked.
+- Not committed.

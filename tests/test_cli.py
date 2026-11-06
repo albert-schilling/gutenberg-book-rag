@@ -76,8 +76,10 @@ def test_an_unknown_book_is_rejected_with_the_choices(monkeypatch, capsys):
     assert "frankenstein_shelley" in capsys.readouterr().err
 
 
-def test_the_agent_is_used_unless_the_user_switches_it_off(monkeypatch):
+def test_the_agent_is_off_by_default_and_the_flag_turns_it_on(monkeypatch):
     run_main(monkeypatch, [], inputs=("A question", "quit"))
+    assert cli.asked == [("A question", False)]
+    run_main(monkeypatch, ["--agent"], inputs=("A question", "quit"))
     assert cli.asked == [("A question", True)]
     run_main(monkeypatch, ["--no-agent"], inputs=("A question", "quit"))
     assert cli.asked == [("A question", False)]

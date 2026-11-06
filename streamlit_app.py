@@ -9,7 +9,7 @@ import streamlit as st
 from dotenv import load_dotenv
 
 from book_rag.books import BOOKS, DEFAULT_BOOK
-from book_rag.config import AGENTIC_DEFAULT, ENV_FILE
+from book_rag.config import ENV_FILE
 from book_rag.reader_component import open_reader
 from book_rag.selection_component import text_selection
 
@@ -31,7 +31,14 @@ changes = st.Page(
     help="Where this app differs from the notebook and the original assignment, and why.",
     url_path="changes",
 )
-page = st.navigation([chat, changes], position="hidden")  # the sidebar below has the links
+settings = st.Page(
+    "app_pages/settings.py",
+    title="Settings",
+    icon=":material/settings:",
+    help="Switch the agent that can search the book again, and see which language model is used.",
+    url_path="settings",
+)
+page = st.navigation([chat, settings, changes], position="hidden")  # the sidebar below has the links
 
 with st.sidebar:
     st.selectbox(
@@ -52,22 +59,17 @@ with st.sidebar:
             help="Open the text of the book next to the chat, from the beginning.",
             width="stretch",
         )
-    if page is chat:
-        st.toggle(
-            "Search again when needed",
-            value=AGENTIC_DEFAULT,
-            key="agentic",
-            help="The model may rephrase your question and search the book again before it answers. "
-            "This can use two or three times the tokens: the free Groq plan allows 8,000 a minute and 200,000 a day.",
-        )
     st.divider()
     if page is chat:
         selected = text_selection()  # a click on "Ask about this" in the page: the chat page asks it
         if selected:
             st.session_state["selected_text"] = selected
-        st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")
     else:
         st.page_link(chat, label="Back to the chat", icon=":material/arrow_back:")
+    if page is not settings:
+        st.page_link(settings, label="Settings", icon=":material/settings:")
+    if page is not changes:
+        st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")
 
 st.title(page.title, icon=page.icon)
 page.run()

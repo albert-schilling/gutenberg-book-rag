@@ -16,8 +16,9 @@ EVAL_DIR = PROJECT_ROOT / "evals"  # golden questions and the reports of the eva
 OFFLINE = os.environ.get("BOOK_RAG_OFFLINE") == "1"
 
 # The agent may search the book again before it answers (agent.py). It can use two or three times the tokens of a
-# plain answer, and the free Groq plan allows only 8,000 tokens a minute and 200,000 a day: switchable in the sidebar.
-AGENTIC_DEFAULT = os.environ.get("BOOK_RAG_AGENT", "1") != "0"
+# plain answer, and the free plans limit the tokens a minute and a day. On 51 questions that the system was not tuned on
+# it did not answer facts better, so it is off by default (BOOK_RAG_AGENT=1 turns it on; the Settings page switches it).
+AGENTIC_DEFAULT = os.environ.get("BOOK_RAG_AGENT", "0") == "1"
 
 EMBEDDING_MODEL = "intfloat/e5-small-v2"  # found in the retrieval experiments, see evals/README.md
 QUERY_PREFIX = "query: "  # e5 models expect these prefixes

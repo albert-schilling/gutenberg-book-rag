@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from book_rag.agent import AgentResult
 from book_rag.books import BOOKS, DEFAULT_BOOK, get_book
-from book_rag.config import ENV_FILE
+from book_rag.config import AGENTIC_DEFAULT, ENV_FILE
 from book_rag.conversation import build_companion
 from book_rag.memory import ChatMemory
 
@@ -43,7 +43,10 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Ask questions about a book in the terminal.")
     parser.add_argument("--book", default=DEFAULT_BOOK.id, choices=list(BOOKS), help="the book to ask about")
     parser.add_argument(
-        "--no-agent", action="store_true", help="do not let the model search the book again (uses fewer tokens)"
+        "--agent",
+        action=argparse.BooleanOptionalAction,
+        default=AGENTIC_DEFAULT,
+        help="let the model search the book again before it answers (off by default: it uses more tokens)",
     )
     args = parser.parse_args(argv)
     book = get_book(args.book)
@@ -59,6 +62,6 @@ def main(argv: list[str] | None = None) -> None:
     print(Fore.CYAN + f"Ask a question about {book.title} (type quit or exit to leave)." + Style.RESET_ALL)
     while (question := read_question()) is not None:
         if question:  # ignore empty input
-            print_answer(companion.respond(question, chat_memory, agentic=not args.no_agent))
+            print_answer(companion.respond(question, chat_memory, agentic=args.agent))
 
     print(Fore.CYAN + "Goodbye!" + Style.RESET_ALL)

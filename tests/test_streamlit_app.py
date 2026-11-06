@@ -180,13 +180,17 @@ def test_the_rag_system_of_a_book_is_loaded_only_once(app):
     assert app.built == [DEFAULT_BOOK.id, FRANKENSTEIN.id]  # each book once, then it comes from the cache
 
 
-def test_the_sidebar_links_to_the_changes_page_and_back(app):
-    assert sidebar_links(app) == ["Changes from the assignment"]
+def test_the_sidebar_links_to_the_other_pages_with_the_settings_above_the_changes(app):
+    assert sidebar_links(app) == ["Settings", "Changes from the assignment"]
 
     app.switch_page("app_pages/changes.py").run()
     assert not app.exception
-    assert sidebar_links(app) == ["Back to the chat"]
+    assert sidebar_links(app) == ["Back to the chat", "Settings"]
     assert app.sidebar.selectbox[0].label == "Book"  # the book stays selectable on every page
+
+    app.switch_page("app_pages/settings.py").run()
+    assert not app.exception
+    assert sidebar_links(app) == ["Back to the chat", "Changes from the assignment"]
 
 
 def test_the_changes_page_documents_the_differences_from_the_assignment(app):
@@ -326,20 +330,49 @@ def test_every_book_counts_its_own_visible_exchanges(app):
     assert len(app.chat_message) == 20 and [b for b in app.button if b.key == "show-earlier"]
 
 
-def agent_toggle(app):
-    return next(t for t in app.sidebar.toggle if t.label == "Search again when needed")
-
-
-def test_the_model_may_search_again_by_default_and_the_sidebar_can_switch_it_off(app):
-    assert agent_toggle(app).value is True
-    app.chat_input[0].set_value("First").run()
-    agent_toggle(app).set_value(False).run()
-    app.chat_input[0].set_value("Second").run()
+def set_agent(app, on):
+    """Switch the agent on the Settings page and go back to the chat."""
+    app.switch_page("app_pages/settings.py").run()
     assert not app.exception
-    assert app.paths == ["agent", "plain"]  # the second question was answered without the agent
+    next(t for t in app.toggle if t.label == "Search again when needed").set_value(on).run()
+    app.switch_page("app_pages/chat.py").run()
+    assert not app.exception
+
+
+def test_the_settings_page_shows_the_agent_switch_off_and_the_model(app):
+    app.switch_page("app_pages/settings.py").run()
+    assert not app.exception
+    switch = next(t for t in app.toggle if t.label == "Search again when needed")
+    assert switch.value is False  # off by default
+    text = " ".join(c.value for c in app.caption)
+    assert llm.LLM_PROVIDER.capitalize() in text and "BOOK_RAG_LLM" in text and "1.7 to 3.2 calls" in text
+    assert len(app.chat_input) == 0  # a settings page, not the chat
+    assert not [t for t in app.sidebar.toggle]  # the switch is no longer in the sidebar
+
+
+def test_the_model_does_not_search_again_by_default_and_the_settings_page_can_switch_it_on(app):
+    app.chat_input[0].set_value("First").run()
+    set_agent(app, True)
+    app.chat_input[0].set_value("Second").run()
+    set_agent(app, False)
+    app.chat_input[0].set_value("Third").run()
+    assert not app.exception
+    assert app.paths == ["plain", "agent", "plain"]
+
+
+def test_the_agent_choice_survives_a_visit_to_other_pages_and_another_book(app):
+    set_agent(app, True)
+    app.switch_page("app_pages/changes.py").run()
+    app.switch_page("app_pages/settings.py").run()
+    assert next(t for t in app.toggle if t.label == "Search again when needed").value is True  # the page remembers it
+    app.switch_page("app_pages/chat.py").run()
+    choose_book(app, FRANKENSTEIN)
+    app.chat_input[0].set_value("Q").run()
+    assert app.paths == ["agent"]
 
 
 def test_the_searches_of_the_model_are_shown_under_the_answer_and_stay_in_the_history(app):
+    set_agent(app, True)
     app.chat_input[0].set_value("Please rephrase this").run()
     caption = [c.value for c in app.caption if c.value.startswith("Searched the book for")]
     assert caption == ["Searched the book for: “Please rephrase this” · “other words”"]
@@ -355,6 +388,7 @@ def test_a_question_with_one_search_shows_no_searches_line(app):
 
 
 def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
+    set_agent(app, True)  # the fake model fails in the agent
     app.chat_input[0].set_value("please break").run()
     assert not app.exception
     assert (

@@ -103,7 +103,7 @@ with chat_area:
         with st.chat_message("assistant"):
             with st.spinner("Searching the book ..."):
                 result = companion.respond(
-                    question, chat_memory, agentic=st.session_state.get("agentic", AGENTIC_DEFAULT)
+                    question, chat_memory, agentic=st.session_state.get("agentic_on", AGENTIC_DEFAULT)
                 )
             st.write(result.answer)
             show_searches(result.queries)
