@@ -29,6 +29,9 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Retrieval and answers
 
+- [ ] Hybrid search (dense + BM25) is not in the app. It does not help e5, but it would make the original MiniLM setup
+  competitive (recall 0.65 at 800/133). Add it as an option if the assignment's MiniLM has to be used. Chunk length in
+  tokens (not characters) should be checked whenever the embedding model changes (`max_seq_length`).
 - [ ] Five questions still find no evidence (`nest-theft`, `fasting`, `food`, `rookery-size`, `enemies`). The
   right chunk ranks 8th to 57th. Ideas not tried yet: chunking by paragraph or sentence, adding the section
   heading to every chunk, a reranker on top of `e5-small-v2`, a larger embedding model with a better set of

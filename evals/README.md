@@ -101,3 +101,22 @@ Still missing (recall 0): `nest-theft`, `fasting`, `food`, `rookery-size`, `enem
 8th to 57th: the question and the passage use different words ("feed on" vs "feeding on the shrimp-like
 euphausia"). Next ideas: rewriting the question with the LLM before retrieval, or a larger golden set to
 tell small improvements from noise.
+
+## Correction: the token limit and hybrid search (re-run, retrieval only)
+
+The table above compared MiniLM only with dense search. `all-MiniLM-L6-v2` truncates at 256 tokens; only 3% of our
+1000-character chunks were longer (median 169 tokens), but hybrid search (dense + BM25, reciprocal-rank fusion) closes most
+of the gap. Same 17 questions, `k=4`:
+
+| Variant | Context recall | MRR |
+| :-- | --: | --: |
+| MiniLM 1000/200, dense | 0.35 | 0.29 |
+| MiniLM 400/60, hybrid (a colleague's setting) | 0.53 | 0.40 |
+| MiniLM 500/83 or 600/100, hybrid | 0.59 | 0.47 to 0.48 |
+| MiniLM 800/133, hybrid | 0.65 | 0.44 |
+| e5 800/133 to 1000/166, dense or hybrid | 0.71 | 0.54 to 0.57 |
+| e5 400/60, dense or hybrid | 0.53 | 0.39 to 0.42 |
+
+MiniLM with hybrid and chunks under the token limit is within one question of e5 on recall (0.65 against 0.71) but about
+0.1 lower on MRR. One question is 0.06, so only the MRR gap is consistent. e5 stays; the conclusion "e5 doubles recall" was
+too strong.

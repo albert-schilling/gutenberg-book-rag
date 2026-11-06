@@ -139,3 +139,11 @@ tests check real logic or the real app. Weak spots found:
 coverage of the evaluation command, running the evaluation and the live tests on a fresh token day.
 **Friction:** the daily limit blocked every real-model check after task 7. Nothing in this task needed more than fakes.
 
+## Interlude: MiniLM token limit and hybrid search
+- A colleague found that MiniLM works better with chunks of 400/60 and hybrid search. I re-ran the retrieval experiments
+  (no LLM tokens used): only 3% of our old chunks exceeded MiniLM's 256 tokens, so truncation was a small part; hybrid
+  search was the big one (MiniLM 0.35 -> 0.65 at best). e5 is still equal or better on recall (one question of 17) and
+  clearly better on MRR, so the app keeps e5. The claim "0.35 -> 0.71 because of the embedding model" was too strong and
+  is corrected in `docs/changes.md` and `evals/README.md`. TODO added for a hybrid option and a token-length check.
+- Friction: their "token size around 252" cannot be the chunk length (400 characters is about 81 tokens); I read it as
+  the model's `max_seq_length`. Not committed: you did not ask for a commit for this one.

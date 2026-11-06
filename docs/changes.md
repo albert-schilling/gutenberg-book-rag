@@ -7,7 +7,7 @@ is a deliberate change, with the reason. The notebook still shows the original a
 | :-- | :-- | :-- | :-- |
 | Books | one book per group | all eight books, chosen in the sidebar | One app serves the whole library |
 | Vector store | one collection | one collection per book, all in `chroma_db/`; built the first time a book is opened | Books never mix, each rebuilds on its own, and nothing is embedded that nobody asks for |
-| Embedding model | `all-MiniLM-L6-v2` | `intfloat/e5-small-v2`, with `query:` and `passage:` prefixes | Answer correctness rose from 0.44 to 0.76 (details below) |
+| Embedding model | `all-MiniLM-L6-v2` | `intfloat/e5-small-v2`, with `query:` and `passage:` prefixes | Higher MRR, and no hybrid search needed. Part of the old gap was MiniLM's 256-token limit and missing hybrid search (see the correction below) |
 | Chunking | free choice | 1000 characters, 200 overlap (unchanged) | Smaller chunks only helped the old model |
 | Chroma ids | `f"{BOOK}-{i}"` | SHA-1 hash of the chunk text | The id changes exactly when the text changes, so no stale or duplicate chunks |
 | Building the store | `add_documents` | only if the store is empty; the collection name carries a fingerprint of the model and chunk settings | The book is not embedded again on every start, and a changed setting builds a fresh collection instead of reusing old vectors |
@@ -48,6 +48,26 @@ With the full pipeline (same generator and judge), the change moved answer corre
 abstention accuracy from 0.76 to 0.90 and faithfulness from 0.98 to 1.00. `e5-small-v2` has the same size as
 MiniLM, so it needs no extra model or dependency. The reranker and keyword search did not beat a better
 embedding model on their own.
+
+## Correction: the token limit and hybrid search
+
+`all-MiniLM-L6-v2` cuts its input at **256 tokens**. We first compared it only with plain dense search, which made the
+switch look bigger than it is. A colleague's settings (chunks of 400 characters, overlap 60, hybrid search) and a
+re-run show:
+
+| MiniLM variant | Context recall | MRR |
+| :-- | --: | --: |
+| 1000/200 characters, dense (our first setup) | 0.35 | 0.29 |
+| 400/60, hybrid (colleague's setting) | 0.53 | 0.40 |
+| 800/133, hybrid (best MiniLM variant) | 0.65 | 0.44 |
+| `e5-small-v2`, 1000/200, dense (this app) | 0.71 | 0.56 |
+
+- Truncation was a small part of it: only 3% of the 1000-character chunks were over 256 tokens (median 169). 400-character
+  chunks are about 81 tokens, far below the limit.
+- Most of MiniLM's gap was **hybrid search** (BM25 and dense, fused by rank): +0.12 to +0.24. For e5 it adds nothing.
+- On recall, e5 and the best MiniLM variant differ by one question of 17: a tie. e5 is ahead on MRR (0.54 to 0.57 against
+  0.44 to 0.48) and needs no BM25 code, so it stays. For the original assignment (MiniLM), use chunks of at most about
+  800 characters (stay under 256 tokens) and hybrid search.
 
 ## Tried and rejected
 
