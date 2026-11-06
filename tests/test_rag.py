@@ -10,8 +10,9 @@ class FakeVectorStore:
     """Returns fixed (passage, squared L2 distance) pairs, like Chroma does."""
 
     def __init__(self, distances):
-        self.results = [(Document(page_content=f"passage {i}", metadata={"start_index": i}), d)
-                        for i, d in enumerate(distances)]
+        self.results = [
+            (Document(page_content=f"passage {i}", metadata={"start_index": i}), d) for i, d in enumerate(distances)
+        ]
         self.k = None
 
     def similarity_search_with_score(self, question, k):

@@ -4,7 +4,11 @@ from book_rag.config import FALLBACK_ANSWER, NO_ANSWER
 from book_rag.evaluation import metrics
 
 EVIDENCE = ("incubated for four weeks", "brownish olive")
-PASSAGES = ["Unrelated text about skuas.", "The two eggs are brownish  olive and\nare incubated for four weeks.", "More text."]
+PASSAGES = [
+    "Unrelated text about skuas.",
+    "The two eggs are brownish  olive and\nare incubated for four weeks.",
+    "More text.",
+]
 
 
 def test_phrases_are_found_regardless_of_case_and_whitespace():

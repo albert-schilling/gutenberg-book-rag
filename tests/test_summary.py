@@ -29,7 +29,9 @@ def test_the_excerpts_are_spread_over_the_book_in_order():
     percents = [int(line.split("%")[0].split()[-1]) for line in excerpts.splitlines() if "% into the book" in line]
     assert percents == sorted(percents) and len(percents) == summary.PARTS
     assert 5 <= percents[0] <= 10 and 90 <= percents[-1] <= 95
-    assert excerpts.index("opening of the book") < excerpts.index("% into the book") < excerpts.index("ending of the book")
+    assert (
+        excerpts.index("opening of the book") < excerpts.index("% into the book") < excerpts.index("ending of the book")
+    )
 
 
 def test_the_sampling_is_deterministic():
@@ -58,7 +60,9 @@ def test_without_a_summary_the_prompt_says_so(summary_dir):
 
 def test_braces_in_a_summary_do_not_break_the_prompt_template(summary_dir):
     summary.summary_path(DEFAULT_BOOK).write_text("It has a {curly} part and a } stray brace.", encoding="utf-8")
-    template = ChatPromptTemplate.from_messages([("system", rag.build_system_prompt(DEFAULT_BOOK)), ("human", "{question}")])
+    template = ChatPromptTemplate.from_messages(
+        [("system", rag.build_system_prompt(DEFAULT_BOOK)), ("human", "{question}")]
+    )
     messages = template.invoke({"context": "C", "conversation": "(none)", "question": "Q"}).to_messages()
     assert "It has a {curly} part and a } stray brace." in messages[0].content
 

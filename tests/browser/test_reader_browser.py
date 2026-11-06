@@ -27,7 +27,9 @@ def choose_book(page, title_part):
     box.click()
     box.fill(title_part)
     page.keyboard.press("Enter")
-    page.wait_for_selector("text=by Arthur Conan Doyle" if title_part == "Sherlock" else f"text={title_part}", timeout=30_000)
+    page.wait_for_selector(
+        "text=by Arthur Conan Doyle" if title_part == "Sherlock" else f"text={title_part}", timeout=30_000
+    )
 
 
 def open_book_from_the_sidebar(page):
@@ -101,6 +103,8 @@ def test_a_long_chat_keeps_the_page_small(page):
     messages = page.locator('[data-testid="stChatMessage"]')
     assert messages.count() == 20  # 10 exchanges
     assert page.get_by_role("button", name="Show earlier questions (4 more)").is_visible()
-    assert page.evaluate("document.querySelectorAll('*').length") < 2000  # about 1,630 capped, 2,260 for 14 exchanges without the cap
+    assert (
+        page.evaluate("document.querySelectorAll('*').length") < 2000
+    )  # about 1,630 capped, 2,260 for 14 exchanges without the cap
     page.get_by_role("button", name="Show earlier questions (4 more)").click()
     page.wait_for_function("document.querySelectorAll('[data-testid=\"stChatMessage\"]').length === 28")

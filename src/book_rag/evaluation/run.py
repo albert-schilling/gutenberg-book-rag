@@ -33,7 +33,9 @@ def evaluate_retrieval(case: EvalCase, scored_passages: ScoredPassages) -> dict 
     }
 
 
-def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPassages, judge: BaseChatModel) -> dict:
+def evaluate_generation(
+    case: EvalCase, answer: str, scored_passages: ScoredPassages, judge: BaseChatModel | None
+) -> dict:
     """Abstention (no LLM), then faithfulness and correctness (LLM judge)."""
     abstained = metrics.is_abstention(answer)
     empty = metrics.is_empty_answer(answer)  # the model returned nothing, even after the retries of `ask`
@@ -47,16 +49,18 @@ def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPass
         "correctness_reason": None,
     }
     if not (abstained or empty):  # an abstention or an empty answer makes no claims, so there is nothing to check
-        faithfulness, claims = judging.judge_faithfulness(
-            judge, case.question, answer, format_context(scored_passages)
-        )
+        assert judge is not None, "a judge is needed to check an answer"
+        faithfulness, claims = judging.judge_faithfulness(judge, case.question, answer, format_context(scored_passages))
         generation["faithfulness"] = faithfulness
         generation["claims"] = [claim.model_dump() for claim in claims]
     if case.answerable:
         if abstained or empty:
             generation["correctness"] = 0.0
-            generation["correctness_reason"] = "The system returned an empty answer." if empty else "The system did not answer."
+            generation["correctness_reason"] = (
+                "The system returned an empty answer." if empty else "The system did not answer."
+            )
         else:
+            assert judge is not None and case.reference_answer is not None
             generation["correctness"], generation["correctness_reason"] = judging.judge_correctness(
                 judge, case.question, answer, case.reference_answer
             )
@@ -127,7 +131,10 @@ def main(argv: list[str] | None = None) -> None:
     json_path, md_path = write_report(report)
 
     print("\nSummary:")
-    for group, scores in [("retrieval", report["summary"]["retrieval"]), *([("generation", report["summary"]["generation"])] if "generation" in report["summary"] else [])]:
+    for group, scores in [
+        ("retrieval", report["summary"]["retrieval"]),
+        *([("generation", report["summary"]["generation"])] if "generation" in report["summary"] else []),
+    ]:
         for name, value in scores.items():
             print(f"  {group:<10} {name:<28} {'n/a' if value is None else f'{value:.2f}'}")
     print(f"\nReport: {md_path}\n        {json_path}")

@@ -27,6 +27,7 @@ is a deliberate change, with the reason. The notebook still shows the original a
 | Memory | none | the last 2 exchanges word for word, older ones as a rolling summary (one extra small LLM call when an exchange leaves the window), in every call | Follow-up questions ("and why?") can be understood |
 | Long chats | the whole history is drawn | only the latest 10 questions and answers are drawn; "Show earlier questions" adds 10 more | Streamlit draws every element it is given. Measured: without the cap the page grows by about 130 elements per question (8,300 after 60) and every rerun gets slower; with it the page stays at about 1,600 elements and 0.2 s per rerun |
 | Tests | none | unit tests, app tests, and browser tests with Playwright (headless Chromium) | Infinite scrolling, the steady reading position and the highlight only exist in a real browser. A browser test failed on a scroll-jump bug that no other test saw |
+| Code quality | none | ruff (lint and format) configured in `pyproject.toml`; one `Companion` object for the web app and the command line; live tests with the real model (`BOOK_RAG_LIVE=1 uv run pytest -m live`, skipped by default) | A review found that no test used the real model, and that a missing Gutenberg line crashed with an unhelpful error |
 | Offline mode | needs a Groq key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply (retrieval still runs) | Lets the app be tried and tested without a key, without cost and without the rate limit |
 
 ## Why the embedding model changed

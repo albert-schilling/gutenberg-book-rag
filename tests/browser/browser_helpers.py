@@ -4,7 +4,11 @@
 def window(page) -> tuple[int, int, int]:
     """(index of the first paragraph in the page, of the last, how many)."""
     paragraphs = page.locator(".reader p")
-    return (int(paragraphs.first.get_attribute("data-i")), int(paragraphs.last.get_attribute("data-i")), paragraphs.count())
+    return (
+        int(paragraphs.first.get_attribute("data-i")),
+        int(paragraphs.last.get_attribute("data-i")),
+        paragraphs.count(),
+    )
 
 
 def anchor(page):

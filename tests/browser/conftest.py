@@ -28,13 +28,29 @@ def _free_port() -> int:
 def app_url(tmp_path_factory):
     """Start the Streamlit app with its own vector store and without Groq."""
     port = _free_port()
-    env = {**os.environ, "BOOK_RAG_OFFLINE": "1", "BOOK_RAG_CHROMA_DIR": str(tmp_path_factory.mktemp("chroma")),
-           "GROQ_API_KEY": "not-used-in-offline-mode"}
+    env = {
+        **os.environ,
+        "BOOK_RAG_OFFLINE": "1",
+        "BOOK_RAG_CHROMA_DIR": str(tmp_path_factory.mktemp("chroma")),
+        "GROQ_API_KEY": "not-used-in-offline-mode",
+    }
     log = (tmp_path_factory.mktemp("server") / "server.log").open("w")
     server = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", "streamlit_app.py", "--server.headless=true",
-         "--server.address=127.0.0.1", f"--server.port={port}", "--browser.gatherUsageStats=false"],
-        cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT,
+        [
+            sys.executable,
+            "-m",
+            "streamlit",
+            "run",
+            "streamlit_app.py",
+            "--server.headless=true",
+            "--server.address=127.0.0.1",
+            f"--server.port={port}",
+            "--browser.gatherUsageStats=false",
+        ],
+        cwd=ROOT,
+        env=env,
+        stdout=log,
+        stderr=subprocess.STDOUT,
     )
     url = f"http://127.0.0.1:{port}"
     try:
@@ -59,7 +75,9 @@ def browser():
         try:
             chromium = playwright.chromium.launch()
         except Exception as error:  # the browser is not installed
-            pytest.skip(f"Chromium is not available ({str(error).splitlines()[0]}). Run: uv run playwright install chromium")
+            pytest.skip(
+                f"Chromium is not available ({str(error).splitlines()[0]}). Run: uv run playwright install chromium"
+            )
         yield chromium
         chromium.close()
 

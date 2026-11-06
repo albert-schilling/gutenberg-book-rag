@@ -42,6 +42,15 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Review follow-ups (larger): the session state of the web app is a set of string keys spread over three files
+  (`book_id`, `histories`, `memories`, `visible_exchanges`, `reader`, `selected_text`, `agentic`); one small typed helper
+  would make it safe to change. `streamlit_reports.py` and `app_pages/chat.py` are long top-level scripts: move the
+  table-building and the rendering helpers into the package where they can be unit-tested.
+- [ ] Type checking: `ty` still reports about 10 findings, mostly Streamlit and colorama typing (the real ones are fixed).
+  Add `ty` or `mypy` to CI once those are silenced.
+- [ ] Coverage of `evaluation/run.py` `main` (64%): the command line and the report printing are only tested by hand.
+- [ ] The live tests (`BOOK_RAG_LIVE=1 uv run pytest -m live`) were written but only the first one could run: the daily
+  token limit was used up. Run them once on a fresh day.
 - [ ] Pagination: pages are virtual. Real page numbers or chapter titles (a table of contents per book) would be better;
   the chapter headings differ in every book, so they need a rule per book (like the start and end lines in `books.py`).
 - [ ] Book summaries: made from 14 excerpts only (about 4,000 tokens, one call per book). A map-reduce over the whole book

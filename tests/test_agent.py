@@ -1,4 +1,3 @@
-import pytest
 from langchain_core.documents import Document
 
 from book_rag import agent
@@ -15,7 +14,10 @@ class FakeVectorStore:
 
     def similarity_search_with_score(self, query, k):
         self.queries.append(query)
-        return [(Document(page_content=f"passage {i}", metadata={"start_index": i}), d) for i, d in self.results.get(query, [])]
+        return [
+            (Document(page_content=f"passage {i}", metadata={"start_index": i}), d)
+            for i, d in self.results.get(query, [])
+        ]
 
 
 class ScriptedModel:
@@ -78,9 +80,7 @@ def test_a_model_that_still_asks_for_a_search_in_the_last_round_gets_the_refusal
 
 
 def test_repeated_blank_and_too_many_queries_are_dropped():
-    model = ScriptedModel(
-        Step(new_queries=["What?", "  ", "new one", "another", "a third"]), Step(answer="Done.")
-    )
+    model = ScriptedModel(Step(new_queries=["What?", "  ", "new one", "another", "a third"]), Step(answer="Done."))
     store = FakeVectorStore({})
     result = agent_ask("What?", store, model)
     assert result.queries == ["What?", "new one", "another"]  # not the same query again, not blank, at most two

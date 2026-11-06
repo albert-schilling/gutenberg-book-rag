@@ -13,18 +13,20 @@ def load_book(book: Book) -> Document:
 
     start = re.search(r"\*\*\* START OF.*?\*\*\*", raw_text)
     end = re.search(r"\*\*\* END OF.*?\*\*\*", raw_text)
-    body = raw_text[start.end():end.start()]
+    if not (start and end):
+        raise ValueError(f"{book.id}: the START and END lines of Project Gutenberg were not found")
+    body = raw_text[start.end() : end.start()]
 
     if book.start:  # front matter: contents, prefaces, adverts
         match = re.search(book.start, body, flags=re.M)
         if not match:
             raise ValueError(f"{book.id}: the start of the book ({book.start!r}) was not found")
-        body = body[match.start():]
+        body = body[match.start() :]
     if book.end:  # back matter: index, printer's line
         matches = list(re.finditer(book.end, body, flags=re.M))
         if not matches:
             raise ValueError(f"{book.id}: the end of the book ({book.end!r}) was not found")
-        body = body[:matches[-1].start()]
+        body = body[: matches[-1].start()]
     body = re.sub(r"\[Illustration[^\]]*\]", "", body)
 
     body = re.sub(r"(?<!\n)[ \t]*\n[ \t]*(?!\n)", " ", body)  # join wrapped lines

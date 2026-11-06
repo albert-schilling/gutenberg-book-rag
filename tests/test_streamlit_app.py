@@ -2,13 +2,12 @@
 
 from pathlib import Path
 
+import groq
+import httpx
 import pytest
 import streamlit as st
 from langchain_core.documents import Document
 from streamlit.testing.v1 import AppTest
-
-import groq
-import httpx
 
 from book_rag import agent, memory, rag, store
 from book_rag.agent import AgentResult
@@ -48,10 +47,13 @@ def app(monkeypatch):
 
     monkeypatch.setattr(store, "build_vector_store", fake_build_vector_store)
     monkeypatch.setattr(rag, "build_chain", lambda book: ("chain", book.id))
+
     def fake_agent_ask(question, vector_store, step_chain, conversation=""):
         if "break" in question:  # a rate limit of the language model
             request = httpx.Request("POST", "https://api.groq.com/x")
-            raise groq.RateLimitError("limit. Please try again in 2m5.5s.", response=httpx.Response(429, request=request), body=None)
+            raise groq.RateLimitError(
+                "limit. Please try again in 2m5.5s.", response=httpx.Response(429, request=request), body=None
+            )
         answer, passages = fake_ask(question, vector_store, step_chain, conversation)
         paths[-1] = "agent"
         queries = [question, "other words"] if "rephrase" in question else [question]
@@ -240,7 +242,9 @@ def test_clicking_a_passage_opens_the_book_at_that_passage_next_to_the_chat(app)
     assert not app.exception
     start = 62105  # the second fake passage
     assert app.session_state["reader"] == {
-        "book": DEFAULT_BOOK.id, "start": start, "end": start + len("A perpetual feud."),
+        "book": DEFAULT_BOOK.id,
+        "start": start,
+        "end": start + len("A perpetual feud."),
     }
     assert book_is_open(app)  # the book on the right ...
     assert len(app.chat_message) == 2  # ... and the chat is still there
@@ -353,6 +357,8 @@ def test_a_question_with_one_search_shows_no_searches_line(app):
 def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
     app.chat_input[0].set_value("please break").run()
     assert not app.exception
-    assert app.chat_message[1].markdown[0].value == "The free Groq plan is at its limit for now. Please try again in 2m5s."
+    assert (
+        app.chat_message[1].markdown[0].value == "The free Groq plan is at its limit for now. Please try again in 2m5s."
+    )
     app.chat_input[0].set_value("Next question").run()
     assert not app.exception and app.conversations[-1] == ""  # the failed exchange is not in the memory

@@ -5,7 +5,9 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
-CHROMA_DIR = Path(os.environ.get("BOOK_RAG_CHROMA_DIR", PROJECT_ROOT / "chroma_db"))  # rebuilt from the book, ignored by Git
+CHROMA_DIR = Path(
+    os.environ.get("BOOK_RAG_CHROMA_DIR", PROJECT_ROOT / "chroma_db")
+)  # rebuilt from the book, ignored by Git
 ENV_FILE = PROJECT_ROOT / ".env"  # holds GROQ_API_KEY
 EVAL_DIR = PROJECT_ROOT / "evals"  # golden questions and the reports of the evaluation runs
 

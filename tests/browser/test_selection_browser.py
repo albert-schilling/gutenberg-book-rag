@@ -63,7 +63,7 @@ def test_selecting_text_in_the_book_offers_a_question_about_it(page):
     page.locator(".reader p").nth(2).click(click_count=3)
     expect(page.locator(TIP)).to_be_visible()
     box = page.locator(TIP).bounding_box()
-    assert 0 <= box["x"] and 0 <= box["y"]  # inside the window
+    assert box["x"] >= 0 and box["y"] >= 0  # inside the window
     assert QUESTION_START in click_tooltip_and_wait_for_the_question(page)
 
 

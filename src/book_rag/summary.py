@@ -1,4 +1,4 @@
-"""A short summary of every book, made once and added to every prompt, so that "What is this book about?" can be answered.
+"""A short summary of every book, made once and added to every prompt, so that "What is this book about?" is answered.
 
 A book is 40,000 to 145,000 tokens, but the free Groq plan allows 8,000 tokens per minute. So the summary is made
 from evenly spaced excerpts (about 4,500 tokens) with one call per book, and saved in data/summaries/.
@@ -88,7 +88,11 @@ def limit_words(text: str, limit: int = MAX_WORDS + 10) -> str:
 
 def make_summary(book: Book) -> str:
     """One call to the language model."""
-    chain = ChatPromptTemplate.from_template(PROMPT) | ChatGroq(model=JUDGE_MODEL, temperature=0, max_retries=6, reasoning_effort="low") | StrOutputParser()
+    chain = (
+        ChatPromptTemplate.from_template(PROMPT)
+        | ChatGroq(model=JUDGE_MODEL, temperature=0, max_retries=6, reasoning_effort="low")
+        | StrOutputParser()
+    )
     summary = chain.invoke(
         {"title": book.title, "author": book.author, "words": MAX_WORDS, "excerpts": sample_excerpts(book)}
     ).strip()

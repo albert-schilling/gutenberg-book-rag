@@ -6,15 +6,13 @@ the book on the right, opened at the passage and highlighted.
 
 import streamlit as st
 
-from book_rag import agent, memory
+from book_rag import memory
 from book_rag.books import get_book
 from book_rag.config import AGENTIC_DEFAULT
-from book_rag.conversation import respond
-from book_rag.rag import build_chain
+from book_rag.conversation import build_companion
 from book_rag.reader import passage_page
 from book_rag.reader_component import book_reader, close_reader, current_reader, open_reader
 from book_rag.selection import question_about
-from book_rag.store import build_vector_store
 
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
 PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the book is open (the book panel
@@ -22,10 +20,9 @@ PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the 
 
 
 @st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
-def load_rag(book_id: str):
-    """Load the vector store and the chain of a book once, not on every rerun."""
-    book = get_book(book_id)
-    return build_vector_store(book), build_chain(book), agent.build_step_chain(book), memory.build_summarizer()
+def load_companion(book_id: str):
+    """Open a book once (its vector store and the language models), not on every rerun."""
+    return build_companion(get_book(book_id))
 
 
 def show_searches(queries):
@@ -55,13 +52,17 @@ def show_earlier(book_id):
 
 
 book = get_book(st.session_state.book_id)
-st.caption(f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them.")
+st.caption(
+    f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them."
+)
 
-vector_store, chain, step_chain, summarizer = load_rag(book.id)
+companion = load_companion(book.id)
 
 # The history (what is drawn) and the memory (what the model sees) only live in the browser session, one per book.
 history = st.session_state.setdefault("histories", {}).setdefault(book.id, [])
-chat_memory = st.session_state.setdefault("memories", {}).setdefault(book.id, memory.ChatMemory())  # what the model sees
+chat_memory = st.session_state.setdefault("memories", {}).setdefault(
+    book.id, memory.ChatMemory()
+)  # what the model sees
 
 # At the root of the page, the input stays at the bottom of the window
 question = st.chat_input(f"Ask a question about {book.title}", submit_mode="disable")
@@ -101,9 +102,8 @@ with chat_area:
             st.write(question)
         with st.chat_message("assistant"):
             with st.spinner("Searching the book ..."):
-                result = respond(
-                    question, vector_store, chain, step_chain, chat_memory, summarizer,
-                    agentic=st.session_state.get("agentic", AGENTIC_DEFAULT),
+                result = companion.respond(
+                    question, chat_memory, agentic=st.session_state.get("agentic", AGENTIC_DEFAULT)
                 )
             st.write(result.answer)
             show_searches(result.queries)
@@ -118,5 +118,7 @@ if reader:
     with reader_column:
         title_column, close_column = st.columns([3, 1], vertical_alignment="center")
         title_column.markdown(f"**{book.title}**")
-        close_column.button("Close", icon=":material/close:", key="close-reader", on_click=close_reader, width="stretch")
+        close_column.button(
+            "Close", icon=":material/close:", key="close-reader", on_click=close_reader, width="stretch"
+        )
         book_reader(book, reader["start"], reader["end"], height=PANE_HEIGHT)

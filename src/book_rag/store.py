@@ -41,7 +41,7 @@ def build_vector_store(book: Book) -> Chroma:
     )
 
     # Embed the book only on the first run, not on every start
-    if vector_store._collection.count() == 0:
+    if not vector_store.get(limit=1)["ids"]:
         logger.info("Building the vector store of '%s' (first time only) ...", book.title)
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP, add_start_index=True

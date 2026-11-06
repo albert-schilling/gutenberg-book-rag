@@ -41,7 +41,9 @@ def test_the_reader_shows_the_page_and_the_number_of_pages(page):
 
 def test_the_text_marks_where_a_page_starts(page):
     open_book(page)
-    labels = [int(label) for label in page.locator(".reader p[data-page]").evaluate_all("els => els.map(e => e.dataset.page)")]
+    labels = [
+        int(label) for label in page.locator(".reader p[data-page]").evaluate_all("els => els.map(e => e.dataset.page)")
+    ]
     assert labels[0] == 1 and len(labels) >= 3
     assert labels == sorted(set(labels))  # increasing, no page twice
 

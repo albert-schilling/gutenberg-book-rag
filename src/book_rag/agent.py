@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 
 from book_rag.books import Book
 from book_rag.config import FALLBACK_ANSWER, LLM_MODEL, NO_ANSWER, OFFLINE, TOP_K
-from book_rag.rag import ScoredPassages, _offline_reply, build_system_prompt, format_context, retrieve
+from book_rag.rag import ScoredPassages, build_system_prompt, format_context, offline_reply, retrieve
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,8 @@ AGENT_RULE = (
     "You can search this book again, and you answer by filling in the fields: if the passages (or the summary) answer "
     "the question, put the answer in `answer`. If they do not, do not answer and do not refuse yet: put up to "
     "{max_queries} new search queries in `new_queries`. Each query must stand on its own (resolve words like "
-    '"they" with the conversation) and use other words than the searches before: synonyms, or how the book itself would say it.'
+    '"they" with the conversation) and use other words than the searches before: synonyms, or how the book itself '
+    "would say it."
 )
 AGENT_INSTRUCTIONS = """
 
@@ -39,7 +40,9 @@ AGENT_INSTRUCTIONS = """
 
 Already searched for: {searched}"""
 CAN_SEARCH = "You may still search {left} more time(s)."
-MUST_ANSWER = f'You cannot search again. If the passages do not answer the question, set `answer` to exactly "{NO_ANSWER}".'
+MUST_ANSWER = (
+    f'You cannot search again. If the passages do not answer the question, set `answer` to exactly "{NO_ANSWER}".'
+)
 
 
 class Step(BaseModel):
@@ -60,7 +63,7 @@ class AgentResult:
 def build_step_chain(book: Book) -> Runnable:
     """The model that answers or asks for another search. Returns a `Step`."""
     if OFFLINE:
-        return RunnableLambda(lambda inputs: Step(answer=_offline_reply(inputs)))
+        return RunnableLambda(lambda inputs: Step(answer=offline_reply(inputs)))
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", build_system_prompt(book, refusal_rule=AGENT_RULE) + AGENT_INSTRUCTIONS),
@@ -72,7 +75,7 @@ def build_step_chain(book: Book) -> Runnable:
 
 
 def merge(passages: ScoredPassages, new: ScoredPassages) -> ScoredPassages:
-    """Put the passages of two searches together: no passage twice, the most similar ones first, at most MAX_PASSAGES."""
+    """Put the passages of two searches together: none twice, the most similar first, at most MAX_PASSAGES."""
     best: dict[int, tuple] = {}
     for passage, score in [*passages, *new]:
         key = passage.metadata["start_index"]
@@ -81,9 +84,7 @@ def merge(passages: ScoredPassages, new: ScoredPassages) -> ScoredPassages:
     return sorted(best.values(), key=lambda pair: pair[1], reverse=True)[:MAX_PASSAGES]
 
 
-def agent_ask(
-    question: str, vector_store: Chroma, step_chain: Runnable, conversation: str = ""
-) -> AgentResult:
+def agent_ask(question: str, vector_store: Chroma, step_chain: Runnable, conversation: str = "") -> AgentResult:
     """Answer a question, searching the book again with new queries when the passages are not enough."""
     queries = [question]
     passages = retrieve(question, vector_store)

@@ -46,7 +46,9 @@ class FakeJudge:
 
     def invoke(self, prompt):
         if self.schema is judge.FaithfulnessVerdict:
-            return judge.FaithfulnessVerdict(claims=[judge.Claim(claim="a", supported=True), judge.Claim(claim="b", supported=False)])
+            return judge.FaithfulnessVerdict(
+                claims=[judge.Claim(claim="a", supported=True), judge.Claim(claim="b", supported=False)]
+            )
         return judge.CorrectnessVerdict(verdict="correct", reason="matches")
 
 

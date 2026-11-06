@@ -41,7 +41,7 @@ def test_every_chunk_of_a_book_starts_inside_the_paragraph_that_is_found_for_it(
         index = reader.paragraph_at(paragraphs, start)
         assert starts[index] <= start < starts[index] + len(paragraphs[index])  # not in a blank line between two
         first_paragraph_of_the_chunk = chunk.page_content.split("\n\n")[0]
-        assert paragraphs[index][start - starts[index]:].startswith(first_paragraph_of_the_chunk)
+        assert paragraphs[index][start - starts[index] :].startswith(first_paragraph_of_the_chunk)
 
 
 def test_reader_data_for_a_passage():
@@ -79,11 +79,16 @@ def test_a_passage_is_on_the_page_where_its_paragraph_begins():
     paragraph_start = starts[index]
     expected = paragraph_start // reader.PAGE_CHARS + 1
     assert reader.passage_page(DEFAULT_BOOK, paragraph_start) == expected
-    assert reader.passage_page(DEFAULT_BOOK, paragraph_start + len(paragraphs[index]) - 1) == expected  # inside the paragraph
+    assert (
+        reader.passage_page(DEFAULT_BOOK, paragraph_start + len(paragraphs[index]) - 1) == expected
+    )  # inside the paragraph
     assert reader.passage_page(DEFAULT_BOOK, 0) == 1
 
 
 def test_a_jump_target_opens_the_book_there_without_a_highlight():
     data = reader.reader_data(DEFAULT_BOOK, 50_000, 50_000)
-    assert data["highlight"] is None and data["focus"] == reader.paragraph_at(reader.paragraphs_of(DEFAULT_BOOK), 50_000) > 0
+    assert (
+        data["highlight"] is None
+        and data["focus"] == reader.paragraph_at(reader.paragraphs_of(DEFAULT_BOOK), 50_000) > 0
+    )
     assert data["pageChars"] == reader.PAGE_CHARS

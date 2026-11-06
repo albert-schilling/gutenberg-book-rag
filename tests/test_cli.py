@@ -42,17 +42,15 @@ def test_a_question_that_contains_quit_is_still_a_question(monkeypatch):
 
 def run_main(monkeypatch, argv, inputs=("quit",)):
     """Run the CLI with fake stores. Returns the ids of the books whose store was built."""
-    built = []
-    monkeypatch.setattr(cli, "build_vector_store", lambda book: built.append(book.id) or "store")
-    monkeypatch.setattr(cli, "build_chain", lambda book: "chain")
-    monkeypatch.setattr(cli, "build_step_chain", lambda book: "step chain")
-    monkeypatch.setattr(cli, "build_summarizer", lambda: "summarizer")
-    asked = []
-    monkeypatch.setattr(
-        cli, "respond",
-        lambda question, store, chain, step, memory, summarizer, agentic: asked.append((question, agentic))
-        or AgentResult("an answer", [], [question, "other words"] if "again" in question else [question]),
-    )
+    built, asked = [], []
+
+    class FakeCompanion:
+        def respond(self, question, memory, agentic):
+            asked.append((question, agentic))
+            queries = [question, "other words"] if "again" in question else [question]
+            return AgentResult("an answer", [], queries)
+
+    monkeypatch.setattr(cli, "build_companion", lambda book: built.append(book.id) or FakeCompanion())
     cli.asked = asked
     answers = iter(inputs)
     monkeypatch.setattr("builtins.input", lambda prompt="": next(answers))

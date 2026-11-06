@@ -27,7 +27,9 @@ def test_full_evaluation_of_an_answerable_question():
 
 def test_an_abstention_on_an_answerable_question_scores_zero_without_calling_the_judge():
     store = FakeVectorStore("Unrelated text.")
-    result = run.evaluate_case(ANSWERABLE, store, FakeChain(NO_ANSWER), judge=None)  # judge=None: any judge call would fail
+    result = run.evaluate_case(
+        ANSWERABLE, store, FakeChain(NO_ANSWER), judge=None
+    )  # judge=None: any judge call would fail
     generation = result["generation"]
     assert generation["abstained"] and not generation["abstention_correct"]
     assert generation["correctness"] == 0.0 and generation["faithfulness"] is None

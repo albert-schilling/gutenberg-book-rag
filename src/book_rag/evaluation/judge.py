@@ -63,15 +63,17 @@ def faithfulness_score(claims: list[Claim]) -> float | None:
     return sum(claim.supported for claim in claims) / len(claims)
 
 
-def judge_faithfulness(judge: BaseChatModel, question: str, answer: str, context: str) -> tuple[float | None, list[Claim]]:
+def judge_faithfulness(
+    judge: BaseChatModel, question: str, answer: str, context: str
+) -> tuple[float | None, list[Claim]]:
     """Faithfulness: is every claim of the answer supported by the retrieved passages?"""
     prompt = FAITHFULNESS_PROMPT.format(context=context, question=question, answer=answer)
-    verdict = judge.with_structured_output(FaithfulnessVerdict).invoke(prompt)
+    verdict = FaithfulnessVerdict.model_validate(judge.with_structured_output(FaithfulnessVerdict).invoke(prompt))
     return faithfulness_score(verdict.claims), verdict.claims
 
 
 def judge_correctness(judge: BaseChatModel, question: str, answer: str, reference: str) -> tuple[float, str]:
     """Answer correctness: does the answer agree with the reference answer?"""
     prompt = CORRECTNESS_PROMPT.format(question=question, reference=reference, answer=answer)
-    verdict = judge.with_structured_output(CorrectnessVerdict).invoke(prompt)
+    verdict = CorrectnessVerdict.model_validate(judge.with_structured_output(CorrectnessVerdict).invoke(prompt))
     return CORRECTNESS_SCORES[verdict.verdict], verdict.reason

@@ -116,3 +116,26 @@ asked are listed under each task and in the last section.
 - Real-model observations (few calls): with the book summary in the prompt the plain pipeline already answers the old
   misses (krill, eggs, enemies); the agent rarely needs a second search.
 
+## 8. Review of the app (done; tasks 9 and 10 not started, as you asked)
+**Method:** ruff (many rules), the type checker `ty`, coverage (93% from the fast tests), and reading every module.
+**Are the tests meaningful?** Mostly yes: the retrieval, metrics, memory, agent loop, reader positions and the browser
+tests check real logic or the real app. Weak spots found:
+- Nothing exercised the **real model**, and the one bug that only the real model showed (two contradicting prompts)
+  slipped through every fake. Added `tests/live/` (7 tests, skipped unless `BOOK_RAG_LIVE=1`, a rate limit skips instead
+  of fails). Only the first could run (it passed: the Oz summary question is answered); the rest were skipped by the
+  daily token limit. My first live-test version could also pass on the fallback summary: fixed.
+- Several app and CLI tests use fakes for the model by design; they check wiring, not answer quality. Answer quality is
+  the job of the evaluation, which needs to be run again (TODO).
+- Earlier I found two browser tests too weak to catch their own bug (mutation checks), and one flaky test caused by a real
+  tooltip bug. These are fixed.
+**Fixed directly:**
+- Lint: ruff configured in `pyproject.toml` (E,F,I,UP,B,SIM,C4,PIE,RET,PTH, line length 120), the whole repo formatted, 0 findings.
+- Real findings of the type checker: a missing Gutenberg START/END line crashed with `AttributeError` (now a clear `ValueError`);
+  the judge ignored that a structured reply can be a dict; unchecked optionals in the evaluation.
+- Design: web app and CLI carried four loose objects and a 6-argument function: now one `Companion` (`conversation.py`)
+  with `respond()`; private names imported across modules (`_offline_reply`) made public; private Chroma API
+  (`_collection`) replaced by the public `get()`.
+**Left as TODO (larger):** typed session-state helper, moving long page scripts into the package, type checking in CI,
+coverage of the evaluation command, running the evaluation and the live tests on a fresh token day.
+**Friction:** the daily limit blocked every real-model check after task 7. Nothing in this task needed more than fakes.
+

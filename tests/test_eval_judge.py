@@ -41,9 +41,7 @@ def test_judge_faithfulness_returns_score_and_claims_and_shows_the_context():
     assert "the context" in fake.prompts[0] and "Because." in fake.prompts[0] and "Why?" in fake.prompts[0]
 
 
-@pytest.mark.parametrize(
-    ("verdict", "score"), [("correct", 1.0), ("partially_correct", 0.5), ("incorrect", 0.0)]
-)
+@pytest.mark.parametrize(("verdict", "score"), [("correct", 1.0), ("partially_correct", 0.5), ("incorrect", 0.0)])
 def test_correctness_verdicts_map_to_scores(verdict, score):
     fake = FakeJudge(judge.CorrectnessVerdict(verdict=verdict, reason="because"))
     assert judge.judge_correctness(fake, "Q?", "An answer.", "The reference.") == (score, "because")

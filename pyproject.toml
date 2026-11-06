@@ -38,5 +38,15 @@ dev = [
 testpaths = ["tests"]
 markers = [
     "integration: uses the real embedding model (cached locally); deselect with -m 'not integration'",
+    "live: calls the real language model on Groq (BOOK_RAG_LIVE=1 uv run pytest -m live); skipped otherwise",
     "browser: drives the real app in headless Chromium (uv run playwright install chromium); deselect with -m 'not browser'",
 ]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "PIE", "RET", "PTH"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E501", "B905"]  # long assertions are easier to read than split ones

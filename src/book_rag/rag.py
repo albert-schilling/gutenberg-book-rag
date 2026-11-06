@@ -10,7 +10,6 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from langchain_groq import ChatGroq
 
 from book_rag.books import Book
-from book_rag.summary import load_summary
 from book_rag.config import (
     EMPTY_ANSWER_RETRIES,
     FALLBACK_ANSWER,
@@ -22,6 +21,7 @@ from book_rag.config import (
     SYSTEM_PROMPT,
     TOP_K,
 )
+from book_rag.summary import load_summary
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,9 @@ def build_system_prompt(book: Book, refusal_rule: str = REFUSAL_RULE) -> str:
     `refusal_rule` says what to do when the passages do not answer the question (the agent replaces it).
     """
     summary = load_summary(book) or "(not available)"
-    summary = summary.replace("{", "{{").replace("}", "}}")  # the prompt is a template: braces in the text are not slots
+    summary = summary.replace("{", "{{").replace(
+        "}", "}}"
+    )  # the prompt is a template: braces in the text are not slots
     return (
         SYSTEM_PROMPT.replace("{title}", book.title)
         .replace("{author}", book.author)
@@ -43,14 +45,14 @@ def build_system_prompt(book: Book, refusal_rule: str = REFUSAL_RULE) -> str:
     )
 
 
-def _offline_reply(inputs: dict) -> str:
+def offline_reply(inputs: dict) -> str:
     return f"Offline mode: no language model was called. The best passages for “{inputs['question']}” are below."
 
 
 def build_chain(book: Book) -> Runnable:
     """The LCEL chain: fill the prompt, call the model, return the reply as a string."""
     if OFFLINE:
-        return RunnableLambda(_offline_reply)
+        return RunnableLambda(offline_reply)
     prompt = ChatPromptTemplate.from_messages([("system", build_system_prompt(book)), ("human", "{question}")])
     llm = ChatGroq(model=LLM_MODEL, temperature=0, max_retries=2)
     return prompt | llm | StrOutputParser()
@@ -75,13 +77,17 @@ def format_context(scored_passages: ScoredPassages) -> str:
 def ask(question: str, vector_store: Chroma, chain: Runnable, conversation: str = "") -> tuple[str, ScoredPassages]:
     """Return the answer and the (passage, similarity) pairs it is based on.
 
-    `conversation` is the memory of the chat (see memory.py). gpt-oss sometimes returns an empty reply. The question is then asked again, up to
-    EMPTY_ANSWER_RETRIES more times, before the reader gets FALLBACK_ANSWER.
+    `conversation` is the memory of the chat (see memory.py). gpt-oss sometimes returns an empty reply. The
+    question is then asked again, up to EMPTY_ANSWER_RETRIES more times, before the reader gets FALLBACK_ANSWER.
     """
     scored_passages = retrieve(question, vector_store)
     if not scored_passages:  # nothing in the book is close enough to the question: skip the model
         return NO_ANSWER, []
-    inputs = {"context": format_context(scored_passages), "question": question, "conversation": conversation or "(none)"}
+    inputs = {
+        "context": format_context(scored_passages),
+        "question": question,
+        "conversation": conversation or "(none)",
+    }
     for attempt in range(1 + EMPTY_ANSWER_RETRIES):
         answer = chain.invoke(inputs)
         if answer.strip():

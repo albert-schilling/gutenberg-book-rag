@@ -21,5 +21,9 @@ def test_vectors_have_length_one(embeddings):
 def test_queries_and_passages_get_their_prefixes(embeddings):
     model = embeddings._client
     text = "What do penguins eat?"
-    assert np.allclose(embeddings.embed_query(text), model.encode(QUERY_PREFIX + text, normalize_embeddings=True), atol=1e-5)
-    assert np.allclose(embeddings.embed_documents([text])[0], model.encode(PASSAGE_PREFIX + text, normalize_embeddings=True), atol=1e-5)
+    assert np.allclose(
+        embeddings.embed_query(text), model.encode(QUERY_PREFIX + text, normalize_embeddings=True), atol=1e-5
+    )
+    assert np.allclose(
+        embeddings.embed_documents([text])[0], model.encode(PASSAGE_PREFIX + text, normalize_embeddings=True), atol=1e-5
+    )

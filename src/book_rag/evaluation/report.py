@@ -3,7 +3,7 @@
 import hashlib
 import json
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from book_rag import config
@@ -37,7 +37,9 @@ def summarize(results: list[dict]) -> dict:
                 [float(not (r["generation"]["abstained"] or r["generation"]["empty"])) for r in answerable]
             ),
             "empty_answer_rate": mean([float(g["empty"]) for g in generation]),
-            "searches_per_question": mean([float(len(r.get("queries", [0]))) for r in results]),  # 1.0 without the agent
+            "searches_per_question": mean(
+                [float(len(r.get("queries", [0]))) for r in results]
+            ),  # 1.0 without the agent
             "abstained_when_unanswerable": mean([float(r["generation"]["abstained"]) for r in unanswerable]),
             "faithfulness": mean([g["faithfulness"] for g in generation]),
             "answer_correctness": mean([r["generation"]["correctness"] for r in answerable]),
@@ -51,7 +53,10 @@ def _git_state() -> dict:
         run = lambda *args: subprocess.run(  # noqa: E731
             ["git", *args], cwd=config.PROJECT_ROOT, capture_output=True, text=True, check=True
         ).stdout.strip()
-        return {"commit": run("rev-parse", "--short", "HEAD"), "uncommitted_changes": bool(run("status", "--porcelain"))}
+        return {
+            "commit": run("rev-parse", "--short", "HEAD"),
+            "uncommitted_changes": bool(run("status", "--porcelain")),
+        }
     except (OSError, subprocess.CalledProcessError):
         return {"commit": None, "uncommitted_changes": None}
 
@@ -59,7 +64,7 @@ def _git_state() -> dict:
 def run_metadata(mode: str, book: Book = DEFAULT_BOOK) -> dict:
     """Everything needed to compare two runs later: the book, the settings of the system and the dataset."""
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
         "mode": mode,
         "book": book.id,
         "git": _git_state(),
@@ -113,9 +118,17 @@ def render_markdown(report: dict) -> str:
     for r in report["results"]:
         retrieval, generation = r["retrieval"], r["generation"]
         recall = _fmt(retrieval["context_recall"]) if retrieval else "-"
-        rank = (f"{1 / retrieval['reciprocal_rank']:.0f}" if retrieval["reciprocal_rank"] else "miss") if retrieval else "-"
+        rank = (
+            (f"{1 / retrieval['reciprocal_rank']:.0f}" if retrieval["reciprocal_rank"] else "miss")
+            if retrieval
+            else "-"
+        )
         if generation:
-            row = [("EMPTY" if generation["empty"] else "yes" if generation["abstained"] else "no"), _fmt(generation["faithfulness"]), _fmt(generation["correctness"])]
+            row = [
+                ("EMPTY" if generation["empty"] else "yes" if generation["abstained"] else "no"),
+                _fmt(generation["faithfulness"]),
+                _fmt(generation["correctness"]),
+            ]
         else:
             row = ["-", "-", "-"]
         lines.append(f"| {r['id']} | {recall} | {rank} | {' | '.join(row)} |")
@@ -126,10 +139,17 @@ def render_markdown(report: dict) -> str:
         if generation and generation["empty"]:
             weak.append("EMPTY ANSWER")
         elif generation and not generation["abstention_correct"]:
-            weak.append("answered an unanswerable question" if not r["answerable"] else "abstained on an answerable question")
+            weak.append(
+                "answered an unanswerable question" if not r["answerable"] else "abstained on an answerable question"
+            )
         if generation and generation["faithfulness"] is not None and generation["faithfulness"] < 1:
             weak.append(f"unsupported claims (faithfulness {generation['faithfulness']:.2f})")
-        if generation and not generation["empty"] and generation["correctness"] is not None and generation["correctness"] < 1:
+        if (
+            generation
+            and not generation["empty"]
+            and generation["correctness"] is not None
+            and generation["correctness"] < 1
+        ):
             weak.append(f"{generation['correctness_reason']} (correctness {generation['correctness']:.1f})")
         if weak:
             problems.append(f"- **{r['id']}**: {r['question']}\n  " + "; ".join(weak))

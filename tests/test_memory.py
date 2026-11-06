@@ -68,7 +68,9 @@ def test_a_failing_language_model_does_not_break_the_summary(monkeypatch):
 
     monkeypatch.setattr(memory, "OFFLINE", False)
     monkeypatch.setattr(memory, "ChatGroq", lambda **kwargs: Broken())
-    monkeypatch.setattr(memory, "ChatPromptTemplate", type("P", (), {"from_template": staticmethod(lambda t: Broken())}))
+    monkeypatch.setattr(
+        memory, "ChatPromptTemplate", type("P", (), {"from_template": staticmethod(lambda t: Broken())})
+    )
     monkeypatch.setattr(memory, "StrOutputParser", lambda: Broken())
     summarize = memory.build_summarizer()
     assert "What is a rookery?" in summarize("", "What is a rookery?", "A breeding place.")  # the crude summary
