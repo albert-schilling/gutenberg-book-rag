@@ -20,7 +20,8 @@ two reports are only comparable when the dataset hash matches.
 
 ## Dataset
 
-`dataset.json` has 17 answerable questions with a reference answer and **evidence phrases** copied
+`dataset.json` is about the default book (Antarctic Penguins); the other books have no golden questions yet
+(see `TODO.md`). It has 17 answerable questions with a reference answer and **evidence phrases** copied
 from the cleaned book, and 4 questions the book cannot answer. Evidence phrases, not chunk ids,
 keep the dataset valid when the chunking changes. `tests/test_eval_dataset.py` checks that every
 phrase is in the book and inside a single chunk.

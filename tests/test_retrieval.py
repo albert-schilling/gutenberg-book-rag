@@ -7,6 +7,7 @@ retrieval from getting worse. They are not a target. Raise them when the retriev
 import pytest
 
 from book_rag import store
+from book_rag.books import DEFAULT_BOOK
 from book_rag.evaluation import metrics
 from book_rag.evaluation.dataset import load_dataset
 from book_rag.rag import retrieve
@@ -29,7 +30,7 @@ def vector_store(tmp_path_factory):
     """The real vector store of the book, built once in a temporary directory."""
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(store, "CHROMA_DIR", tmp_path_factory.mktemp("chroma"))
-        yield store.build_vector_store()
+        yield store.build_vector_store(DEFAULT_BOOK)
 
 
 def retrieved_texts(case, vector_store):

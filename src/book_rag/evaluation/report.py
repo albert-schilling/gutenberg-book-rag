@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from book_rag import config
+from book_rag.books import DEFAULT_BOOK, Book
 from book_rag.evaluation.dataset import DATASET_FILE
 from book_rag.evaluation.metrics import mean
 
@@ -54,11 +55,12 @@ def _git_state() -> dict:
         return {"commit": None, "uncommitted_changes": None}
 
 
-def run_metadata(mode: str) -> dict:
-    """Everything needed to compare two runs later: the settings of the system and the dataset."""
+def run_metadata(mode: str, book: Book = DEFAULT_BOOK) -> dict:
+    """Everything needed to compare two runs later: the book, the settings of the system and the dataset."""
     return {
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "mode": mode,
+        "book": book.id,
         "git": _git_state(),
         "config": {
             "chunk_size": config.CHUNK_SIZE,

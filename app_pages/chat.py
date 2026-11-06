@@ -1,16 +1,17 @@
-"""The chat page: ask questions about the book."""
+"""The chat page: ask questions about the book that is chosen in the sidebar."""
 
 import streamlit as st
 
-from book_rag.config import AUTHOR, TITLE
+from book_rag.books import get_book
 from book_rag.rag import ask, build_chain
 from book_rag.store import build_vector_store
 
 
-@st.cache_resource
-def load_rag():
-    """Load the embedding model, the vector store and the chain once, not on every rerun."""
-    return build_vector_store(), build_chain()
+@st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
+def load_rag(book_id: str):
+    """Load the vector store and the chain of a book once, not on every rerun."""
+    book = get_book(book_id)
+    return build_vector_store(book), build_chain(book)
 
 
 def show_passages(scored_passages):
@@ -21,20 +22,20 @@ def show_passages(scored_passages):
             st.write(passage.page_content)
 
 
-st.caption(f"Ask a question about *{TITLE}* by {AUTHOR}. Answers are based only on the passages shown below them.")
+book = get_book(st.session_state.book_id)
+st.caption(f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them.")
 
-vector_store, chain = load_rag()
+vector_store, chain = load_rag(book.id)
 
-# The history only lives in the browser session; every question is answered independently.
-if "history" not in st.session_state:
-    st.session_state.history = []
+# The history only lives in the browser session, one per book; every question is answered independently.
+history = st.session_state.setdefault("histories", {}).setdefault(book.id, [])
 
-for message in st.session_state.history:
+for message in history:
     with st.chat_message(message["role"]):
         st.write(message["content"])
         show_passages(message.get("passages", []))
 
-if question := st.chat_input("Ask a question about the book", submit_mode="disable"):
+if question := st.chat_input(f"Ask a question about {book.title}", submit_mode="disable"):
     with st.chat_message("user"):
         st.write(question)
     with st.chat_message("assistant"):
@@ -43,5 +44,5 @@ if question := st.chat_input("Ask a question about the book", submit_mode="disab
         st.write(answer)
         show_passages(scored_passages)
 
-    st.session_state.history.append({"role": "user", "content": question})
-    st.session_state.history.append({"role": "assistant", "content": answer, "passages": scored_passages})
+    history.append({"role": "user", "content": question})
+    history.append({"role": "assistant", "content": answer, "passages": scored_passages})

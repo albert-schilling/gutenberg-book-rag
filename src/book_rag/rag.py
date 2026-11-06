@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_groq import ChatGroq
 
+from book_rag.books import Book
 from book_rag.config import (
     EMPTY_ANSWER_RETRIES,
     FALLBACK_ANSWER,
@@ -24,9 +25,14 @@ logger = logging.getLogger(__name__)
 ScoredPassages = list[tuple[Document, float]]
 
 
-def build_chain() -> Runnable:
+def build_system_prompt(book: Book) -> str:
+    """The prompt of the book. {context} stays in it: the chain fills in the passages."""
+    return SYSTEM_PROMPT.replace("{title}", book.title).replace("{author}", book.author)
+
+
+def build_chain(book: Book) -> Runnable:
     """The LCEL chain: fill the prompt, call the model, return the reply as a string."""
-    prompt = ChatPromptTemplate.from_messages([("system", SYSTEM_PROMPT), ("human", "{question}")])
+    prompt = ChatPromptTemplate.from_messages([("system", build_system_prompt(book)), ("human", "{question}")])
     llm = ChatGroq(model=LLM_MODEL, temperature=0)
     return prompt | llm | StrOutputParser()
 

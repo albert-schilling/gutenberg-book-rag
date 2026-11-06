@@ -1,4 +1,4 @@
-"""UI tests for streamlit_app.py. The vector store and the language model are replaced by fakes."""
+"""UI tests for streamlit_app.py. The vector stores and the language model are replaced by fakes."""
 
 from pathlib import Path
 
@@ -8,46 +8,74 @@ from langchain_core.documents import Document
 from streamlit.testing.v1 import AppTest
 
 from book_rag import rag, store
+from book_rag.books import BOOKS, DEFAULT_BOOK
 
 APP = Path(__file__).resolve().parents[1] / "streamlit_app.py"
+FRANKENSTEIN = BOOKS["frankenstein_shelley"]
 
 
 @pytest.fixture
 def app(monkeypatch):
-    """The app with a fake vector store and a fake `ask`. `questions` records what the app asked."""
-    questions = []
+    """The app with fake vector stores and a fake `ask`.
+
+    `app.questions` records (question, book id of the vector store) for every question,
+    `app.built` the books whose vector store was built.
+    """
+    questions, built = [], []
+
+    def fake_build_vector_store(book):
+        built.append(book.id)
+        return ("store", book.id)
 
     def fake_ask(question, vector_store, chain):
-        questions.append(question)
+        questions.append((question, vector_store[1]))
         passages = [
             (Document(page_content="Skuas prey upon the chicks.", metadata={"start_index": 147611}), 0.77),
             (Document(page_content="A perpetual feud.", metadata={"start_index": 62105}), 0.71),
         ]
         return f"Answer to: {question}", passages
 
-    monkeypatch.setattr(store, "build_vector_store", lambda: object())
-    monkeypatch.setattr(rag, "build_chain", lambda: object())
+    monkeypatch.setattr(store, "build_vector_store", fake_build_vector_store)
+    monkeypatch.setattr(rag, "build_chain", lambda book: ("chain", book.id))
     monkeypatch.setattr(rag, "ask", fake_ask)
     st.cache_resource.clear()  # load_rag() is cached for the whole process: start every test fresh
 
     at = AppTest.from_file(str(APP), default_timeout=30).run()
-    at.questions = questions
+    at.questions, at.built = questions, built
     return at
 
 
-def test_the_page_shows_the_book_and_an_empty_chat(app):
+def choose_book(app, book):
+    app.sidebar.selectbox[0].select(book.title).run()
+    assert not app.exception
+
+
+def sidebar_links(app):
+    return [link.proto.label for link in app.sidebar.get("page_link")]
+
+
+def test_the_page_shows_the_default_book_and_an_empty_chat(app):
     assert not app.exception
     assert app.title[0].value == "Reading companion"
-    assert "Antarctic Penguins" in app.caption[0].value
+    assert DEFAULT_BOOK.title in app.caption[0].value
     assert len(app.chat_message) == 0
-    assert app.chat_input[0].placeholder == "Ask a question about the book"
+    assert DEFAULT_BOOK.title in app.chat_input[0].placeholder
+
+
+def test_the_sidebar_offers_all_eight_books(app):
+    book = app.sidebar.selectbox[0]
+    assert book.label == "Book"
+    assert book.value == DEFAULT_BOOK.id
+    assert sorted(book.options) == sorted(b.title for b in BOOKS.values())
+    assert len(book.options) == 8
+    assert f"by {DEFAULT_BOOK.author}" in app.sidebar.caption[0].value
 
 
 def test_a_question_shows_the_answer_and_its_passages(app):
     app.chat_input[0].set_value("What do skua gulls do?").run()
 
     assert not app.exception
-    assert app.questions == ["What do skua gulls do?"]
+    assert app.questions == [("What do skua gulls do?", DEFAULT_BOOK.id)]
     user, assistant = app.chat_message
     assert user.markdown[0].value == "What do skua gulls do?"
     assert assistant.markdown[0].value == "Answer to: What do skua gulls do?"
@@ -63,23 +91,54 @@ def test_the_history_stays_but_each_question_is_asked_alone(app):
     app.chat_input[0].set_value("Second question").run()
 
     assert not app.exception
-    assert app.questions == ["First question", "Second question"]  # no earlier turns are passed on
+    assert [q for q, _ in app.questions] == ["First question", "Second question"]  # no earlier turns are passed on
     assert [m.name for m in app.chat_message] == ["user", "assistant", "user", "assistant"]
     assert app.chat_message[0].markdown[0].value == "First question"
     assert app.chat_message[3].markdown[0].value == "Answer to: Second question"
     assert len(app.expander) == 4  # two passages per answer, the history keeps its passages
 
 
-def test_the_app_loads_the_rag_system_only_once(app, monkeypatch):
-    calls = []
-    monkeypatch.setattr(store, "build_vector_store", lambda: calls.append(1) or object())
-    st.cache_resource.clear()
+def test_choosing_another_book_changes_the_page_and_the_vector_store(app):
+    choose_book(app, FRANKENSTEIN)
 
-    at = AppTest.from_file(str(APP), default_timeout=30).run()
-    at.chat_input[0].set_value("One").run()
-    at.chat_input[0].set_value("Two").run()
+    assert FRANKENSTEIN.title in app.caption[0].value
+    assert FRANKENSTEIN.title in app.chat_input[0].placeholder
+    assert f"by {FRANKENSTEIN.author}" in app.sidebar.caption[0].value
 
-    assert calls == [1]
+    app.chat_input[0].set_value("Who is the monster?").run()
+    assert app.questions == [("Who is the monster?", FRANKENSTEIN.id)]  # asked in the vector store of that book
+
+
+def test_every_book_keeps_its_own_history(app):
+    app.chat_input[0].set_value("About the penguins").run()
+    choose_book(app, FRANKENSTEIN)
+    assert len(app.chat_message) == 0  # a new book starts with an empty chat
+    app.chat_input[0].set_value("About the monster").run()
+    assert [m.markdown[0].value for m in app.chat_message][0] == "About the monster"
+
+    choose_book(app, DEFAULT_BOOK)
+    assert [m.markdown[0].value for m in app.chat_message][0] == "About the penguins"
+    assert len(app.chat_message) == 2
+
+
+def test_the_rag_system_of_a_book_is_loaded_only_once(app):
+    app.chat_input[0].set_value("One").run()
+    app.chat_input[0].set_value("Two").run()
+    assert app.built == [DEFAULT_BOOK.id]
+
+    choose_book(app, FRANKENSTEIN)
+    choose_book(app, DEFAULT_BOOK)
+    choose_book(app, FRANKENSTEIN)
+    assert app.built == [DEFAULT_BOOK.id, FRANKENSTEIN.id]  # each book once, then it comes from the cache
+
+
+def test_the_sidebar_links_to_the_changes_page_and_back(app):
+    assert sidebar_links(app) == ["Changes from the assignment"]
+
+    app.switch_page("app_pages/changes.py").run()
+    assert not app.exception
+    assert sidebar_links(app) == ["Back to the chat"]
+    assert app.sidebar.selectbox[0].label == "Book"  # the book stays selectable on every page
 
 
 def test_the_changes_page_documents_the_differences_from_the_assignment(app):
@@ -96,3 +155,11 @@ def test_the_app_has_a_chat_page_and_a_changes_page(app):
     assert app.title[0].value == "Reading companion"
     app.switch_page("app_pages/changes.py").run()
     assert app.title[0].value == "Changes from the assignment"
+
+
+def test_the_selected_book_survives_a_visit_to_the_changes_page(app):
+    choose_book(app, FRANKENSTEIN)
+    app.switch_page("app_pages/changes.py").run()
+    app.switch_page("app_pages/chat.py").run()
+    assert not app.exception
+    assert app.sidebar.selectbox[0].value == FRANKENSTEIN.id

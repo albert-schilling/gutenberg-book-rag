@@ -1,10 +1,12 @@
 """Ask questions about the book in the terminal."""
 
+import argparse
 import logging
 
 from colorama import Fore, Style, just_fix_windows_console
 from dotenv import load_dotenv
 
+from book_rag.books import BOOKS, DEFAULT_BOOK, get_book
 from book_rag.config import ENV_FILE
 from book_rag.rag import ScoredPassages, ask, build_chain
 from book_rag.store import build_vector_store
@@ -29,16 +31,20 @@ def read_question() -> str | None:
     return None if question.lower() in EXIT_COMMANDS else question
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Ask questions about a book in the terminal.")
+    parser.add_argument("--book", default=DEFAULT_BOOK.id, choices=list(BOOKS), help="the book to ask about")
+    book = get_book(parser.parse_args(argv).book)
+
     just_fix_windows_console()  # so that the colours also work in the Windows terminal
     logging.basicConfig(format=Style.DIM + "%(message)s" + Style.RESET_ALL)  # libraries: warnings only
     logging.getLogger("book_rag").setLevel(logging.INFO)  # but show our own progress messages
     load_dotenv(ENV_FILE)  # reads GROQ_API_KEY from the .env file
 
-    vector_store = build_vector_store()
-    chain = build_chain()
+    vector_store = build_vector_store(book)
+    chain = build_chain(book)
 
-    print(Fore.CYAN + "Ask a question about the book (type quit or exit to leave)." + Style.RESET_ALL)
+    print(Fore.CYAN + f"Ask a question about {book.title} (type quit or exit to leave)." + Style.RESET_ALL)
     while (question := read_question()) is not None:
         if question:  # ignore empty input
             print_answer(*ask(question, vector_store, chain))

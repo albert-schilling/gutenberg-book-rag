@@ -2,6 +2,7 @@ import pytest
 from langchain_core.documents import Document
 
 from book_rag import rag
+from book_rag.books import BOOKS
 from book_rag.config import EMPTY_ANSWER_RETRIES, FALLBACK_ANSWER, NO_ANSWER, TOP_K
 
 
@@ -81,3 +82,16 @@ def test_the_reader_gets_a_fallback_when_every_attempt_is_empty():
     assert answer == FALLBACK_ANSWER
     assert len(chain.calls) == 1 + EMPTY_ANSWER_RETRIES
     assert len(passages) == 1  # the passages are still shown
+
+
+def test_the_prompt_names_the_book_and_keeps_the_slot_for_the_passages():
+    prompt = rag.build_system_prompt(BOOKS["frankenstein_shelley"])
+    assert "'Frankenstein; or, The Modern Prometheus' by Mary Wollstonecraft Shelley" in prompt
+    assert "{context}" in prompt  # filled in by the chain
+    assert "{title}" not in prompt and "{author}" not in prompt
+    assert NO_ANSWER in prompt
+
+
+def test_every_book_gets_its_own_prompt():
+    prompts = {book.id: rag.build_system_prompt(book) for book in BOOKS.values()}
+    assert len(set(prompts.values())) == len(BOOKS)

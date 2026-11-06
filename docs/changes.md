@@ -5,16 +5,18 @@ is a deliberate change, with the reason. The notebook still shows the original a
 
 | Area | Assignment / notebook | This app | Why |
 | :-- | :-- | :-- | :-- |
+| Books | one book per group | all eight books, chosen in the sidebar | One app serves the whole library |
+| Vector store | one collection | one collection per book, all in `chroma_db/`; built the first time a book is opened | Books never mix, each rebuilds on its own, and nothing is embedded that nobody asks for |
 | Embedding model | `all-MiniLM-L6-v2` | `intfloat/e5-small-v2`, with `query:` and `passage:` prefixes | Answer correctness rose from 0.44 to 0.76 (details below) |
 | Chunking | free choice | 1000 characters, 200 overlap (unchanged) | Smaller chunks only helped the old model |
 | Chroma ids | `f"{BOOK}-{i}"` | SHA-1 hash of the chunk text | The id changes exactly when the text changes, so no stale or duplicate chunks |
 | Building the store | `add_documents` | only if the store is empty; the collection name carries a fingerprint of the model and chunk settings | The book is not embedded again on every start, and a changed setting builds a fresh collection instead of reusing old vectors |
-| Cleaning | text between START and END, wrapped lines joined | also removes ads, title page, contents, list of illustrations, the printer's line, the transcriber's corrections, `[Illustration]` placeholders and paragraph indentation | None of this is the book, and it would otherwise be retrieved as a passage |
+| Cleaning | text between START and END, wrapped lines joined | also removes the front matter (ads, title page, contents, prefaces), the back matter (printer's line, the index of the climate book), `[Illustration]` placeholders and paragraph indentation; the first and last line of each book are set in `books.py` | None of this is the book, and it would otherwise be retrieved as a passage |
 | Passages | `as_retriever(k=4)` | `similarity_search_with_score`, `k=4`, with the cosine similarity shown per passage | Readers can see how close each passage is. Cosine similarity = 1 - distance / 2 for vectors of length 1 |
 | Similarity cutoff | none | none (tried, dropped) | See below |
 | Empty model replies | not handled | asked again up to 2 more times, then a fallback message | `gpt-oss-20b` sometimes returns nothing at all |
-| Prompt | answer only from the passages | also demands one exact sentence when the book has no answer | Lets the system and the evaluation recognise a refusal |
-| Command line | loop until `quit` | `quit` or `exit` (also Ctrl+C and Ctrl+D) | An exit word is never sent to the model as a question |
+| Prompt | answer only from the passages | names the chosen book, and demands one exact sentence when the book has no answer | Lets the system and the evaluation recognise a refusal |
+| Command line | loop until `quit` | `quit` or `exit` (also Ctrl+C and Ctrl+D), and `--book` to choose the book | An exit word is never sent to the model as a question |
 | Code | notebook and `rag_cli.py` | `src/book_rag` package, tests, evaluation, this web app | The CLI and the web apps share the same code |
 
 ## Why the embedding model changed
@@ -48,6 +50,9 @@ embedding model on their own.
 
 ## Known limits
 
+- **Only the penguin book was measured.** The embedding model, the chunk size and the prompt were chosen on 17
+  questions about the penguin book. The other seven books have a smoke test (an obvious question finds the right
+  passage) but no golden questions, so their quality is unknown.
 - The evaluation has 21 questions: it shows big changes, not small ones. One question is worth 0.06 of recall.
 - Five questions still find no evidence, because the question and the book use different words ("feed on" and
   "feeding on the shrimp-like euphausia").

@@ -5,6 +5,10 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Evaluation
 
+- [ ] **Golden questions for the other seven books.** Only the penguin book is measured (`evals/dataset.json`).
+  The reports record the book, and `book-rag-eval` always evaluates the default book. Give every book its own set
+  and a `--book` option, then check whether the embedding model and the chunk size chosen for the penguins also
+  suit a novel or a textbook.
 - [ ] **Larger golden set.** 21 questions (17 answerable) can only show big changes: one question is 0.06 of
   recall, so variants within about 0.1 of each other are ties. Aim for 60 to 100 questions, written in different
   styles (short and long, with and without the book's wording, about one fact and about several) and spread
@@ -34,7 +38,11 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Review the cleaning of each book by eye. Only the first and last line are checked. Poems, tables and
+  footnotes (Climate has many tables) are joined like prose and may produce odd passages.
+- [ ] Build the vector stores of all books in advance (a script), so the first question about a book is not slower.
 - [ ] Bring the notebook up to date (cleaning, hash ids, e5 embeddings with prefixes, scores), or add a note at
   the top that it shows the original approach. `docs/changes.md` lists the differences.
-- [ ] Remove old collections from `chroma_db/`. Each change of the model or the chunking leaves one behind.
+- [ ] Remove old collections from `chroma_db/`. Each change of the model, the chunking or the cleaned text leaves one
+  behind (today `penguins-b237154c` from before the multi-book change).
 - [ ] Add a project dictionary for the spell checker, which flags words like `dotenv` and `Groq`.

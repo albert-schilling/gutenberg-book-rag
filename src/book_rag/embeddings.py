@@ -1,10 +1,13 @@
 """The embedding model."""
 
+from functools import lru_cache
+
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from book_rag.config import EMBEDDING_MODEL, PASSAGE_PREFIX, QUERY_PREFIX
 
 
+@lru_cache(maxsize=1)  # one copy of the model in memory, however many books use it
 def build_embeddings() -> HuggingFaceEmbeddings:
     """Embeddings of length 1, with the prefixes of the e5 model.
 

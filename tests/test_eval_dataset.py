@@ -2,6 +2,7 @@ import pytest
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from book_rag.book import load_book
+from book_rag.books import DEFAULT_BOOK
 from book_rag.config import CHUNK_OVERLAP, CHUNK_SIZE
 from book_rag.evaluation.dataset import load_dataset
 from book_rag.evaluation.metrics import evidence_found
@@ -30,7 +31,7 @@ def test_answerable_cases_have_a_reference_and_evidence(case):
 
 @pytest.mark.parametrize("case", [c for c in CASES if c.answerable], ids=lambda c: c.id)
 def test_evidence_phrases_are_in_the_cleaned_book(case):
-    book = load_book().page_content
+    book = load_book(DEFAULT_BOOK).page_content
     assert all(evidence_found(case.evidence, [book])), f"{case.id}: a phrase is not in the book"
 
 
@@ -38,6 +39,6 @@ def test_evidence_phrases_are_in_the_cleaned_book(case):
 def test_every_evidence_phrase_is_inside_one_chunk(case):
     """A phrase that falls on a chunk boundary could never be retrieved, whatever the retriever does."""
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-    chunks = [c.page_content for c in splitter.split_documents([load_book()])]
+    chunks = [c.page_content for c in splitter.split_documents([load_book(DEFAULT_BOOK)])]
     for phrase in case.evidence:
         assert any(evidence_found((phrase,), [chunk])[0] for chunk in chunks), f"{case.id}: '{phrase}' is split"

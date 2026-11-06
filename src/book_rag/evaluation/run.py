@@ -8,6 +8,7 @@ from langchain_chroma import Chroma
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 
+from book_rag.books import DEFAULT_BOOK
 from book_rag.config import ENV_FILE
 from book_rag.evaluation import judge as judging
 from book_rag.evaluation import metrics
@@ -90,8 +91,8 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     load_dotenv(ENV_FILE)
-    vector_store = build_vector_store()
-    chain = None if args.retrieval_only else build_chain()
+    vector_store = build_vector_store(DEFAULT_BOOK)  # the golden questions are about this book
+    chain = None if args.retrieval_only else build_chain(DEFAULT_BOOK)
     judge = None if args.retrieval_only else judging.build_judge()
     cases = load_dataset()[: args.limit]
 
