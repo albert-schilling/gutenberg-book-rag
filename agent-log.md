@@ -26,3 +26,13 @@ asked are listed under each task and in the last section.
 - Friction: Chromium must be installed once per machine (about 100 MB). In my sandbox I installed it in a temp folder
   (`PLAYWRIGHT_BROWSERS_PATH`); on your machine run `uv run playwright install chromium`.
 
+## 2. "Ask about this" tooltip for selected text (done)
+- Select text in your question, an answer, a passage or the book reader: a tooltip "Ask about this" appears next to
+  the pointer; a click asks `What does the book say about “…”?` (selection cut at 200 characters).
+- How: a small invisible component (`selection.js`) listens in the page, uses `event.composedPath()` to see inside the
+  reader's shadow root, and sends the text to Python as an event. Question text: `selection.py`.
+- Tests: 7 browser tests (answer, own question, passage, book, nothing outside, Escape/click away, plain click) plus
+  Python and Node unit tests. Mutation check: breaking the region rule makes 1-2 browser tests fail.
+- Friction: Streamlit has no selection events and `st.chat_input` cannot be pre-filled, so the click asks the question
+  directly instead of putting it in the input box. Touch and keyboard-only use are not handled (TODO).
+

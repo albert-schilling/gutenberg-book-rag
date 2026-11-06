@@ -39,6 +39,8 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Selection tooltip: it reacts to the mouse and to Shift + arrow keys. Touch screens (selecting by long press) and
+  keyboard-only use (the tooltip cannot be reached with Tab) are not handled.
 - [ ] Run the browser tests (`pytest -m browser`, about 40 s) in CI, and in Firefox and WebKit too. Today only Chromium.
 - [ ] Reader: a search in the book, a jump to a chapter, and remembering the reading position per book.
 - [ ] Reader: the highlight covers the whole chunk, including the 200 characters that overlap the chunk before.

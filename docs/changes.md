@@ -20,6 +20,7 @@ is a deliberate change, with the reason. The notebook still shows the original a
 | Command line | loop until `quit` | `quit` or `exit` (also Ctrl+C and Ctrl+D), and `--book` to choose the book | An exit word is never sent to the model as a question |
 | Code | notebook and `rag_cli.py` | `src/book_rag` package, tests, evaluation, this web app | The CLI and the web apps share the same code |
 | Web app | none | wide two-pane layout: chat on the left, the book on the right when a passage is open; a custom component for the book | Reading a passage in its context needs scrolling that the built-in elements do not offer |
+| Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click the tooltip "Ask about this" | Follow-up questions without typing; the question becomes `What does the book say about “…”?` (long selections are cut at 200 characters) |
 | Tests | none | unit tests, app tests, and browser tests with Playwright (headless Chromium) | Infinite scrolling, the steady reading position and the highlight only exist in a real browser. A browser test failed on a scroll-jump bug that no other test saw |
 | Offline mode | needs a Groq key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply (retrieval still runs) | Lets the app be tried and tested without a key, without cost and without the rate limit |
 

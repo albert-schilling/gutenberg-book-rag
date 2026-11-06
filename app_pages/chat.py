@@ -9,6 +9,7 @@ import streamlit as st
 from book_rag.books import get_book
 from book_rag.rag import ask, build_chain
 from book_rag.reader_component import book_reader, close_reader, current_reader, open_reader
+from book_rag.selection import question_about
 from book_rag.store import build_vector_store
 
 PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the book is open (the book panel
@@ -47,6 +48,8 @@ history = st.session_state.setdefault("histories", {}).setdefault(book.id, [])
 
 # At the root of the page, the input stays at the bottom of the window
 question = st.chat_input(f"Ask a question about {book.title}", submit_mode="disable")
+if not question and (selected := st.session_state.pop("selected_text", None)):
+    question = question_about(selected)  # the reader selected text and clicked "Ask about this"
 
 reader = current_reader(book.id)
 if reader:

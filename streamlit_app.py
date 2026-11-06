@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.config import ENV_FILE
 from book_rag.reader_component import open_reader
+from book_rag.selection_component import text_selection
 
 load_dotenv(ENV_FILE)  # reads GROQ_API_KEY from the .env file
 
@@ -53,6 +54,9 @@ with st.sidebar:
         )
     st.divider()
     if page is chat:
+        selected = text_selection()  # a click on "Ask about this" in the page: the chat page asks it
+        if selected:
+            st.session_state["selected_text"] = selected
         st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")
     else:
         st.page_link(chat, label="Back to the chat", icon=":material/arrow_back:")
