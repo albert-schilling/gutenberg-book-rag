@@ -143,6 +143,7 @@ def with_retries(call, *, attempts: int = 6, wait: float = 30.0):
                 raise
             print(f"  rate limit, waiting {wait:.0f}s (attempt {attempt} of {attempts})", flush=True)
             time.sleep(wait)
+    raise ValueError("attempts must be at least 1")
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -171,7 +172,7 @@ def main(argv: list[str] | None = None) -> None:
     results = []
     for i, case in enumerate(cases, 1):
         print(f"[{i}/{len(cases)}] {case.id}", flush=True)
-        results.append(with_retries(lambda: evaluate_case(case, vector_store, chain, judge, step_chain)))
+        results.append(with_retries(lambda case=case: evaluate_case(case, vector_store, chain, judge, step_chain)))
         if (chain is not None or step_chain is not None) and i < len(cases):
             time.sleep(args.pause)
 

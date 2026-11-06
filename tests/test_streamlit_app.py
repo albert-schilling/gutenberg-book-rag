@@ -81,8 +81,8 @@ def sidebar_links(app):
 
 def test_the_page_shows_the_default_book_and_an_empty_chat(app):
     assert not app.exception
-    assert app.title[0].value == "Reading companion"
-    assert DEFAULT_BOOK.title in app.caption[0].value
+    assert app.title[0].value == BOOKS[DEFAULT_BOOK.id].title
+    assert app.title[0].value == DEFAULT_BOOK.title
     assert len(app.chat_message) == 0
     assert DEFAULT_BOOK.title in app.chat_input[0].placeholder
 
@@ -149,7 +149,7 @@ def test_every_book_has_its_own_memory(app):
 def test_choosing_another_book_changes_the_page_and_the_vector_store(app):
     choose_book(app, FRANKENSTEIN)
 
-    assert FRANKENSTEIN.title in app.caption[0].value
+    assert app.title[0].value == FRANKENSTEIN.title
     assert FRANKENSTEIN.title in app.chat_input[0].placeholder
     assert f"by {FRANKENSTEIN.author}" in app.sidebar.caption[0].value
 
@@ -204,7 +204,7 @@ def test_the_changes_page_documents_the_differences_from_the_assignment(app):
 
 
 def test_the_app_has_a_chat_page_and_a_changes_page(app):
-    assert app.title[0].value == "Reading companion"
+    assert app.title[0].value == BOOKS[DEFAULT_BOOK.id].title
     app.switch_page("app_pages/changes.py").run()
     assert app.title[0].value == "Changes from the assignment"
 
@@ -347,7 +347,7 @@ def test_the_settings_page_shows_the_agent_switch_off_and_the_model(app):
     text = " ".join(c.value for c in app.caption)
     assert llm.LLM_PROVIDER.capitalize() in text and "BOOK_RAG_LLM" in text and "1.7 to 3.2 calls" in text
     assert len(app.chat_input) == 0  # a settings page, not the chat
-    assert not [t for t in app.sidebar.toggle]  # the switch is no longer in the sidebar
+    assert not list(app.sidebar.toggle)  # the switch is no longer in the sidebar
 
 
 def test_the_model_does_not_search_again_by_default_and_the_settings_page_can_switch_it_on(app):

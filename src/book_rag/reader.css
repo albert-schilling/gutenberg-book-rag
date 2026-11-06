@@ -1,3 +1,14 @@
+/* The component sits in two anonymous wrappers; they pass the height of the panel on to the reader. */
+:host {
+  display: block;
+  height: 100%;
+}
+
+div:has(> .shell),
+div:has(> div > .shell) {
+  height: 100%;
+}
+
 .shell {
   display: flex;
   flex-direction: column;

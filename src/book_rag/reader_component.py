@@ -49,7 +49,9 @@ def current_reader(book_id: str) -> dict | None:
     return reader if reader and reader["book"] == book_id else None
 
 
-def book_reader(book: Book, start: int, end: int, *, height: int) -> None:
-    """Show the book, opened at the passage [start, end), in a scrollable panel of the given height."""
+def book_reader(book: Book, start: int, end: int, *, height: int | str) -> None:
+    """Show the book, opened at the passage [start, end), in a scrollable panel.
+
+    `height` is a number of pixels, or "stretch" to fill the space of the container."""
     data = {**reader_data(book, start, end), "height": height}
     _READER(data=data, key=f"reader-{book.id}", height=height)

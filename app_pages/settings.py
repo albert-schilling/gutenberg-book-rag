@@ -20,17 +20,17 @@ st.toggle(
     help="The model may rephrase your question and search the book again before it answers.",
 )
 st.caption(
-    "Off by default. When it is on, the model can write new search questions if the first passages do not answer yours, and the "
-    "searches are shown under the answer. On 51 questions that the system was not tuned on it did not answer facts better, and it "
-    "uses 1.7 to 3.2 calls per question instead of one. It may help questions about the whole book (only 3 were tested). "
-    "The free plans limit the tokens per minute and per day, so more calls mean more waiting. "
-    "The setting lasts for this browser session."
+    "Off by default. When it is on, the model can write new search questions if the first passages do not"
+    " answer yours, and the searches are shown under the answer. On 51 questions that the system was not "
+    "tuned on it did not answer facts better, and it uses 1.7 to 3.2 calls per question instead of one. "
+    "It may help questions about the whole book (only 3 were tested). The free plans limit the tokens per"
+    " minute and per day, so more calls mean more waiting. The setting lasts for this browser session."
 )
 
 st.subheader("Language model")
 st.caption(
-    f"{LLM_PROVIDER.capitalize()}, model `{LLM_MODEL}`. Change it with `BOOK_RAG_LLM` (mistral or groq) in the `.env` file, "
-    "then restart the app."
+    f"{LLM_PROVIDER.capitalize()}, model `{LLM_MODEL}`. Change it with `BOOK_RAG_LLM` (mistral or groq) "
+    "in the `.env` file, then restart the app."
 )
 st.caption(
     "Refusal rule: "

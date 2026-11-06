@@ -1,0 +1,86 @@
+/* The chat page does not scroll as a whole: the chat and the book scroll inside it, the title stays in view. */
+[data-testid="stAppScrollToBottomContainer"] {
+  overflow: hidden;
+}
+
+/* The title of the book: one line, outside every scrolling area. */
+[data-testid="stMainBlockContainer"] h1 {
+  font-size: 1.6rem;
+  line-height: 1.3;
+  padding: 0.25rem 0 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-testid="stMainBlockContainer"] {
+  padding-top: 4rem; /* below the toolbar of Streamlit (3.75rem) */
+  padding-bottom: 0;
+  max-width: 62rem; /* a readable width for the chat ... */
+  margin-inline: auto;
+}
+
+/* The chat pane: Streamlit gives its wrapper a fixed height in pixels (so that it scrolls to the newest message). */
+div:has(> .st-key-chat-pane) {
+  height: calc(100dvh - 19rem) !important; /* the window minus the toolbar, the title and the input */
+}
+
+/* The book: a panel fixed to the right edge of the window, like a second sidebar. It does not move when the chat grows. */
+.st-key-reader-panel {
+  position: fixed;
+  top: 3.75rem;
+  right: 0;
+  bottom: 0;
+  width: var(--reader-width, 38vw);
+  z-index: 90;
+  padding: 0.75rem 1rem 0;
+  background: var(--st-background-color, #fff);
+  border-left: 1px solid var(--st-border-color, #ddd);
+  box-shadow: -6px 0 18px rgba(0, 0, 0, 0.05);
+  gap: 0.5rem;
+}
+
+/* ... and with the book open, the chat uses the space that is left (also the input at the bottom). */
+[data-testid="stMainBlockContainer"]:has(.st-key-reader-panel) {
+  max-width: none;
+  margin-inline: 0;
+  padding-right: calc(var(--reader-width, 38vw) + 2rem);
+}
+
+[data-testid="stApp"]:has(.st-key-reader-panel) [data-testid="stBottomBlockContainer"] {
+  max-width: none;
+  padding-right: calc(var(--reader-width, 38vw) + 2rem);
+}
+
+/* The title and the buttons of the book share one row; a long title is cut. */
+.st-key-reader-header {
+  flex-wrap: nowrap !important;
+}
+
+.st-key-reader-header [data-testid="stMarkdownContainer"] p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-key-reader-panel [data-testid="stCustomComponentV2"] {
+  flex: 1;
+  min-height: 0;
+}
+
+/* A small window: the book covers the whole window instead of sharing it. */
+@media (max-width: 800px) {
+  .st-key-reader-panel {
+    top: 3.75rem;
+    width: 100vw !important;
+  }
+
+  [data-testid="stMainBlockContainer"]:has(.st-key-reader-panel),
+  [data-testid="stApp"]:has(.st-key-reader-panel) [data-testid="stBottomBlockContainer"] {
+    padding-right: 1rem;
+  }
+
+  .st-key-reader-expand {
+    display: none;
+  }
+}

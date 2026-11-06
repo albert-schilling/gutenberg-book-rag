@@ -72,7 +72,7 @@ def test_there_is_no_tooltip_for_text_outside_the_chat_and_the_book(page):
     page.locator('[data-testid="stSidebar"]').get_by_text("by G. Murray Levick").click(click_count=3)
     page.wait_for_timeout(400)
     expect(page.locator(TIP)).to_be_hidden()
-    page.get_by_role("heading", name="Reading companion").click(click_count=3)
+    page.get_by_role("heading", name="Antarctic Penguins").click(click_count=3)
     page.wait_for_timeout(400)
     expect(page.locator(TIP)).to_be_hidden()
 

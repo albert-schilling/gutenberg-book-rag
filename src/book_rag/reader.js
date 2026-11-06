@@ -65,9 +65,11 @@ export default function (component) {
   // The script runs again when the theme changes: keep the text and the scroll position if nothing else did.
   const previous = instances.get(parentElement)
   if (previous && previous.id === data.id) return
+  previous?.observer?.disconnect() // a passage that was waiting for its panel to get a size is replaced
   instances.set(parentElement, { id: data.id })
 
-  shell.style.height = `min(${data.height}px, calc(100vh - 17rem))` // the text scrolls inside this height
+  // the text scrolls inside this height; "stretch": the whole space that the panel has
+  shell.style.height = data.height === "stretch" ? "100%" : `min(${data.height}px, calc(100vh - 17rem))`
 
   const paragraphs = data.paragraphs
   const [hs, he] = data.highlight || [0, 0]
@@ -200,5 +202,21 @@ export default function (component) {
     openAt(firstParagraphOnPage(starts, page, pageChars))
   }
 
-  openAt(data.focus)
+  // The panel may not have its final size when the script runs (a fixed panel is laid out after it): the text is opened
+  // once its size has been the same for a moment. With no height, "load more above and below" would run against an empty box.
+  const state = instances.get(parentElement) // set above, with the id
+  let timer = 0
+  let lastHeight = -1
+  state.observer = new ResizeObserver(() => {
+    if (root.clientHeight === lastHeight) return
+    lastHeight = root.clientHeight
+    win.clearTimeout(timer)
+    if (lastHeight > 0) {
+      timer = win.setTimeout(() => {
+        state.observer.disconnect()
+        openAt(data.focus)
+      }, 120)
+    }
+  })
+  state.observer.observe(root)
 }

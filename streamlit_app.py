@@ -71,5 +71,6 @@ with st.sidebar:
     if page is not changes:
         st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")
 
-st.title(page.title, icon=page.icon)
+if page is not chat:  # the chat page has its own title: the book
+    st.title(page.title, icon=page.icon)
 page.run()

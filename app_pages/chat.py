@@ -6,6 +6,7 @@ the book on the right, opened at the passage and highlighted.
 
 import streamlit as st
 
+from app_pages import styles
 from book_rag import memory
 from book_rag.books import get_book
 from book_rag.config import AGENTIC_DEFAULT
@@ -15,8 +16,8 @@ from book_rag.reader_component import book_reader, close_reader, current_reader,
 from book_rag.selection import question_about
 
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
-PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the book is open (the book panel
-# is shorter in a low window)
+PANE_HEIGHT = 540  # pixels, only a start: app_pages/chat.css sets the real height from the window
+NORMAL_READER, WIDE_READER = "38vw", "62vw"  # width of the book panel
 
 
 @st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
@@ -47,14 +48,17 @@ def show_passages(scored_passages, message_number):
             )
 
 
+def toggle_reader_width():
+    st.session_state["reader_wide"] = not st.session_state.get("reader_wide", False)
+
+
 def show_earlier(book_id):
     st.session_state["visible_exchanges"][book_id] += VISIBLE_EXCHANGES
 
 
 book = get_book(st.session_state.book_id)
-st.caption(
-    f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them."
-)
+styles.inject("chat")
+st.title(book.title)  # outside every scrolling area: it stays in view
 
 companion = load_companion(book.id)
 
@@ -70,11 +74,7 @@ if not question and (selected := st.session_state.pop("selected_text", None)):
     question = question_about(selected)  # the reader selected text and clicked "Ask about this"
 
 reader = current_reader(book.id)
-if reader:
-    chat_column, reader_column = st.columns([3, 2], gap="large")
-    chat_area = chat_column.container(height=PANE_HEIGHT, border=False)
-else:
-    chat_area = st.columns([1, 3, 1])[1].container()  # a readable width while the book is closed
+chat_area = st.container(height=PANE_HEIGHT, border=False, key="chat-pane")  # scrolls on its own, down to the newest
 
 # Streamlit draws every element it is given, so only the latest exchanges are drawn: a long chat would otherwise
 # make every rerun slower and the page heavier (about 130 page elements per question and answer).
@@ -115,10 +115,17 @@ with chat_area:
         )
 
 if reader:
-    with reader_column:
-        title_column, close_column = st.columns([3, 1], vertical_alignment="center")
-        title_column.markdown(f"**{book.title}**")
-        close_column.button(
-            "Close", icon=":material/close:", key="close-reader", on_click=close_reader, width="stretch"
-        )
-        book_reader(book, reader["start"], reader["end"], height=PANE_HEIGHT)
+    # The book is a panel fixed to the right edge of the window (app_pages/chat.css); it can be made wider.
+    wide = st.session_state.get("reader_wide", False)
+    st.html(f"<style>:root {{ --reader-width: {WIDE_READER if wide else NORMAL_READER}; }}</style>")
+    with st.container(key="reader-panel"):
+        with st.container(horizontal=True, vertical_alignment="center", key="reader-header"):
+            st.markdown(f"**{book.title}**")
+            st.button(
+                "Narrower" if wide else "Wider",
+                icon=":material/close_fullscreen:" if wide else ":material/open_in_full:",
+                key="reader-expand",
+                on_click=toggle_reader_width,
+            )
+            st.button("Close", icon=":material/close:", key="close-reader", on_click=close_reader)
+        book_reader(book, reader["start"], reader["end"], height="stretch")

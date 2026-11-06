@@ -38,7 +38,7 @@ every setup. Reports: `evals/reports/`; the metrics are explained in `evals/READ
 | Evaluation | none | 72 questions with a held-out split, retrieval and answer metrics, an LLM judge, reports and a dashboard | Without it every change was a guess; the held-out split showed which gains were real |
 | Agent | one retrieval, one answer | **off by default**; the Settings page (`BOOK_RAG_AGENT=1`, `--agent`) lets the model rephrase the question and search again: at most 3 calls and 5 searches, stops when a search finds nothing closer, only this book (no web search, no other tool) | Measured as above: no gain for facts at 1.7 to 3.2 times the calls |
 | Books | one book per group | all eight books, chosen in the sidebar; one Chroma collection per book, built the first time a book is opened | One app serves the whole library; books never mix |
-| Reading the source | the `start_index` of each passage | "Read in the book" opens the text next to the chat at the passage, highlighted, with a page bar ("Page 12 of 64"), page markers and a jump to any page | A reader can check an answer in context and keep reading. Pages are virtual (2,500 characters): the files have no real pages |
+| Reading the source | the `start_index` of each passage | "Read in the book" opens the text in a panel on the right (it can be made wider, and fills the screen on a phone) at the passage, highlighted, with a page bar ("Page 12 of 64"), page markers and a jump to any page | A reader can check an answer in context and keep reading. Pages are virtual (2,500 characters): the files have no real pages |
 | Language model | Groq `gpt-oss-20b` | Mistral by default (`mistral-small-latest` answers, `mistral-large-latest` judges); `BOOK_RAG_LLM=groq` switches back | The free Groq plan allows 200,000 tokens a day. `llm.py` is the only module that names a provider |
 
 ## Why e5 and not MiniLM
@@ -90,6 +90,7 @@ and the question uses other words than the book ("feed on" against "feeding on t
 | Rate limits and errors | a traceback | a message in the chat; the evaluation waits out a rate limit |
 | Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click "Ask about this" |
 | Long chats | the whole history is drawn | the latest 10 exchanges; "Show earlier questions" adds 10 (Streamlit draws every element it is given: 8,300 elements after 60 questions without the cap, about 1,600 with it) |
+| Page layout | one scrolling page | the chat page never scrolls as a whole: the book's title stays at the top, the chat and the book scroll inside their own areas |
 | Settings page | none | the agent switch and the language model in use |
 | Command line | loop until `quit` | `quit` or `exit`, `--book`, `--agent`; shares one `Companion` object with the web app |
 | Offline mode | needs a key | `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply: no key, no cost, no rate limit |

@@ -216,3 +216,12 @@ coverage of the evaluation command, running the evaluation and the live tests on
   poorly (they use the summary), and named Groq; a "Measured" bullet duplicated the performance section.
 - Duplicates merged: the similarity cutoff, HyDE and rewriting were each described twice; the 26-row table is now a 9-row "most important"
   table plus a 13-row "all other changes" table.
+
+### B + C: scrolling and the reader panel (one commit)
+- The chat page no longer scrolls: page-level overflow is hidden, the chat is a fixed-height container sized from the viewport, the book's
+  title is a one-line `h1` above it. CSS is in `app_pages/chat.css` (injected by `app_pages/styles.py`).
+- Reader: Streamlit has no right sidebar, so the reader is a `position: fixed` keyed container on the right with a "Wider"/"Narrower" button
+  (38vw / 62vw) and "Close". On a phone (< 800 px) it fills the screen below the header.
+- Friction: the reader opened at the wrong place because its shadow-root wrappers had no height; fixed with CSS and by opening the text
+  only once the panel has a stable size (`reader.js`). A draggable splitter is not possible without a custom component: in TODO.
+- Also fixed 10 ruff findings; tests: AppTest title assertions, 3 new browser tests (`test_layout_browser.py`). 426 unit and 28 browser tests pass.
