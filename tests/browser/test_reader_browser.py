@@ -127,3 +127,17 @@ def test_the_close_button_removes_the_book_and_keeps_the_chat(page):
     page.wait_for_timeout(800)
     assert page.locator(".reader").count() == 0
     assert page.get_by_text("Passage at position").count() == 4
+
+
+def test_a_long_chat_keeps_the_page_small(page):
+    """Streamlit draws everything it is given: the chat only draws the latest exchanges."""
+    for number in range(14):
+        page.locator("textarea").first.fill(f"Question number {number}")
+        page.keyboard.press("Enter")
+        page.get_by_text(f"The best passages for “Question number {number}”").wait_for(timeout=30_000)
+    messages = page.locator('[data-testid="stChatMessage"]')
+    assert messages.count() == 20  # 10 exchanges
+    assert page.get_by_role("button", name="Show earlier questions (4 more)").is_visible()
+    assert page.evaluate("document.querySelectorAll('*').length") < 2000  # about 1,630 capped, 2,260 for 14 exchanges without the cap
+    page.get_by_role("button", name="Show earlier questions (4 more)").click()
+    page.wait_for_function("document.querySelectorAll('[data-testid=\"stChatMessage\"]').length === 28")

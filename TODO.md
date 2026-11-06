@@ -39,6 +39,9 @@ Ideas that are not done yet, roughly in the order they are worth doing. The numb
 
 ## Project
 
+- [ ] Pre-build the vector stores of all books (a script): the first selection of a book takes 2 to 4 s (spinner "Preparing the book").
+- [ ] Long chats: older answers still draw all four passage expanders. Draw a passage only when its expander is open
+  (`st.expander(on_change="rerun")`), or draw the chat in a `st.fragment` so that closing the book does not redraw it.
 - [ ] Selection tooltip: it reacts to the mouse and to Shift + arrow keys. Touch screens (selecting by long press) and
   keyboard-only use (the tooltip cannot be reached with Tab) are not handled.
 - [ ] Run the browser tests (`pytest -m browser`, about 40 s) in CI, and in Firefox and WebKit too. Today only Chromium.

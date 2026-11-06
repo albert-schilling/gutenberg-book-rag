@@ -36,3 +36,18 @@ asked are listed under each task and in the last section.
 - Friction: Streamlit has no selection events and `st.chat_input` cannot be pre-filled, so the click asks the question
   directly instead of putting it in the input box. Touch and keyboard-only use are not handled (TODO).
 
+## 3. Virtualization and performance (done)
+- **Can Streamlit virtualize?** Not in general. Only `st.dataframe` and charts render lazily; `st.container(height=...)`
+  scrolls but still builds every child. So: the book reader virtualizes itself in the browser (a window of at most 250
+  paragraphs, checked by the browser tests), and the chat now draws only the latest 10 questions and answers, with a
+  "Show earlier questions" button.
+- Measured (offline mode, real browser): without the cap the page grew linearly, 415 -> 8,298 DOM elements after 60
+  questions, rerun time 0.14 -> 0.29 s. With the cap it stays at about 1,630 elements and 0.21 s. With the real LLM the
+  model call (seconds) dominates anyway.
+- Scrolling the longest book: 450,000 px scrolled, 246 paragraphs in the page, 314 DOM elements.
+- Tests: 4 app tests for the cap and "Show earlier", 1 browser test for the DOM size.
+- **Friction / false lead:** I first measured 2.8-3.8 s to open the big books and blamed the 600 KB sent to the
+  browser. I built a static-file delivery (config file, static folder) to fix it. A fair measurement showed that the time
+  was the vector store being built the first time a book is selected; the reader opens in 0.2 s either way. I reverted
+  the static-file change (more moving parts, no gain). The first selection of a book still takes 2-4 s (TODO: pre-build).
+

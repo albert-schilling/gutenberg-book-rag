@@ -233,3 +233,44 @@ def test_an_open_book_does_not_follow_to_another_book(app):
 
     choose_book(app, DEFAULT_BOOK)
     assert book_is_open(app)  # and is still open there
+
+
+def ask_many(app, count):
+    for number in range(count):
+        app.chat_input[0].set_value(f"Question {number}").run()
+    assert not app.exception
+
+
+def test_a_long_chat_draws_only_the_latest_exchanges(app):
+    ask_many(app, 25)
+    assert len(app.chat_message) == 20  # 10 exchanges of a question and an answer
+    assert app.chat_message[0].markdown[0].value == "Question 15"  # the oldest one that is drawn
+    assert app.chat_message[-1].markdown[0].value == "Answer to: Question 24"
+    assert len(app.expander) == 10 * 2  # the fake answer has two passages
+    assert [b.label for b in app.button if b.key == "show-earlier"] == ["Show earlier questions (15 more)"]
+
+
+def test_show_earlier_draws_ten_more_exchanges_and_nothing_is_lost(app):
+    ask_many(app, 25)
+    next(b for b in app.button if b.key == "show-earlier").click().run()
+    assert len(app.chat_message) == 40
+    assert app.chat_message[0].markdown[0].value == "Question 5"
+    next(b for b in app.button if b.key == "show-earlier").click().run()
+    assert len(app.chat_message) == 50  # all 25 exchanges
+    assert not [b for b in app.button if b.key == "show-earlier"]  # nothing left to show
+    assert app.chat_message[0].markdown[0].value == "Question 0"
+
+
+def test_a_short_chat_has_no_show_earlier_button(app):
+    ask_many(app, 10)
+    assert len(app.chat_message) == 20
+    assert not [b for b in app.button if b.key == "show-earlier"]
+
+
+def test_every_book_counts_its_own_visible_exchanges(app):
+    ask_many(app, 12)
+    choose_book(app, FRANKENSTEIN)
+    ask_many(app, 3)
+    assert len(app.chat_message) == 6 and not [b for b in app.button if b.key == "show-earlier"]
+    choose_book(app, DEFAULT_BOOK)
+    assert len(app.chat_message) == 20 and [b for b in app.button if b.key == "show-earlier"]

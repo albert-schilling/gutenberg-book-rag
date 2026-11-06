@@ -12,6 +12,7 @@ from book_rag.reader_component import book_reader, close_reader, current_reader,
 from book_rag.selection import question_about
 from book_rag.store import build_vector_store
 
+VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
 PANE_HEIGHT = 540  # pixels: the chat and the book scroll on their own when the book is open (the book panel
 # is shorter in a low window)
 
@@ -38,6 +39,10 @@ def show_passages(scored_passages, message_number):
             )
 
 
+def show_earlier(book_id):
+    st.session_state["visible_exchanges"][book_id] += VISIBLE_EXCHANGES
+
+
 book = get_book(st.session_state.book_id)
 st.caption(f"Ask a question about *{book.title}* by {book.author}. Answers are based only on the passages shown below them.")
 
@@ -58,8 +63,22 @@ if reader:
 else:
     chat_area = st.columns([1, 3, 1])[1].container()  # a readable width while the book is closed
 
+# Streamlit draws every element it is given, so only the latest exchanges are drawn: a long chat would otherwise
+# make every rerun slower and the page heavier (about 130 page elements per question and answer).
+visible = st.session_state.setdefault("visible_exchanges", {}).setdefault(book.id, VISIBLE_EXCHANGES)
+first_shown = max(0, len(history) - 2 * (visible - bool(question)))  # a new question takes one of the places
+
 with chat_area:
-    for number, message in enumerate(history):
+    if first_shown:
+        st.button(
+            f"Show earlier questions ({first_shown // 2} more)",
+            icon=":material/expand_less:",
+            key="show-earlier",
+            on_click=show_earlier,
+            args=(book.id,),
+        )
+    for number in range(first_shown, len(history)):
+        message = history[number]
         with st.chat_message(message["role"]):
             st.write(message["content"])
             show_passages(message.get("passages", []), number)
