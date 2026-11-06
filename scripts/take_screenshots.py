@@ -41,9 +41,17 @@ def ask(page: Page) -> None:
     page.wait_for_timeout(500)
 
 
-def desktop(page: Page, port: int) -> None:
+def start_screen(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 1440, "height": 860})
     page.goto(f"http://127.0.0.1:{port}")
+    page.get_by_role("button", name="Ask this book").first.wait_for(timeout=90_000)
+    page.wait_for_timeout(500)
+    page.screenshot(path=OUT / "start-screen.png")
+
+
+def desktop(page: Page, port: int) -> None:
+    page.set_viewport_size({"width": 1440, "height": 860})
+    page.goto(f"http://127.0.0.1:{port}/chat")
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.get_by_text("Passage at position").first.click()
@@ -51,11 +59,14 @@ def desktop(page: Page, port: int) -> None:
     page.wait_for_selector(".reader mark", timeout=30_000)
     page.wait_for_timeout(800)
     page.screenshot(path=OUT / "app-desktop.png")
+    page.get_by_role("button", name="Full screen").click()
+    page.wait_for_timeout(2500)
+    page.screenshot(path=OUT / "reader-fullscreen.png")
 
 
 def mobile(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 390, "height": 844})
-    page.goto(f"http://127.0.0.1:{port}")
+    page.goto(f"http://127.0.0.1:{port}/chat")
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.screenshot(path=OUT / "app-mobile.png")
@@ -80,6 +91,7 @@ def main() -> None:
         browser = playwright.chromium.launch()
         app = start("streamlit_app.py", 8811)
         try:
+            start_screen(browser.new_page(), 8811)
             desktop(browser.new_page(), 8811)
             mobile(browser.new_page(), 8811)
         finally:

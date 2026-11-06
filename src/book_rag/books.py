@@ -17,6 +17,7 @@ class Book:
     author: str
     start: str | None = None  # regex for the first line of the book proper; the text before it is dropped
     end: str | None = None  # regex for the first line after the book proper (the last match counts)
+    blurb: str = ""  # one line for the start screen
 
     @property
     def path(self):
@@ -29,12 +30,14 @@ _LIBRARY = [
         "The Adventures of Pinocchio",
         "Carlo Collodi",
         start=r"^CHAPTER 1\s*$",
+        blurb="A wooden puppet who wants to become a real boy.",
     ),
     Book(
         "adventures_of_sherlock_holmes_doyle",
         "The Adventures of Sherlock Holmes",
         "Arthur Conan Doyle",
         start=r"^I\. A SCANDAL IN BOHEMIA\s*$",
+        blurb="Twelve cases of the detective, told by Dr. Watson.",
     ),
     Book(
         "antarctic_penguins_levick",
@@ -42,6 +45,7 @@ _LIBRARY = [
         "G. Murray Levick",
         start=r"^\s*INTRODUCTION\s*$",
         end=r"^\s*PRINTED AT\s*$",
+        blurb="A field study of an Adélie penguin rookery at Cape Adare.",
     ),
     Book(
         "climate_in_relation_to_man_ward",
@@ -49,30 +53,35 @@ _LIBRARY = [
         "Robert DeCourcy Ward",
         start=r"^\s*PREFACE\s*$",
         end=r"^\s*INDEX\s*$",
+        blurb="How climate shapes health, work and history.",
     ),
     Book(
         "frankenstein_shelley",
         "Frankenstein; or, The Modern Prometheus",
         "Mary Wollstonecraft Shelley",
         start=r"^Letter 1\s*$",
+        blurb="A scientist creates life and cannot bear what he has made.",
     ),
     Book(
         "the_time_machine_wells",
         "The Time Machine",
         "H. G. Wells",
         start=r"^\s*I\.\s*$",
+        blurb="A traveller journeys to the year 802,701.",
     ),
     Book(
         "tom_browns_school_days_hughes",
         "Tom Brown's School Days",
         "Thomas Hughes",
         start=r"^PART I\.\s*$",
+        blurb="A boy's years at Rugby School in the 1830s.",
     ),
     Book(
         "wonderful_wizard_of_oz_baum",
         "The Wonderful Wizard of Oz",
         "L. Frank Baum",
         start=r"^Introduction\s*$",
+        blurb="A cyclone carries a Kansas girl to the land of Oz.",
     ),
 ]
 

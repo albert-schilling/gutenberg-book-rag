@@ -54,10 +54,12 @@ export default function (component) {
   const win = parentElement.ownerDocument.defaultView
   const shell = parentElement.querySelector(".shell")
   const root = shell.querySelector(".reader")
-  const pageInput = shell.querySelector(".bar .page")
-  const pagesLabel = shell.querySelector(".bar .pages")
-  const progress = shell.querySelector(".bar .progress")
-  const progressFill = shell.querySelector(".bar .fill")
+  const pageInput = shell.querySelector(".pager .page")
+  const pagesLabel = shell.querySelector(".pager .pages")
+  const prevButton = shell.querySelector(".pager .prev")
+  const nextButton = shell.querySelector(".pager .next")
+  const progress = shell.querySelector(".progress")
+  const progressFill = shell.querySelector(".progress .fill")
   const body = root.querySelector(".body")
   const topEdge = root.querySelector(".edge.top")
   const bottomEdge = root.querySelector(".edge.bottom")
@@ -84,7 +86,6 @@ export default function (component) {
   const pageChars = data.pageChars
   const pageCount = Math.max(1, Math.ceil(total / pageChars))
   pagesLabel.textContent = String(pageCount)
-  pageInput.max = String(pageCount)
 
   let first = 0
   let last = 0
@@ -196,11 +197,18 @@ export default function (component) {
     fill()
     if (!frame) frame = win.requestAnimationFrame(updateIndicator)
   }
-  pageInput.onchange = () => {
-    const page = Math.min(pageCount, Math.max(1, parseInt(pageInput.value, 10) || 1))
+  function goToPage(page) {
+    page = Math.min(pageCount, Math.max(1, page || 1))
     pageInput.blur() // so that the indicator may write the page again
     openAt(firstParagraphOnPage(starts, page, pageChars))
   }
+  const shownPage = () => parseInt(pageInput.value, 10) || 1
+  pageInput.onchange = () => goToPage(parseInt(pageInput.value, 10))
+  pageInput.onkeydown = (event) => {
+    if (event.key === "Enter") goToPage(parseInt(pageInput.value, 10))
+  }
+  prevButton.onclick = () => goToPage(shownPage() - 1)
+  nextButton.onclick = () => goToPage(shownPage() + 1)
 
   // The panel may not have its final size when the script runs (a fixed panel is laid out after it): the text is opened
   // once its size has been the same for a moment. With no height, "load more above and below" would run against an empty box.

@@ -36,7 +36,7 @@ export default function (component) {
   tip.setAttribute("role", "toolbar")
   tip.setAttribute("aria-label", "Ask about the selected text")
   tip.style.cssText =
-    "position:fixed;display:none;z-index:100000;background:#262730;color:#fff;border-radius:8px;" +
+    "position:fixed;display:none;z-index:2000000;background:#262730;color:#fff;border-radius:8px;" +
     "box-shadow:0 2px 10px rgba(0,0,0,.35);font:14px/1.2 system-ui,sans-serif;padding:4px"
   const button = doc.createElement("button")
   button.type = "button"

@@ -89,7 +89,7 @@ def page(browser, app_url):
     page = context.new_page()
     page.errors = []
     page.on("pageerror", lambda error: page.errors.append(str(error)))
-    page.goto(app_url)
+    page.goto(f"{app_url}/chat")  # the start screen lists the books; the tests use the chat
     page.wait_for_selector("textarea", timeout=90_000)
     yield page
     assert page.errors == [], f"JavaScript errors: {page.errors}"

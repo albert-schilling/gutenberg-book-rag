@@ -1,0 +1,33 @@
+/* The start screen: a shelf of books. */
+[data-testid="stMainBlockContainer"] {
+  max-width: 70rem;
+}
+
+[class*="st-key-book-"] {
+  min-height: 15rem;
+  background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 1px 3px rgb(60 40 20 / 0.08);
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+[class*="st-key-book-"] > [data-testid="stElementContainer"]:last-child {
+  margin-top: auto; /* the buttons line up at the bottom of the cards */
+}
+
+[class*="st-key-book-"]:hover {
+  box-shadow: 0 6px 18px rgb(60 40 20 / 0.14);
+  transform: translateY(-2px);
+}
+
+[class*="st-key-book-"] h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  padding: 0.25rem 0 0;
+}
+
+@media (max-width: 800px) {
+  [class*="st-key-book-"] {
+    min-height: 0;
+  }
+}

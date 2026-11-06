@@ -21,20 +21,34 @@ def test_the_page_does_not_scroll_and_the_title_stays_visible(page):
     assert title and title["y"] >= 0 and title["y"] + title["height"] <= 800
 
 
-def test_the_reader_is_a_panel_on_the_right_that_can_be_widened(page):
+def test_the_reader_is_a_panel_on_the_right_that_can_fill_the_window(page):
     page.set_viewport_size({"width": 1440, "height": 800})
     ask_and_open_first_passage(page)
     panel = page.locator(".st-key-reader-panel")
     narrow = panel.bounding_box()
     assert narrow and narrow["x"] + narrow["width"] >= 1439 and narrow["x"] > 1440 * 0.5
     assert not page.evaluate(PAGE_SCROLLS)
-    page.get_by_role("button", name="Wider").click()
+    page.get_by_role("button", name="Full screen").click()
     page.wait_for_timeout(500)
-    wide = panel.bounding_box()
-    assert wide["width"] > narrow["width"] * 1.4
-    page.get_by_role("button", name="Narrower").click()
+    full = panel.bounding_box()
+    assert full["width"] > 1440 - 60 and full["x"] > 20  # a strip of the page stays visible on the left
+    page.get_by_role("button", name="Exit full screen").click()
     page.wait_for_timeout(500)
     assert panel.bounding_box()["width"] == pytest.approx(narrow["width"], abs=2)
+
+
+def test_the_chat_scrolls_down_to_a_new_answer_even_when_it_was_scrolled_up(page):
+    page.set_viewport_size({"width": 1440, "height": 700})
+    for question in ("What do skua gulls do?", "How big is a rookery?", "What do penguins eat?"):
+        page.locator("textarea").first.fill(question)
+        page.keyboard.press("Enter")
+        page.wait_for_timeout(1500)
+    pane = page.locator(".st-key-chat-pane")
+    pane.evaluate("el => { el.scrollTop = 0 }")
+    page.locator("textarea").first.fill("Do the hens leave the nest?")
+    page.keyboard.press("Enter")
+    page.wait_for_timeout(2500)
+    assert pane.evaluate("el => el.scrollHeight - el.scrollTop - el.clientHeight") < 5
 
 
 def test_on_a_phone_the_reader_fills_the_screen_below_the_header(page):

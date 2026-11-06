@@ -5,6 +5,9 @@ that passage. The project is a reference for a **retrieval-augmented chat** (RAG
 choice below was compared with numbers on held-out questions.
 
 <p align="center">
+  <img src="docs/images/start-screen.png" alt="The start screen with the eight books" width="85%">
+</p>
+<p align="center">
   <img src="docs/images/app-desktop.png" alt="The chat with the book open at the answer's passage" width="85%">
 </p>
 
@@ -51,9 +54,15 @@ uv run book-rag-eval                       # evaluate (add --retrieval-only to s
 `make app | reports | eval | test | lint | screenshots` are shortcuts. `BOOK_RAG_OFFLINE=1` replaces the language model by a fixed reply
 (no key, no cost). The first question about a book builds its vector store (a few seconds); the embedding model is downloaded once.
 
-## On a phone
+## Full screen and phone
 
-The sidebar folds away and the book opens full screen under the header.
+The book can fill the window (a thin strip of the page stays visible):
+
+<p align="center">
+  <img src="docs/images/reader-fullscreen.png" alt="The book in full screen" width="85%">
+</p>
+
+On a phone the sidebar folds away and the book opens full screen under the header.
 
 <p align="center">
   <img src="docs/images/app-mobile.png" alt="The chat on a phone" width="30%">
@@ -64,7 +73,7 @@ The sidebar folds away and the book opens full screen under the header.
 
 ```
 streamlit_app.py       entry point: navigation, sidebar
-app_pages/             chat, settings, changes pages (+ chat.css)
+app_pages/             home (the books), chat, settings, changes pages, and their CSS
 streamlit_reports.py   dashboard of the evaluation reports
 src/book_rag/          the package: books, store, rag, agent, memory, conversation, llm, reader, selection, cli
 src/book_rag/evaluation/   metrics, judge, dataset, compare, run (book-rag-eval)

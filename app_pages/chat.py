@@ -13,11 +13,13 @@ from book_rag.config import AGENTIC_DEFAULT
 from book_rag.conversation import build_companion
 from book_rag.reader import passage_page
 from book_rag.reader_component import book_reader, close_reader, current_reader, open_reader
+from book_rag.scroll_component import scroll_to_newest
 from book_rag.selection import question_about
 
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
 PANE_HEIGHT = 540  # pixels, only a start: app_pages/chat.css sets the real height from the window
-NORMAL_READER, WIDE_READER = "38vw", "62vw"  # width of the book panel
+READER_WIDTH, READER_PADDING = "38vw", "calc(38vw + 2rem)"  # the book panel, and the room the chat leaves for it
+FULL_WIDTH = "calc(100vw - 3rem)"  # full screen: a strip of the page stays visible
 
 
 @st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
@@ -48,8 +50,8 @@ def show_passages(scored_passages, message_number):
             )
 
 
-def toggle_reader_width():
-    st.session_state["reader_wide"] = not st.session_state.get("reader_wide", False)
+def toggle_full_screen():
+    st.session_state["reader_full"] = not st.session_state.get("reader_full", False)
 
 
 def show_earlier(book_id):
@@ -114,18 +116,22 @@ with chat_area:
             {"role": "assistant", "content": result.answer, "passages": result.passages, "queries": result.queries}
         )
 
+with st.container(key="chat-scroller"):  # hidden by chat.css
+    scroll_to_newest(f"{book.id}:{len(history)}")
+
 if reader:
-    # The book is a panel fixed to the right edge of the window (app_pages/chat.css); it can be made wider.
-    wide = st.session_state.get("reader_wide", False)
-    st.html(f"<style>:root {{ --reader-width: {WIDE_READER if wide else NORMAL_READER}; }}</style>")
+    # The book is a panel fixed to the right edge of the window (app_pages/chat.css); it can fill the window.
+    full = st.session_state.get("reader_full", False)
+    width, padding = (FULL_WIDTH, "0px") if full else (READER_WIDTH, READER_PADDING)
+    st.html(f"<style>:root {{ --reader-width: {width}; --reader-padding: {padding}; }}</style>")
     with st.container(key="reader-panel"):
         with st.container(horizontal=True, vertical_alignment="center", key="reader-header"):
             st.markdown(f"**{book.title}**")
             st.button(
-                "Narrower" if wide else "Wider",
-                icon=":material/close_fullscreen:" if wide else ":material/open_in_full:",
+                "Exit full screen" if full else "Full screen",
+                icon=":material/fullscreen_exit:" if full else ":material/fullscreen:",
                 key="reader-expand",
-                on_click=toggle_reader_width,
+                on_click=toggle_full_screen,
             )
             st.button("Close", icon=":material/close:", key="close-reader", on_click=close_reader)
         book_reader(book, reader["start"], reader["end"], height="stretch")

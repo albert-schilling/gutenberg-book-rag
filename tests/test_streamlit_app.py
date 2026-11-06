@@ -66,6 +66,8 @@ def app(monkeypatch):
     st.cache_resource.clear()  # load_rag() is cached for the whole process: start every test fresh
 
     at = AppTest.from_file(str(APP), default_timeout=30).run()
+    assert at.title[0].value == "Reading companion"  # the start screen: the books
+    at.switch_page("app_pages/chat.py").run()
     at.questions, at.built, at.conversations, at.summaries, at.paths = questions, built, conversations, summaries, paths
     return at
 
@@ -181,16 +183,16 @@ def test_the_rag_system_of_a_book_is_loaded_only_once(app):
 
 
 def test_the_sidebar_links_to_the_other_pages_with_the_settings_above_the_changes(app):
-    assert sidebar_links(app) == ["Settings", "Changes from the assignment"]
+    assert sidebar_links(app) == ["All books", "Settings", "Changes from the assignment"]
 
     app.switch_page("app_pages/changes.py").run()
     assert not app.exception
-    assert sidebar_links(app) == ["Back to the chat", "Settings"]
+    assert sidebar_links(app) == ["All books", "Back to the chat", "Settings"]
     assert app.sidebar.selectbox[0].label == "Book"  # the book stays selectable on every page
 
     app.switch_page("app_pages/settings.py").run()
     assert not app.exception
-    assert sidebar_links(app) == ["Back to the chat", "Changes from the assignment"]
+    assert sidebar_links(app) == ["All books", "Back to the chat", "Changes from the assignment"]
 
 
 def test_the_changes_page_documents_the_differences_from_the_assignment(app):
@@ -397,3 +399,19 @@ def test_a_rate_limit_is_shown_as_a_message_and_the_chat_goes_on(app):
     )
     app.chat_input[0].set_value("Next question").run()
     assert not app.exception and app.conversations[-1] == ""  # the failed exchange is not in the memory
+
+
+def test_the_start_screen_shows_every_book_and_a_click_opens_its_chat(app):
+    app.switch_page("app_pages/home.py").run()
+    assert not app.exception
+    text = " ".join(m.value for m in app.markdown)
+    assert all(book.title in text for book in BOOKS.values())
+    assert len(app.chat_input) == 0
+    open_buttons = [b for b in app.button if b.key and b.key.startswith("open-chat-")]
+    assert len(open_buttons) == len(BOOKS)
+
+    next(b for b in open_buttons if b.key == f"open-chat-{FRANKENSTEIN.id}").click().run()
+    assert not app.exception
+    assert app.title[0].value == FRANKENSTEIN.title  # moved to the chat of that book
+    assert app.sidebar.selectbox[0].value == FRANKENSTEIN.id
+    assert len(app.chat_input) == 1

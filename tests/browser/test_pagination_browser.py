@@ -20,7 +20,7 @@ def open_book(page):
 
 
 def shown_page(page) -> int:
-    return int(page.locator(".bar .page").input_value())
+    return int(page.locator(".pager .page").input_value())
 
 
 def put_paragraph_at_the_reading_line(page, selector):
@@ -35,7 +35,7 @@ def put_paragraph_at_the_reading_line(page, selector):
 def test_the_reader_shows_the_page_and_the_number_of_pages(page):
     open_book(page)
     assert shown_page(page) == 1
-    assert page.locator(".bar .pages").inner_text() == str(PAGES)
+    assert page.locator(".pager .pages").inner_text() == str(PAGES)
     assert PAGES > 40  # a book of about 160,000 characters
 
 
@@ -83,7 +83,7 @@ def test_the_page_follows_the_scrolling_down_and_up(page):
 
 def test_the_progress_bar_grows_to_the_end_of_the_book(page):
     open_book(page)
-    width = lambda: page.locator(".bar .fill").evaluate("el => parseFloat(el.style.width)")  # noqa: E731
+    width = lambda: page.locator(".progress .fill").evaluate("el => parseFloat(el.style.width)")  # noqa: E731
     assert width() < 2
     for _ in range(300):
         page.locator(".reader").evaluate("root => { root.scrollTop += 3000 }")
@@ -97,8 +97,8 @@ def test_the_progress_bar_grows_to_the_end_of_the_book(page):
 
 def test_jumping_to_a_page_opens_the_book_there(page):
     open_book(page)
-    page.locator(".bar .page").fill("30")
-    page.locator(".bar .page").press("Enter")
+    page.locator(".pager .page").fill("30")
+    page.locator(".pager .page").press("Enter")
     page.wait_for_timeout(500)
     assert shown_page(page) == 30
     first, last, count = window(page)
@@ -112,20 +112,20 @@ def test_jumping_to_a_page_opens_the_book_there(page):
 
 def test_a_jump_beyond_the_book_or_below_one_is_corrected(page):
     open_book(page)
-    page.locator(".bar .page").fill("9999")
-    page.locator(".bar .page").press("Enter")
+    page.locator(".pager .page").fill("9999")
+    page.locator(".pager .page").press("Enter")
     page.wait_for_timeout(500)
     assert shown_page(page) >= PAGES - 3
-    page.locator(".bar .page").fill("0")
-    page.locator(".bar .page").press("Enter")
+    page.locator(".pager .page").fill("0")
+    page.locator(".pager .page").press("Enter")
     page.wait_for_timeout(500)
     assert shown_page(page) == 1 and window(page)[0] == 0
 
 
 def test_after_a_jump_the_scrolling_still_loads_text_without_jumping(page):
     open_book(page)
-    page.locator(".bar .page").fill("20")
-    page.locator(".bar .page").press("Enter")
+    page.locator(".pager .page").fill("20")
+    page.locator(".pager .page").press("Enter")
     page.wait_for_timeout(500)
     assert scroll_and_measure_drift(page, -150, 60) < 2
     assert scroll_and_measure_drift(page, 300, 60) < 2
@@ -142,3 +142,17 @@ def test_a_passage_opens_on_the_page_that_its_label_names(page):
     page.wait_for_selector(".reader mark")
     page.wait_for_timeout(500)
     assert shown_page(page) == named
+
+
+def test_the_pager_is_at_the_bottom_with_buttons_and_no_spinner(page):
+    open_book(page)
+    pager = page.locator(".pager").bounding_box()
+    reader = page.locator(".reader").bounding_box()
+    assert pager["y"] >= reader["y"] + reader["height"] - 1  # below the text
+    assert page.locator(".pager .page").get_attribute("type") == "text"  # no built-in increment buttons
+    page.locator(".pager .next").click()
+    page.wait_for_timeout(500)
+    assert shown_page(page) == 2
+    page.locator(".pager .prev").click()
+    page.wait_for_timeout(500)
+    assert shown_page(page) == 1

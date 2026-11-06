@@ -22,7 +22,7 @@
 
 /* The chat pane: Streamlit gives its wrapper a fixed height in pixels (so that it scrolls to the newest message). */
 div:has(> .st-key-chat-pane) {
-  height: calc(100dvh - 19rem) !important; /* the window minus the toolbar, the title and the input */
+  height: calc(100dvh - 16rem) !important; /* the window minus the toolbar, the title and the input */
 }
 
 /* The book: a panel fixed to the right edge of the window, like a second sidebar. It does not move when the chat grows. */
@@ -32,10 +32,10 @@ div:has(> .st-key-chat-pane) {
   right: 0;
   bottom: 0;
   width: var(--reader-width, 38vw);
-  z-index: 90;
+  z-index: 1000000; /* above the sidebar, for the full-screen book */
   padding: 0.75rem 1rem 0;
-  background: var(--st-background-color, #fff);
-  border-left: 1px solid var(--st-border-color, #ddd);
+  background: var(--paper);
+  border-left: 1px solid var(--rule);
   box-shadow: -6px 0 18px rgba(0, 0, 0, 0.05);
   gap: 0.5rem;
 }
@@ -44,12 +44,12 @@ div:has(> .st-key-chat-pane) {
 [data-testid="stMainBlockContainer"]:has(.st-key-reader-panel) {
   max-width: none;
   margin-inline: 0;
-  padding-right: calc(var(--reader-width, 38vw) + 2rem);
+  padding-right: var(--reader-padding, calc(38vw + 2rem));
 }
 
 [data-testid="stApp"]:has(.st-key-reader-panel) [data-testid="stBottomBlockContainer"] {
   max-width: none;
-  padding-right: calc(var(--reader-width, 38vw) + 2rem);
+  padding-right: var(--reader-padding, calc(38vw + 2rem));
 }
 
 /* The title and the buttons of the book share one row; a long title is cut. */
@@ -63,9 +63,15 @@ div:has(> .st-key-chat-pane) {
   text-overflow: ellipsis;
 }
 
-.st-key-reader-panel [data-testid="stCustomComponentV2"] {
-  flex: 1;
+/* The book takes the height that the header leaves (not the whole panel, which would push the pager out of the window). */
+.st-key-reader-panel > [data-testid="stElementContainer"]:last-child {
+  flex: 1 1 0;
   min-height: 0;
+  height: auto !important;
+}
+
+.st-key-reader-panel [data-testid="stBidiComponent"] {
+  height: 100%;
 }
 
 /* A small window: the book covers the whole window instead of sharing it. */
@@ -83,39 +89,40 @@ div:has(> .st-key-chat-pane) {
   .st-key-reader-expand {
     display: none;
   }
+
+  .st-key-reader-panel {
+    z-index: 1000;
+  }
 }
 
 /* ---- Look: a reading room. Colours come from .streamlit/config.toml. ---- */
 [data-testid="stMainBlockContainer"] h1 {
   font-weight: 600;
   letter-spacing: -0.01em;
-  border-bottom: 1px solid var(--st-border-color);
+  border-bottom: 1px solid var(--rule);
 }
 
 [data-testid="stChatMessage"] {
-  border: 1px solid var(--st-border-color);
+  border: 1px solid var(--rule);
   border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--st-secondary-background-color) 55%, var(--st-background-color));
+  background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
   padding: 0.9rem 1.1rem;
   box-shadow: 0 1px 2px rgb(60 40 20 / 0.06);
 }
 
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
-  background: var(--st-background-color);
-  border: 1px dashed var(--st-border-color);
+  background: var(--paper);
+  border: 1px dashed var(--rule);
 }
 
+/* Avatars: just the icon, no filled box (a filled one looks like a pressed button). */
 [data-testid^="stChatMessageAvatar"] {
-  background: var(--st-primary-color) !important;
-  color: var(--st-background-color) !important;
-}
-
-[data-testid="stChatMessageAvatarUser"] {
-  background: #6b6257 !important;
+  background: transparent !important;
+  color: var(--accent) !important;
 }
 
 [data-testid="stChatMessage"] [data-testid="stExpander"] {
-  background: var(--st-background-color);
+  background: var(--paper);
   border-radius: 0.5rem;
 }
 
@@ -125,15 +132,20 @@ div:has(> .st-key-chat-pane) {
 }
 
 [data-testid="stSidebar"] {
-  border-right: 1px solid var(--st-border-color);
+  border-right: 1px solid var(--rule);
 }
 
 .st-key-reader-panel {
-  background: var(--st-background-color);
+  background: var(--paper);
   box-shadow: -6px 0 18px rgb(60 40 20 / 0.1);
 }
 
 .st-key-reader-header [data-testid="stMarkdownContainer"] p {
-  font-family: var(--st-heading-font, Georgia, serif);
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;
+}
+
+/* The helper that scrolls the chat down takes no room. */
+.st-key-chat-scroller {
+  display: none;
 }

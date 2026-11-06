@@ -48,7 +48,7 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
 - [ ] Run the browser tests (`pytest -m browser`, about 2 min) in CI, and in Firefox and WebKit. Today only Chromium; CI runs lint and the unit tests.
 - [ ] Long chats: older answers still draw all four passage expanders. Draw a passage only when its expander is open
   (`st.expander(on_change="rerun")`), or draw the chat in a `st.fragment` so that closing the book does not redraw it.
-- [ ] Reader panel: a draggable splitter (needs a custom component; today "Wider" toggles 38% and 62% of the width). The panel is a CSS
+- [ ] Reader panel: a draggable splitter (needs a custom component; today the panel is 38% of the width or full screen). The panel is a CSS
   fixed-position block (`app_pages/chat.css`) because Streamlit has no right sidebar.
 - [ ] Selection tooltip: it reacts to the mouse and to Shift + arrow keys. Touch screens (selecting by long press) and keyboard-only use
   (the tooltip cannot be reached with Tab) are not handled.

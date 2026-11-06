@@ -1,0 +1,8 @@
+/* The palette of .streamlit/config.toml for the page styles (Streamlit sets its own variables only inside components). */
+:root {
+  --paper: #fbf8f1;
+  --paper-2: #f2ece0;
+  --ink: #2b2622;
+  --accent: #8c2f39;
+  --rule: #ddd3c1;
+}

@@ -244,3 +244,16 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Did not delete the one stale collection in the local `chroma_db/` (user data, rebuilt on demand): run `uv run book-rag-stores clean`.
 - Skipped on purpose: fixing the penguin summary ("Discovery Expedition" is wrong). A new summary changes the prompt of all whole-book answers,
   so the reported numbers would no longer match; noted in TODO.
+
+### Batch 4: reader, avatars, scrolling, start screen
+- Reader: "Wider" replaced by "Full screen" (window width minus 3 rem on large windows; full width below 800 px, where the button is hidden).
+- Chat avatars: no filled box, only the icon in the accent colour.
+- Scroll: a hidden helper component (`scroll_component.py`) scrolls the chat pane down whenever the number of messages changes, so a question
+  from the "Ask about this" tooltip also scrolls (Streamlit only follows new content while the reader is already at the bottom).
+- Pager: moved to the bottom of the reader (chevron buttons and a plain text field, no spinner arrows); the progress bar stays at the top.
+  Found on the way: the reader's height was the whole panel, not the panel minus the header; fixed in `chat.css`.
+- Start screen: `app_pages/home.py` shows the eight books as cards with a one-line blurb (`Book.blurb`); a click selects the book and opens
+  `/chat`. The chat moved to the URL `/chat`. The tooltip's z-index is now above the (raised) panel.
+- Bug found while taking the full-screen screenshot: the `--st-*` theme variables only exist inside components, so `chat.css` fell back silently
+  (the panel was transparent). The page CSS now has its own palette (`app_pages/base.css`, same colours as `.streamlit/config.toml`).
+- Browser test `test_a_long_chat_keeps_the_page_small` failed once in a full run (a 30 s wait) and passed alone and in the next two full runs: flaky under load.

@@ -8,6 +8,7 @@ Run it from the project root with:
 import streamlit as st
 from dotenv import load_dotenv
 
+from app_pages import styles
 from book_rag.books import BOOKS, DEFAULT_BOOK
 from book_rag.config import ENV_FILE
 from book_rag.reader_component import open_reader
@@ -17,12 +18,19 @@ load_dotenv(ENV_FILE)  # reads GROQ_API_KEY from the .env file
 
 st.set_page_config(page_title="Reading companion", page_icon=":material/menu_book:", layout="wide")
 
+home = st.Page(
+    "app_pages/home.py",
+    title="Reading companion",
+    icon=":material/menu_book:",
+    help="The books of the library: choose one to ask it questions.",
+    default=True,
+)
 chat = st.Page(
     "app_pages/chat.py",
-    title="Reading companion",
+    title="Chat",
     icon=":material/chat:",
     help="Ask a question about the book. The answer comes with the passages it is based on.",
-    default=True,
+    url_path="chat",
 )
 changes = st.Page(
     "app_pages/changes.py",
@@ -38,7 +46,12 @@ settings = st.Page(
     help="Switch the agent that can search the book again, and see which language model is used.",
     url_path="settings",
 )
-page = st.navigation([chat, settings, changes], position="hidden")  # the sidebar below has the links
+styles.inject("base")
+page = st.navigation([home, chat, settings, changes], position="hidden")  # the sidebar below has the links
+
+if open_book := st.session_state.pop("open_book", None):  # a click on a book of the start screen
+    st.session_state["book_id"] = open_book  # before the selection below is drawn
+    st.switch_page(chat)
 
 with st.sidebar:
     st.selectbox(
@@ -64,7 +77,9 @@ with st.sidebar:
         selected = text_selection()  # a click on "Ask about this" in the page: the chat page asks it
         if selected:
             st.session_state["selected_text"] = selected
-    else:
+    if page is not home:
+        st.page_link(home, label="All books", icon=":material/library_books:")
+    if page in (settings, changes):
         st.page_link(chat, label="Back to the chat", icon=":material/arrow_back:")
     if page is not settings:
         st.page_link(settings, label="Settings", icon=":material/settings:")
@@ -72,5 +87,5 @@ with st.sidebar:
         st.page_link(changes, label="Changes from the assignment", icon=":material/difference:")
 
 if page is not chat:  # the chat page has its own title: the book
-    st.title(page.title, icon=page.icon)
+    st.title("Reading companion" if page is home else page.title, icon=None if page is home else page.icon)
 page.run()
