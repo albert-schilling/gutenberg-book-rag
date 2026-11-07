@@ -31,7 +31,9 @@ def test_the_reader_is_a_panel_on_the_right_that_can_fill_the_window(page):
     page.locator(".st-key-reader-expand button:visible").first.click()
     page.wait_for_timeout(500)
     full = panel.bounding_box()
-    assert full["width"] > 1440 - 80 and full["x"] > 20  # a strip of the page stays visible on the left
+    assert full["x"] > 20  # a strip of the page stays visible ...
+    margins = [full["x"], full["y"], 1440 - full["x"] - full["width"], 800 - full["y"] - full["height"]]
+    assert max(margins) - min(margins) < 2  # ... and it is the same on every side
     page.locator(".st-key-reader-expand button:visible").first.click()
     page.wait_for_timeout(500)
     assert panel.bounding_box()["width"] == pytest.approx(narrow["width"], abs=2)

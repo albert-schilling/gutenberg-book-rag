@@ -28,9 +28,9 @@ div:has(> .st-key-chat-pane) {
 /* The book: a panel fixed to the right edge of the window, like a second sidebar. It does not move when the chat grows. */
 .st-key-reader-panel {
   position: fixed;
-  top: 4.25rem;
-  right: 0.75rem;
-  bottom: 0.75rem; /* a margin on every side: the book is a card on the page */
+  top: var(--reader-top, 4.25rem);
+  right: var(--reader-edge, 0.75rem);
+  bottom: var(--reader-edge, 0.75rem); /* a margin on every side: the book is a card on the page */
   width: var(--reader-width, 38vw);
   z-index: 1000000; /* above the sidebar, for the full-screen book */
   padding: 0.6rem 0.75rem 0.4rem;

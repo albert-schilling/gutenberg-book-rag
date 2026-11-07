@@ -25,16 +25,13 @@ div:has(> .st-key-shelf-scroll) {
   margin-top: auto; /* the shelf sits at the bottom of the area (auto, not flex-end: that would clip the top when it scrolls) */
 }
 
-/* The shelf: the spines stand on a plank */
+/* The shelf: the spines stand in a row */
 .st-key-shelf {
   align-items: flex-end;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.4rem !important;
-  padding: 0 1rem 0.2rem;
-  border-bottom: 14px solid #b9b7b0;
-  border-radius: 0 0 3px 3px;
-  box-shadow: 0 10px 14px -8px rgb(30 30 40 / 0.35);
+  padding: 0 1rem;
 }
 
 /* A spine: vertical title, cloth colour, gilt lines at the ends */
@@ -44,8 +41,11 @@ div:has(> .st-key-shelf-scroll) {
 
 .st-key-shelf button {
   width: 4.2rem;
+  height: 24rem; /* all spines have the same size */
   padding: 1.1rem 0;
+  overflow: hidden;
   writing-mode: vertical-rl;
+  transform: rotate(180deg); /* the title reads from bottom to top */
   color: #f4f2ec;
   border: 0;
   border-radius: 3px 3px 0 0;
@@ -65,13 +65,30 @@ div:has(> .st-key-shelf-scroll) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 100%;
+  max-height: 21.5rem;
+  margin: 0;
+}
+
+/* title and author side by side, both starting at the bottom of the spine */
+.st-key-shelf button [data-testid="stMarkdownContainer"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  height: 100%;
+}
+
+/* the author: the second line of the spine, smaller */
+.st-key-shelf button p + p {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.85;
 }
 
 .st-key-shelf button:hover,
 .st-key-shelf button:focus-visible {
   color: #fff;
-  transform: translateY(-0.6rem);
+  transform: rotate(180deg) translateY(0.6rem);
   box-shadow:
     inset 0 5px 0 -2px rgb(255 255 255 / 0.5),
     inset 0 -5px 0 -2px rgb(255 255 255 / 0.5),
@@ -81,11 +98,11 @@ div:has(> .st-key-shelf-scroll) {
 @media (max-width: 800px) {
   .st-key-shelf button {
     width: 3.2rem;
-    max-height: 15rem;
-    overflow: hidden; /* a long title is cut at the end of the spine */
+    height: 17rem; /* a long title is cut at the end of the spine */
   }
 
   .st-key-shelf button p {
     font-size: 0.9rem;
+    max-height: 14.5rem;
   }
 }

@@ -20,13 +20,11 @@ def spine_title(book) -> str:
 
 
 def spine_css() -> str:
-    """One colour and height per book (taller for a longer title, so that the spines differ like real ones)."""
+    """One cloth colour per book; all spines have the same size."""
     rules = []
     for number, book in enumerate(BOOKS.values()):
-        height = min(30, 9 + len(spine_title(book)) * 0.42 + (number % 3))
         rules.append(
-            f".st-key-open-chat-{book.id} button {{ background: {SPINE_COLOURS[number % len(SPINE_COLOURS)]}; "
-            f"height: {height:.1f}rem; }}"
+            f".st-key-open-chat-{book.id} button {{ background: {SPINE_COLOURS[number % len(SPINE_COLOURS)]}; }}"
         )
     return "<style>" + "\n".join(rules) + "</style>"
 
@@ -42,7 +40,7 @@ with (
 ):
     for book in BOOKS.values():
         st.button(
-            spine_title(book),
+            f"{spine_title(book)}\n\n{book.author}",
             key=f"open-chat-{book.id}",
             on_click=open_chat,
             args=(book.id,),

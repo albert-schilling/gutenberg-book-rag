@@ -283,3 +283,7 @@ coverage of the evaluation command, running the evaluation and the live tests on
   scrolls inside itself, the title stays in view. On a phone the spines wrap into rows and long titles are cut.
 - Friction: a flex container with `justify-content: flex-end` clips the top when it scrolls (used `margin-top: auto`); Streamlit renders a
   hidden duplicate of each button with a tooltip, so tests use `button:visible`.
+
+## Follow-up (two small changes)
+- Full-screen reader: the margin is now the same (1.5rem) on all four sides; before, the top and left were larger. Browser test checks it.
+- Start screen: titles read from bottom to top, with the author as a second, smaller line; all spines have the same size (long titles end with "…"); the plank under the books is gone. Screenshots retaken. Not committed (no request this time).

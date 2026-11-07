@@ -19,7 +19,7 @@ from book_rag.selection import question_about
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
 PANE_HEIGHT = 540  # pixels, only a start: views/chat.css sets the real height from the window
 READER_WIDTH, READER_PADDING = "38vw", "calc(38vw + 2.75rem)"  # the book panel, and the room the chat leaves for it
-FULL_WIDTH = "calc(100vw - 4rem)"  # full screen: a strip of the page stays visible
+FULL_INSET = "1.5rem"  # full screen: the same strip of the page stays visible on every side
 
 
 @st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
@@ -122,8 +122,13 @@ with st.container(key="chat-scroller"):  # hidden by chat.css
 if reader:
     # The book is a panel fixed to the right edge of the window (views/chat.css); it can fill the window.
     full = st.session_state.get("reader_full", False)
-    width, padding = (FULL_WIDTH, "0px") if full else (READER_WIDTH, READER_PADDING)
-    st.html(f"<style>:root {{ --reader-width: {width}; --reader-padding: {padding}; }}</style>")
+    width, padding = (f"calc(100vw - 2 * {FULL_INSET})", "0px") if full else (READER_WIDTH, READER_PADDING)
+    edge = FULL_INSET if full else "0.75rem"
+    top = FULL_INSET if full else "4.25rem"
+    st.html(
+        f"<style>:root {{ --reader-width: {width}; --reader-padding: {padding}; "
+        f"--reader-edge: {edge}; --reader-top: {top}; }}</style>"
+    )
     with st.container(key="reader-panel"):
         with st.container(horizontal=True, vertical_alignment="center", key="reader-header"):
             st.markdown(f"**{book.title}**")
