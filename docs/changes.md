@@ -92,7 +92,7 @@ and the question uses other words than the book ("feed on" against "feeding on t
 | Asking about a text | one typed question | select text in a question, an answer, a passage or the book, then click "Ask about this" |
 | Long chats | the whole history is drawn | the latest 10 exchanges; "Show earlier questions" adds 10 (Streamlit draws every element it is given: 8,300 elements after 60 questions without the cap, about 1,600 with it) |
 | Design | Streamlit defaults | a library look: pale grey paper, ink text, one oxblood accent, serif headings and book text (`.streamlit/config.toml`, `app/views/chat.css`) |
-| Start screen | a fixed book per group | the first page lists the eight books; a click opens the chat of that book |
+| Start screen | a fixed book per group | the first page is a shelf with the eight books as spines with vertical titles; a click on a spine opens the chat of that book. Only the shelf scrolls, not the page |
 | Page layout | one scrolling page | the chat page never scrolls as a whole: the book's title stays at the top, the chat and the book scroll inside their own areas |
 | Settings page | none | the agent switch and the language model in use |
 | Command line | loop until `quit` | `quit` or `exit`, `--book`, `--agent`; shares one `Companion` object with the web app |

@@ -276,3 +276,10 @@ coverage of the evaluation command, running the evaluation and the live tests on
 - Friction: browser tests became flaky (blank pages at setup, 30 s waits). The fixture now enters via the start screen and reloads a blank page;
   waits for the reader are 60 s (a book's first vector store is built with the real embedding model). The cause of the blank `/chat` loads is
   not found (TODO). Test selectors use `button:visible`: Streamlit renders a second, hidden button for tooltips.
+
+### Batch 5, task 1: the bookshelf
+- The start screen is a shelf: each book is a spine (a styled `st.button` with `writing-mode: vertical-rl`, its own cloth colour and height,
+  short title; author and blurb in the tooltip) standing on a plank. The page does not scroll; the shelf is a fixed-height container that
+  scrolls inside itself, the title stays in view. On a phone the spines wrap into rows and long titles are cut.
+- Friction: a flex container with `justify-content: flex-end` clips the top when it scrolls (used `margin-top: auto`); Streamlit renders a
+  hidden duplicate of each button with a tooltip, so tests use `button:visible`.

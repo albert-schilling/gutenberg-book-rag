@@ -5,7 +5,7 @@ that passage. The project is a reference for a **retrieval-augmented chat** (RAG
 choice below was compared with numbers on held-out questions.
 
 <p align="center">
-  <img src="docs/images/start-screen.png" alt="The start screen with the eight books" width="85%">
+  <img src="docs/images/start-screen.png" alt="The start screen: the eight books on a shelf" width="85%">
 </p>
 <p align="center">
   <img src="docs/images/app-desktop.png" alt="The chat with the book open at the answer's passage" width="85%">

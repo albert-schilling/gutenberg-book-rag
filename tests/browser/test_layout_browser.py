@@ -58,3 +58,21 @@ def test_on_a_phone_the_reader_fills_the_screen_below_the_header(page):
     box = page.locator(".st-key-reader-panel").bounding_box()
     assert box["width"] == pytest.approx(390, abs=2) and box["y"] >= 55
     assert page.locator(".st-key-close-reader button:visible").first.is_visible()
+
+
+def test_the_start_screen_is_a_shelf_that_does_not_scroll_as_a_page(browser, app_url):
+    context = browser.new_context(
+        viewport={"width": 1000, "height": 500}
+    )  # small: the shelf has to scroll inside itself
+    page = context.new_page()
+    page.goto(app_url)
+    page.locator(".st-key-shelf button:visible").first.wait_for(timeout=60_000)
+    assert page.locator(".st-key-shelf button:visible").count() == 8
+    assert not page.evaluate(PAGE_SCROLLS)
+    assert page.get_by_role("heading", name="Reading companion").is_visible()
+    writing_mode = page.locator(".st-key-shelf button:visible").first.evaluate("el => getComputedStyle(el).writingMode")
+    assert writing_mode.startswith("vertical")
+    page.locator(".st-key-open-chat-frankenstein_shelley button:visible").click()
+    page.wait_for_selector("textarea", timeout=60_000)
+    assert page.get_by_role("heading", name="Frankenstein").is_visible()
+    context.close()

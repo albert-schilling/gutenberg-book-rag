@@ -44,7 +44,7 @@ def ask(page: Page) -> None:
 def start_screen(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 1440, "height": 860})
     page.goto(f"http://127.0.0.1:{port}")
-    page.get_by_role("button", name="Ask this book").first.wait_for(timeout=90_000)
+    page.locator(".st-key-shelf button:visible").first.wait_for(timeout=90_000)
     page.wait_for_timeout(500)
     page.screenshot(path=OUT / "start-screen.png")
 
@@ -52,7 +52,7 @@ def start_screen(page: Page, port: int) -> None:
 def desktop(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 1440, "height": 860})
     page.goto(f"http://127.0.0.1:{port}")
-    page.locator(".st-key-open-chat-antarctic_penguins_levick button").first.click(timeout=90_000)
+    page.locator(".st-key-open-chat-antarctic_penguins_levick button:visible").first.click(timeout=90_000)
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.get_by_text("Passage at position").first.click()
@@ -68,7 +68,7 @@ def desktop(page: Page, port: int) -> None:
 def mobile(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 390, "height": 844})
     page.goto(f"http://127.0.0.1:{port}")
-    page.locator(".st-key-open-chat-antarctic_penguins_levick button").first.click(timeout=90_000)
+    page.locator(".st-key-open-chat-antarctic_penguins_levick button:visible").first.click(timeout=90_000)
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.screenshot(path=OUT / "app-mobile.png")

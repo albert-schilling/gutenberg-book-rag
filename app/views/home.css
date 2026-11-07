@@ -1,33 +1,91 @@
-/* The start screen: a shelf of books. */
+/* The start screen: books on a shelf. Nothing scrolls except the shelf; the title stays in view. */
+[data-testid="stAppScrollToBottomContainer"] {
+  overflow: hidden;
+}
+
 [data-testid="stMainBlockContainer"] {
   max-width: 70rem;
+  padding-top: 4rem;
+  padding-bottom: 1rem;
 }
 
-[class*="st-key-book-"] {
-  min-height: 15rem;
-  background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
-  border-left: 4px solid var(--accent);
-  box-shadow: 0 1px 3px rgb(30 30 40 / 0.08);
-  transition: box-shadow 0.15s, transform 0.15s;
-}
-
-[class*="st-key-book-"] > [data-testid="stElementContainer"]:last-child {
-  margin-top: auto; /* the buttons line up at the bottom of the cards */
-}
-
-[class*="st-key-book-"]:hover {
-  box-shadow: 0 6px 18px rgb(30 30 40 / 0.14);
-  transform: translateY(-2px);
-}
-
-[class*="st-key-book-"] h3 {
-  font-size: 1.25rem;
+[data-testid="stMainBlockContainer"] h1 {
+  font-size: 1.6rem;
   line-height: 1.3;
-  padding: 0.25rem 0 0;
+  padding: 0.25rem 0 0.5rem;
+}
+
+/* The scroll area: Streamlit puts the fixed height on the wrapper of the keyed container */
+div:has(> .st-key-shelf-scroll) {
+  height: calc(100dvh - 12rem) !important;
+}
+
+.st-key-shelf-scroll > [data-testid="stLayoutWrapper"]:last-child,
+.st-key-shelf-scroll > .st-key-shelf {
+  margin-top: auto; /* the shelf sits at the bottom of the area (auto, not flex-end: that would clip the top when it scrolls) */
+}
+
+/* The shelf: the spines stand on a plank */
+.st-key-shelf {
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem !important;
+  padding: 0 1rem 0.2rem;
+  border-bottom: 14px solid #b9b7b0;
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 10px 14px -8px rgb(30 30 40 / 0.35);
+}
+
+/* A spine: vertical title, cloth colour, gilt lines at the ends */
+.st-key-shelf [data-testid="stElementContainer"] {
+  width: auto;
+}
+
+.st-key-shelf button {
+  width: 4.2rem;
+  padding: 1.1rem 0;
+  writing-mode: vertical-rl;
+  color: #f4f2ec;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  box-shadow:
+    inset 0 5px 0 -2px rgb(255 255 255 / 0.35),
+    inset 0 -5px 0 -2px rgb(255 255 255 / 0.35),
+    inset -4px 0 6px -3px rgb(0 0 0 / 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.st-key-shelf button p {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 100%;
+}
+
+.st-key-shelf button:hover,
+.st-key-shelf button:focus-visible {
+  color: #fff;
+  transform: translateY(-0.6rem);
+  box-shadow:
+    inset 0 5px 0 -2px rgb(255 255 255 / 0.5),
+    inset 0 -5px 0 -2px rgb(255 255 255 / 0.5),
+    0 8px 14px -4px rgb(0 0 0 / 0.35);
 }
 
 @media (max-width: 800px) {
-  [class*="st-key-book-"] {
-    min-height: 0;
+  .st-key-shelf button {
+    width: 3.2rem;
+    max-height: 15rem;
+    overflow: hidden; /* a long title is cut at the end of the spine */
+  }
+
+  .st-key-shelf button p {
+    font-size: 0.9rem;
   }
 }
