@@ -26,13 +26,13 @@ def test_the_reader_is_a_panel_on_the_right_that_can_fill_the_window(page):
     ask_and_open_first_passage(page)
     panel = page.locator(".st-key-reader-panel")
     narrow = panel.bounding_box()
-    assert narrow and narrow["x"] + narrow["width"] >= 1439 and narrow["x"] > 1440 * 0.5
+    assert narrow and narrow["x"] + narrow["width"] >= 1400 and narrow["x"] > 1440 * 0.5
     assert not page.evaluate(PAGE_SCROLLS)
-    page.get_by_role("button", name="Full screen").click()
+    page.locator(".st-key-reader-expand button:visible").first.click()
     page.wait_for_timeout(500)
     full = panel.bounding_box()
-    assert full["width"] > 1440 - 60 and full["x"] > 20  # a strip of the page stays visible on the left
-    page.get_by_role("button", name="Exit full screen").click()
+    assert full["width"] > 1440 - 80 and full["x"] > 20  # a strip of the page stays visible on the left
+    page.locator(".st-key-reader-expand button:visible").first.click()
     page.wait_for_timeout(500)
     assert panel.bounding_box()["width"] == pytest.approx(narrow["width"], abs=2)
 
@@ -57,4 +57,4 @@ def test_on_a_phone_the_reader_fills_the_screen_below_the_header(page):
     open_book_from_the_sidebar(page)
     box = page.locator(".st-key-reader-panel").bounding_box()
     assert box["width"] == pytest.approx(390, abs=2) and box["y"] >= 55
-    assert page.get_by_role("button", name="Close").is_visible()
+    assert page.locator(".st-key-close-reader button:visible").first.is_visible()

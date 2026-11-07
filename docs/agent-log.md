@@ -268,3 +268,11 @@ coverage of the evaluation command, running the evaluation and the live tests on
 ### Batch 5, task 3: theme less yellow
 - Palette now pale grey (`#f8f8f6` page, `#eeeeeb` sidebar and cards, `#d9d9d4` lines, ink `#25262a`); shadows neutral; the chart colours no
   longer include a sand tone. Same oxblood accent. Changed in `.streamlit/config.toml` and `app/views/base.css` (keep the two in step).
+
+### Batch 5, task 4: reader margins and icon buttons
+- The reader panel is now a card with a margin on the right and bottom (0.75 rem) and below the header, rounded, with a soft shadow. Full screen
+  leaves 4 rem of the page. On a phone it still fills the window, and now sits above the open sidebar (before, the sidebar covered it).
+- Full screen and Close are icon-only tertiary buttons with tooltips ("Full screen", "Close the book").
+- Friction: browser tests became flaky (blank pages at setup, 30 s waits). The fixture now enters via the start screen and reloads a blank page;
+  waits for the reader are 60 s (a book's first vector store is built with the real embedding model). The cause of the blank `/chat` loads is
+  not found (TODO). Test selectors use `button:visible`: Streamlit renders a second, hidden button for tooltips.

@@ -37,6 +37,8 @@ Open items, roughly in the order they are worth doing. Numbers refer to the repo
 
 ## Project
 
+- [ ] **A direct visit of `/chat` sometimes renders nothing** (about 2 of 12 loads on a local server: a blank page, or the sidebar without the chat). `/` is
+  reliable. Not understood yet (a loaded page with no console error; maybe the machine was busy). The browser tests enter through the start screen and reload a blank page; the screenshots enter the same way.
 - [ ] **Check the book summaries by eye.** The penguin summary says "Discovery Expedition" (wrong: it came from a passing mention). They are made
   from 14 excerpts only (about 4,000 tokens, one call per book); fixing it changes the prompt of the whole-book questions, so measure them again afterwards. A map-reduce over the whole book would be better but needs about 25 calls
   per large book.

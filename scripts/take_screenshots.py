@@ -51,7 +51,8 @@ def start_screen(page: Page, port: int) -> None:
 
 def desktop(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 1440, "height": 860})
-    page.goto(f"http://127.0.0.1:{port}/chat")
+    page.goto(f"http://127.0.0.1:{port}")
+    page.locator(".st-key-open-chat-antarctic_penguins_levick button").first.click(timeout=90_000)
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.get_by_text("Passage at position").first.click()
@@ -59,14 +60,15 @@ def desktop(page: Page, port: int) -> None:
     page.wait_for_selector(".reader mark", timeout=30_000)
     page.wait_for_timeout(800)
     page.screenshot(path=OUT / "app-desktop.png")
-    page.get_by_role("button", name="Full screen").click()
+    page.locator(".st-key-reader-expand button:visible").first.click()
     page.wait_for_timeout(2500)
     page.screenshot(path=OUT / "reader-fullscreen.png")
 
 
 def mobile(page: Page, port: int) -> None:
     page.set_viewport_size({"width": 390, "height": 844})
-    page.goto(f"http://127.0.0.1:{port}/chat")
+    page.goto(f"http://127.0.0.1:{port}")
+    page.locator(".st-key-open-chat-antarctic_penguins_levick button").first.click(timeout=90_000)
     page.wait_for_selector("textarea", timeout=90_000)
     ask(page)
     page.screenshot(path=OUT / "app-mobile.png")

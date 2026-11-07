@@ -18,8 +18,8 @@ from book_rag.selection import question_about
 
 VISIBLE_EXCHANGES = 10  # questions and answers drawn at first; "Show earlier" adds this many more
 PANE_HEIGHT = 540  # pixels, only a start: views/chat.css sets the real height from the window
-READER_WIDTH, READER_PADDING = "38vw", "calc(38vw + 2rem)"  # the book panel, and the room the chat leaves for it
-FULL_WIDTH = "calc(100vw - 3rem)"  # full screen: a strip of the page stays visible
+READER_WIDTH, READER_PADDING = "38vw", "calc(38vw + 2.75rem)"  # the book panel, and the room the chat leaves for it
+FULL_WIDTH = "calc(100vw - 4rem)"  # full screen: a strip of the page stays visible
 
 
 @st.cache_resource(show_spinner="Preparing the book (the first time takes a moment) ...")
@@ -128,10 +128,19 @@ if reader:
         with st.container(horizontal=True, vertical_alignment="center", key="reader-header"):
             st.markdown(f"**{book.title}**")
             st.button(
-                "Exit full screen" if full else "Full screen",
+                "",
                 icon=":material/fullscreen_exit:" if full else ":material/fullscreen:",
                 key="reader-expand",
+                help="Exit full screen" if full else "Full screen",
+                type="tertiary",
                 on_click=toggle_full_screen,
             )
-            st.button("Close", icon=":material/close:", key="close-reader", on_click=close_reader)
+            st.button(
+                "",
+                icon=":material/close:",
+                key="close-reader",
+                help="Close the book",
+                type="tertiary",
+                on_click=close_reader,
+            )
         book_reader(book, reader["start"], reader["end"], height="stretch")

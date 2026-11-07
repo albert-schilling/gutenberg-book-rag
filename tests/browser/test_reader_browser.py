@@ -17,7 +17,7 @@ def ask_and_open_first_passage(page):
         "el => [...el.querySelectorAll('p')].find(p => !p.closest('summary') && !p.closest('button')).innerText"
     )
     page.get_by_role("button", name="Read in the book").first.click()
-    page.wait_for_selector(".reader mark", timeout=30_000)
+    page.wait_for_selector(".reader mark", timeout=60_000)
     page.wait_for_timeout(500)
     return passage
 
@@ -34,7 +34,7 @@ def choose_book(page, title_part):
 
 def open_book_from_the_sidebar(page):
     page.get_by_role("button", name="Read the book").click()
-    page.wait_for_selector(".reader p", timeout=30_000)
+    page.wait_for_selector(".reader p", timeout=60_000)
     page.wait_for_timeout(300)
 
 
@@ -88,7 +88,7 @@ def test_a_passage_opens_highlighted_and_in_view_with_text_before_it(page):
 
 def test_the_close_button_removes_the_book_and_keeps_the_chat(page):
     ask_and_open_first_passage(page)
-    page.get_by_role("button", name="Close").click()
+    page.locator(".st-key-close-reader button:visible").first.click()
     page.wait_for_timeout(800)
     assert page.locator(".reader").count() == 0
     assert page.get_by_text("Passage at position").count() == 4

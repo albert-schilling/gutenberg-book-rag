@@ -15,7 +15,7 @@ PAGES = reader.page_count(DEFAULT_BOOK)
 
 def open_book(page):
     page.get_by_role("button", name="Read the book").click()
-    page.wait_for_selector(".reader p")
+    page.wait_for_selector(".reader p", timeout=60_000)
     page.wait_for_timeout(300)
 
 

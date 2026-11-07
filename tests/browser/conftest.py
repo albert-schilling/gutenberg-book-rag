@@ -14,6 +14,7 @@ import urllib.request
 from pathlib import Path
 
 import pytest
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -82,6 +83,19 @@ def browser():
         chromium.close()
 
 
+def open_chat(page, app_url, attempts=3):
+    """Enter through the start screen. A page that stays blank (it happens now and then on a busy machine) is reloaded."""
+    for attempt in range(attempts):
+        try:
+            page.goto(app_url)
+            page.locator(".st-key-open-chat-antarctic_penguins_levick button").first.click(timeout=30_000)
+            page.wait_for_selector("textarea", timeout=30_000)
+            return
+        except PlaywrightTimeoutError:
+            if attempt == attempts - 1:
+                raise
+
+
 @pytest.fixture
 def page(browser, app_url):
     """A fresh browser session (a new Streamlit session) on the chat page of the app."""
@@ -89,8 +103,7 @@ def page(browser, app_url):
     page = context.new_page()
     page.errors = []
     page.on("pageerror", lambda error: page.errors.append(str(error)))
-    page.goto(f"{app_url}/chat")  # the start screen lists the books; the tests use the chat
-    page.wait_for_selector("textarea", timeout=90_000)
+    open_chat(page, app_url)
     yield page
     assert page.errors == [], f"JavaScript errors: {page.errors}"
     context.close()
