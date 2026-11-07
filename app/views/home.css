@@ -1,0 +1,108 @@
+/* The start screen: books on a shelf. Nothing scrolls except the shelf; the title stays in view. */
+[data-testid="stAppScrollToBottomContainer"] {
+  overflow: hidden;
+}
+
+[data-testid="stMainBlockContainer"] {
+  max-width: 70rem;
+  padding-top: 4rem;
+  padding-bottom: 1rem;
+}
+
+[data-testid="stMainBlockContainer"] h1 {
+  font-size: 1.6rem;
+  line-height: 1.3;
+  padding: 0.25rem 0 0.5rem;
+}
+
+/* The scroll area: Streamlit puts the fixed height on the wrapper of the keyed container */
+div:has(> .st-key-shelf-scroll) {
+  height: calc(100dvh - 12rem) !important;
+}
+
+.st-key-shelf-scroll > [data-testid="stLayoutWrapper"]:last-child,
+.st-key-shelf-scroll > .st-key-shelf {
+  margin-top: auto; /* the shelf sits at the bottom of the area (auto, not flex-end: that would clip the top when it scrolls) */
+}
+
+/* The shelf: the spines stand in a row */
+.st-key-shelf {
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem !important;
+  padding: 0 1rem;
+}
+
+/* A spine: vertical title, cloth colour, gilt lines at the ends */
+.st-key-shelf [data-testid="stElementContainer"] {
+  width: auto;
+}
+
+.st-key-shelf button {
+  width: 4.2rem;
+  height: 24rem; /* all spines have the same size */
+  padding: 1.1rem 0;
+  overflow: hidden;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg); /* the title reads from bottom to top */
+  color: #f4f2ec;
+  border: 0;
+  border-radius: 3px 3px 0 0;
+  box-shadow:
+    inset 0 5px 0 -2px rgb(255 255 255 / 0.35),
+    inset 0 -5px 0 -2px rgb(255 255 255 / 0.35),
+    inset -4px 0 6px -3px rgb(0 0 0 / 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.st-key-shelf button p {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 21.5rem;
+  margin: 0;
+}
+
+/* title and author side by side, both starting at the bottom of the spine */
+.st-key-shelf button [data-testid="stMarkdownContainer"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  height: 100%;
+}
+
+/* the author: the second line of the spine, smaller */
+.st-key-shelf button p + p {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.st-key-shelf button:hover,
+.st-key-shelf button:focus-visible {
+  color: #fff;
+  transform: rotate(180deg) translateY(0.6rem);
+  box-shadow:
+    inset 0 5px 0 -2px rgb(255 255 255 / 0.5),
+    inset 0 -5px 0 -2px rgb(255 255 255 / 0.5),
+    0 8px 14px -4px rgb(0 0 0 / 0.35);
+}
+
+@media (max-width: 800px) {
+  .st-key-shelf button {
+    width: 3.2rem;
+    height: 17rem; /* a long title is cut at the end of the spine */
+  }
+
+  .st-key-shelf button p {
+    font-size: 0.9rem;
+    max-height: 14.5rem;
+  }
+}

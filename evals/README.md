@@ -11,7 +11,7 @@ uv run pytest -m "not integration"      # without the real embedding model
 ```
 
 ```bash
-uv run streamlit run streamlit_reports.py   # dashboard: compare two reports, history, per-question details
+uv run streamlit run app/reports.py   # dashboard: compare two reports, history, per-question details
 ```
 
 Every run writes `reports/<timestamp>-<mode>.json` (compare runs) and `.md` (read). A report
@@ -21,8 +21,8 @@ two reports are only comparable when the dataset hash matches.
 ## Dataset
 
 `dataset.json` is about the default book (Antarctic Penguins); the other books have no golden questions yet
-(see `TODO.md`). It has 17 answerable questions with a reference answer and **evidence phrases** copied
-from the cleaned book, and 4 questions the book cannot answer. Evidence phrases, not chunk ids,
+(see `TODO.md`). It has 72 questions in two splits (`dev`: 21, used while tuning; `test`: 51, never used for tuning). Most are facts with a reference answer
+and **evidence phrases** copied from the cleaned book; some are about the whole book, and 6 cannot be answered by the book. Evidence phrases, not chunk ids,
 keep the dataset valid when the chunking changes. `tests/test_eval_dataset.py` checks that every
 phrase is in the book and inside a single chunk.
 
@@ -101,3 +101,58 @@ Still missing (recall 0): `nest-theft`, `fasting`, `food`, `rookery-size`, `enem
 8th to 57th: the question and the passage use different words ("feed on" vs "feeding on the shrimp-like
 euphausia"). Next ideas: rewriting the question with the LLM before retrieval, or a larger golden set to
 tell small improvements from noise.
+
+## Correction: the token limit and hybrid search (re-run, retrieval only)
+
+The table above compared MiniLM only with dense search. `all-MiniLM-L6-v2` truncates at 256 tokens; only 3% of our
+1000-character chunks were longer (median 169 tokens), but hybrid search (dense + BM25, reciprocal-rank fusion) closes most
+of the gap. Same 17 questions, `k=4`:
+
+| Variant | Context recall | MRR |
+| :-- | --: | --: |
+| MiniLM 1000/200, dense | 0.35 | 0.29 |
+| MiniLM 400/60, hybrid (a colleague's setting) | 0.53 | 0.40 |
+| MiniLM 500/83 or 600/100, hybrid | 0.59 | 0.47 to 0.48 |
+| MiniLM 800/133, hybrid | 0.65 | 0.44 |
+| e5 800/133 to 1000/166, dense or hybrid | 0.71 | 0.54 to 0.57 |
+| e5 400/60, dense or hybrid | 0.53 | 0.39 to 0.42 |
+
+MiniLM with hybrid and chunks under the token limit is within one question of e5 on recall (0.65 against 0.71) but about
+0.1 lower on MRR. One question is 0.06, so only the MRR gap is consistent. e5 stays; the conclusion "e5 doubles recall" was
+too strong.
+
+## Plain pipeline against the agent, with Mistral (2026-11-06)
+
+Same 21 questions, `mistral-small-latest` answers, `mistral-large-latest` judges. The book summaries and the memory are in the prompt.
+These reports are not comparable with the Groq ones above (other model, other prompt).
+
+| Metric | Plain | Agent |
+| :-- | --: | --: |
+| context_recall / MRR | 0.71 / 0.56 | 0.71 / 0.56 (same retrieval for the first search) |
+| answer_correctness | 0.47 | 0.71 |
+| abstention_accuracy | 0.67 | 0.95 |
+| answered_when_answerable | 0.59 | 0.94 |
+| faithfulness | 1.00 | 0.91 |
+| searches_per_question | 1.0 | 1.9 |
+
+The agent fixed 6 questions that the plain pipeline refused **although the evidence was at rank 1** (nest material, eggs, hen on the
+nest, sea-leopards, ...), and every one of them needed only one search. The search loop itself rescued nothing. The difference is
+the prompt: the plain one tells the model to say "The book does not answer this question" unless the passages do, and
+`mistral-small` over-refuses; the agent's does not. Next test: give the plain pipeline the agent's prompt (one call, no loop).
+
+## Bigger question set, held-out split and a calibrated judge (2026-11-06)
+
+`dataset.json` has 72 questions: 21 `dev` (used while tuning) and 51 `test`, which were drafted by `mistral-large` from 52 evenly spaced chunks
+of the book (every evidence quote is checked by code against the book; 10 drafts that depended on context were dropped by hand), plus 3
+whole-book and 6 unanswerable questions. Reports show a "By split" table. The judge is rubric 3 (key facts ticked by the judge, verdict
+computed in code); `book-rag-eval --rejudge report.json` grades the saved answers of an older report again.
+
+| Setup (Mistral small) | Correctness dev / test | Abstention accuracy | Faithfulness | Calls per question |
+| :-- | --: | --: | --: | --: |
+| Plain, strict refusal rule | 0.53 / 0.50 | 0.61 | 0.96 | 1.0 |
+| Plain, soft refusal rule (default) | 0.74 / 0.69 | 0.79 | 0.94 | 1.0 |
+| Agent with the stop rule | 0.82 / 0.68 | 0.85 | 0.92 | 1.7 |
+| Plain, soft rule, `mistral-medium` | 0.82 / 0.69 | 0.82 | 0.95 | 1.0 |
+
+The soft rule is worth +0.19 on the held-out questions. The agent and the larger model improve the `dev` questions and not the `test` ones:
+that gap is what tuning on a small set looks like. Retrieval: recall 0.71 on dev, 0.67 to 0.69 on test, MRR 0.55.

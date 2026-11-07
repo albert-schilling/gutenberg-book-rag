@@ -6,7 +6,10 @@ from book_rag.books import BOOKS, DEFAULT_BOOK, Book, get_book
 # What the cleaned text of every book must start and end with
 EXPECTED = {
     "adventures_of_pinocchio_collodi": ("CHAPTER 1\n\nHow it happened that Mastro Cherry", "a real boy!”"),
-    "adventures_of_sherlock_holmes_doyle": ("I. A SCANDAL IN BOHEMIA\n\nI.\n\nTo Sherlock Holmes", "considerable success."),
+    "adventures_of_sherlock_holmes_doyle": (
+        "I. A SCANDAL IN BOHEMIA\n\nI.\n\nTo Sherlock Holmes",
+        "considerable success.",
+    ),
     "antarctic_penguins_levick": ("INTRODUCTION\n\nThe penguins of the Antarctic", "Expedition 1901-1904."),
     "climate_in_relation_to_man_ward": ("PREFACE\n\nThe preparation of a volume", "benefit to man."),
     "frankenstein_shelley": ("Letter 1\n\n_To Mrs. Saville, England._", "lost in darkness and distance."),

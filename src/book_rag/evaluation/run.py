@@ -1,26 +1,33 @@
 """Run the evaluation and save a report: `uv run book-rag-eval`."""
 
 import argparse
+import copy
+import json
 import time
+from datetime import UTC, datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import Runnable
 
+from book_rag import config
+from book_rag.agent import agent_ask, build_step_chain
 from book_rag.books import DEFAULT_BOOK
 from book_rag.config import ENV_FILE
 from book_rag.evaluation import judge as judging
 from book_rag.evaluation import metrics
 from book_rag.evaluation.dataset import EvalCase, load_dataset
 from book_rag.evaluation.report import run_metadata, summarize, write_report
+from book_rag.llm import PROVIDER_ERRORS, is_rate_limit
 from book_rag.rag import ScoredPassages, ask, build_chain, format_context, retrieve
 from book_rag.store import build_vector_store
 
 
 def evaluate_retrieval(case: EvalCase, scored_passages: ScoredPassages) -> dict | None:
-    """Retrieval metrics. Unanswerable questions have no evidence, so they have none."""
-    if not case.answerable:
+    """Retrieval metrics. Questions without evidence (unanswerable, or about the whole book) have none."""
+    if not case.answerable or not case.evidence:
         return None
     texts = [passage.page_content for passage, _ in scored_passages]
     return {
@@ -32,7 +39,9 @@ def evaluate_retrieval(case: EvalCase, scored_passages: ScoredPassages) -> dict 
     }
 
 
-def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPassages, judge: BaseChatModel) -> dict:
+def evaluate_generation(
+    case: EvalCase, answer: str, scored_passages: ScoredPassages, judge: BaseChatModel | None
+) -> dict:
     """Abstention (no LLM), then faithfulness and correctness (LLM judge)."""
     abstained = metrics.is_abstention(answer)
     empty = metrics.is_empty_answer(answer)  # the model returned nothing, even after the retries of `ask`
@@ -46,31 +55,47 @@ def evaluate_generation(case: EvalCase, answer: str, scored_passages: ScoredPass
         "correctness_reason": None,
     }
     if not (abstained or empty):  # an abstention or an empty answer makes no claims, so there is nothing to check
-        faithfulness, claims = judging.judge_faithfulness(
-            judge, case.question, answer, format_context(scored_passages)
-        )
+        assert judge is not None, "a judge is needed to check an answer"
+        faithfulness, claims = judging.judge_faithfulness(judge, case.question, answer, format_context(scored_passages))
         generation["faithfulness"] = faithfulness
         generation["claims"] = [claim.model_dump() for claim in claims]
     if case.answerable:
         if abstained or empty:
             generation["correctness"] = 0.0
-            generation["correctness_reason"] = "The system returned an empty answer." if empty else "The system did not answer."
+            generation["correctness_reason"] = (
+                "The system returned an empty answer." if empty else "The system did not answer."
+            )
         else:
+            assert judge is not None and case.reference_answer is not None
             generation["correctness"], generation["correctness_reason"] = judging.judge_correctness(
                 judge, case.question, answer, case.reference_answer
             )
     return generation
 
 
-def evaluate_case(case: EvalCase, vector_store: Chroma, chain: Runnable | None, judge: BaseChatModel | None) -> dict:
-    if chain is None:  # retrieval only: no calls to the language model
+def evaluate_case(
+    case: EvalCase,
+    vector_store: Chroma,
+    chain: Runnable | None,
+    judge: BaseChatModel | None,
+    step_chain: Runnable | None = None,
+) -> dict:
+    """Evaluate one question: with the agent (`step_chain`), with the plain chain, or retrieval only (neither)."""
+    queries = [case.question]
+    if step_chain is not None:  # the agent may search the book again
+        found = agent_ask(case.question, vector_store, step_chain)
+        answer, scored_passages, queries = found.answer, found.passages, found.queries
+    elif chain is None:  # retrieval only: no calls to the language model
         answer, scored_passages = None, retrieve(case.question, vector_store)
     else:
         answer, scored_passages = ask(case.question, vector_store, chain)
+    generates = chain is not None or step_chain is not None
     return {
         "id": case.id,
         "question": case.question,
         "answerable": case.answerable,
+        "kind": case.kind,
+        "split": case.split,
         "reference_answer": case.reference_answer,
         "evidence": list(case.evidence),
         "retrieved": [
@@ -78,40 +103,91 @@ def evaluate_case(case: EvalCase, vector_store: Chroma, chain: Runnable | None, 
             for p, s in scored_passages
         ],
         "retrieval": evaluate_retrieval(case, scored_passages),
+        "queries": queries,
         "answer": answer,
-        "generation": None if chain is None else evaluate_generation(case, answer, scored_passages, judge),
+        "generation": evaluate_generation(case, answer, scored_passages, judge) if generates else None,
     }
+
+
+def rejudge(report: dict, judge: BaseChatModel, pause: float = 0.0) -> dict:
+    """The same answers, graded again with the current rubric of the judge. Faithfulness and retrieval are kept.
+
+    Only the answers that were given are graded again: an abstention or an empty answer stays at 0.
+    """
+    results = copy.deepcopy(report["results"])
+    for result in results:
+        generation = result["generation"]
+        if generation and result["answerable"] and not (generation["abstained"] or generation["empty"]):
+            generation["correctness"], generation["correctness_reason"] = with_retries(
+                lambda result=result: judging.judge_correctness(
+                    judge, result["question"], result["answer"], result["reference_answer"]
+                )
+            )
+            time.sleep(pause)
+    metadata = copy.deepcopy(report["metadata"])
+    metadata["rejudged_from"] = metadata["timestamp"]
+    metadata["timestamp"] = datetime.now(UTC).isoformat(timespec="seconds")
+    metadata["mode"] = f"{metadata['mode']}-rejudged"
+    metadata["config"]["judge_model"] = config.JUDGE_MODEL
+    metadata["config"]["judge_rubric"] = judging.RUBRIC_VERSION
+    return {"metadata": metadata, "summary": summarize(results), "results": results}
+
+
+def with_retries(call, *, attempts: int = 6, wait: float = 30.0):
+    """Run `call`. A rate limit of the language model is waited out instead of ending a long run."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return call()
+        except PROVIDER_ERRORS as error:
+            if not is_rate_limit(error) or attempt == attempts:
+                raise
+            print(f"  rate limit, waiting {wait:.0f}s (attempt {attempt} of {attempts})", flush=True)
+            time.sleep(wait)
+    raise ValueError("attempts must be at least 1")
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Evaluate the retrieval and the answers of the RAG system.")
     parser.add_argument("--retrieval-only", action="store_true", help="skip the language models (no Groq calls)")
+    parser.add_argument("--agent", action="store_true", help="let the model search the book again (see agent.py)")
+    parser.add_argument(
+        "--rejudge", type=Path, help="grade the answers of a saved report (.json) again, with no new answers"
+    )
     parser.add_argument("--limit", type=int, help="only run the first N questions")
     parser.add_argument("--pause", type=float, default=1.0, help="seconds between questions (Groq rate limit)")
     args = parser.parse_args(argv)
 
     load_dotenv(ENV_FILE)
+    if args.rejudge:
+        report = rejudge(json.loads(args.rejudge.read_text(encoding="utf-8")), judging.build_judge(), args.pause)
+        json_path, md_path = write_report(report)
+        print(f"Report: {md_path}\n        {json_path}")
+        return
     vector_store = build_vector_store(DEFAULT_BOOK)  # the golden questions are about this book
-    chain = None if args.retrieval_only else build_chain(DEFAULT_BOOK)
+    chain = None if args.retrieval_only or args.agent else build_chain(DEFAULT_BOOK)
+    step_chain = build_step_chain(DEFAULT_BOOK) if args.agent and not args.retrieval_only else None
     judge = None if args.retrieval_only else judging.build_judge()
     cases = load_dataset()[: args.limit]
 
     results = []
     for i, case in enumerate(cases, 1):
         print(f"[{i}/{len(cases)}] {case.id}", flush=True)
-        results.append(evaluate_case(case, vector_store, chain, judge))
-        if chain is not None and i < len(cases):
+        results.append(with_retries(lambda case=case: evaluate_case(case, vector_store, chain, judge, step_chain)))
+        if (chain is not None or step_chain is not None) and i < len(cases):
             time.sleep(args.pause)
 
     report = {
-        "metadata": run_metadata("retrieval" if args.retrieval_only else "full"),
+        "metadata": run_metadata("retrieval" if args.retrieval_only else "agent" if args.agent else "full"),
         "summary": summarize(results),
         "results": results,
     }
     json_path, md_path = write_report(report)
 
     print("\nSummary:")
-    for group, scores in [("retrieval", report["summary"]["retrieval"]), *([("generation", report["summary"]["generation"])] if "generation" in report["summary"] else [])]:
+    for group, scores in [
+        ("retrieval", report["summary"]["retrieval"]),
+        *([("generation", report["summary"]["generation"])] if "generation" in report["summary"] else []),
+    ]:
         for name, value in scores.items():
             print(f"  {group:<10} {name:<28} {'n/a' if value is None else f'{value:.2f}'}")
     print(f"\nReport: {md_path}\n        {json_path}")

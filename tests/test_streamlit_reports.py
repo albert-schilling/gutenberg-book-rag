@@ -1,4 +1,4 @@
-"""UI tests for streamlit_reports.py with two small reports in a temporary folder."""
+"""UI tests for app/reports.py with two small reports in a temporary folder."""
 
 import json
 from pathlib import Path
@@ -9,7 +9,7 @@ from streamlit.testing.v1 import AppTest
 
 from book_rag.evaluation import report as reporting
 
-APP = Path(__file__).resolve().parents[1] / "streamlit_reports.py"
+APP = Path(__file__).resolve().parents[1] / "app" / "reports.py"
 
 
 def write(directory, name, report):
@@ -35,8 +35,16 @@ def test_without_reports_the_app_says_how_to_create_one(reports_dir):
 
 
 def test_the_newest_report_is_compared_with_the_one_before(reports_dir):
-    write(reports_dir, "20260101-100000-full", build_report("2026-01-01T10:00:00+00:00", good=False, embedding_model="org/model-a"))
-    write(reports_dir, "20260102-100000-full", build_report("2026-01-02T10:00:00+00:00", good=True, embedding_model="org/model-b"))
+    write(
+        reports_dir,
+        "20260101-100000-full",
+        build_report("2026-01-01T10:00:00+00:00", good=False, embedding_model="org/model-a"),
+    )
+    write(
+        reports_dir,
+        "20260102-100000-full",
+        build_report("2026-01-02T10:00:00+00:00", good=True, embedding_model="org/model-b"),
+    )
     at = run_app()
 
     report, compare_with = at.sidebar.selectbox
@@ -73,7 +81,9 @@ def test_question_details_show_the_answer_and_the_passages(reports_dir):
 
 
 def test_a_single_retrieval_only_report_works(reports_dir):
-    write(reports_dir, "20260102-100000-retrieval", build_report("2026-01-02T10:00:00+00:00", good=True, mode="retrieval"))
+    write(
+        reports_dir, "20260102-100000-retrieval", build_report("2026-01-02T10:00:00+00:00", good=True, mode="retrieval")
+    )
     at = run_app()
     labels = [m.label for m in at.metric]
     assert "Context recall" in labels and "Answer correctness" not in labels

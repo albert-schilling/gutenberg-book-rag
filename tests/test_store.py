@@ -7,6 +7,11 @@ from book_rag import store
 from book_rag.books import BOOKS, DEFAULT_BOOK
 
 
+def stored(vector_store):
+    """How many chunks are in a vector store (public API only)."""
+    return len(vector_store.get()["ids"])
+
+
 def patch_store(monkeypatch, tmp_path):
     """Use fake embeddings and a temporary directory: no model download, no real chroma_db."""
     monkeypatch.setattr(store, "build_embeddings", lambda: DeterministicFakeEmbedding(size=16))
@@ -17,13 +22,13 @@ def test_the_book_is_embedded_once(monkeypatch, tmp_path):
     patch_store(monkeypatch, tmp_path)
 
     first = store.build_vector_store(DEFAULT_BOOK)
-    count = first._collection.count()
+    count = stored(first)
     assert count > 200
 
     added = []
     monkeypatch.setattr(type(first), "add_documents", lambda self, *args, **kwargs: added.append(1))
     second = store.build_vector_store(DEFAULT_BOOK)  # the store is not empty: nothing is added again
-    assert second._collection.count() == count
+    assert stored(second) == count
     assert added == []
 
 
@@ -61,7 +66,7 @@ def test_a_changed_setting_builds_a_new_collection(monkeypatch, tmp_path):
     second = store.build_vector_store(DEFAULT_BOOK)
 
     assert second._collection.name != first._collection.name
-    assert second._collection.count() > first._collection.count() > 0  # built from scratch with smaller chunks
+    assert stored(second) > stored(first) > 0  # built from scratch with smaller chunks
 
 
 def test_a_changed_text_builds_a_new_collection():
@@ -74,3 +79,16 @@ def test_collection_names_are_valid_for_chroma(book):
     name = store.collection_name(book, "some text")
     assert re.fullmatch(rf"{book.id}-[0-9a-f]{{8}}", name)
     assert 3 <= len(name) <= 63  # Chroma's limit
+
+
+def test_stale_collections_are_found_and_removed(monkeypatch, tmp_path):
+    patch_store(monkeypatch, tmp_path)
+    store.build_vector_store(DEFAULT_BOOK)  # the current collection of one book
+    import chromadb
+
+    client = chromadb.PersistentClient(path=str(tmp_path / "chroma_db"))
+    client.create_collection("old-model-collection")
+    assert store.stale_collections() == ["old-model-collection"]
+    store.main(["clean"])
+    assert store.stale_collections() == []
+    assert stored(store.build_vector_store(DEFAULT_BOOK)) > 200  # the current one is kept
